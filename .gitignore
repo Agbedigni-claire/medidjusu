@@ -1,0 +1,37 @@
+# === FICHIERS TEMPORAIRES PYTHON ===
+__pycache__/
+*.py[cod]
+*.pyo
+
+# === ENVIRONNEMENTS VIRTUELS ===
+venv/
+env/
+.venv/
+.env/
+
+# === FICHIERS D'ENVIRONNEMENT ===
+.env
+*.env
+
+# === FICHIERS SENSIBLES ===
+credentials.py
+*.sqlite3
+*.db
+
+# === ÉDITEURS DE TEXTE ===
+.vscode/
+.idea/
+
+# === LOGS ET TEMPORAIRES ===
+*.log
+*.tmp
+*.bak
+
+# === DOSSIERS DE BUILD / DEPLOY ===
+build/
+dist/
+*.egg-info/
+
+# === FICHIERS DU SYSTÈME ===
+.DS_Store
+Thumbs.db
