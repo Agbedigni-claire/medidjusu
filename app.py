@@ -235,9 +235,27 @@ def index_infirmier():
 def index_patient():
     return render_template("patient/index_patient.html")
 
+#secretaiere medical
 @app.route("/secretaire_medicales")
 def index_secretaire_medicales():
     return render_template("secretaire_medicales/index_secretaire_medicales.html")
+
+#admission_patient  secretaire medicale
+@app.route("/secretaire_medicales/admission_patient")
+def admission_patient():
+    return render_template("secretaire_medicales/gestion_patients/admissions_patient.html")
+
+#ajouter_patient  secretaire medicale
+@app.route("/secretaire_medicales/ajouter_patient")
+def ajouter_patient():
+    return render_template("secretaire_medicales/gestion_patients/ajouter_patient.html")
+
+#liste_admissions secretaire medicale
+@app.route("/secretaire_medicales/liste_admissions")
+def liste_admissions():
+    return render_template("secretaire_medicales/gestion_patients/liste_admissions.html")
+
+
 
 @app.route("/interne_medecine")
 def index_interne_medecine():
@@ -246,6 +264,11 @@ def index_interne_medecine():
 @app.route("/gestionnaire_logistique")
 def index_gestionnaire_logistique():
     return render_template("gestionaire_logistique/index_logistique.html")
+
+#modification_patients secretaire medicale
+@app.route("/secretaire_medicales/modification_patients")
+def modification_patients():
+    return render_template("secretaire_medicales/gestion_patients/modification_patients.html")
 
 #les connection
 #connection de l'admin
