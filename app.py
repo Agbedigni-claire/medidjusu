@@ -888,11 +888,7 @@ def signup_secretaire():
         loggedIn, firstName = getLogin('email_admin', 'admin')
         if request.method == 'POST':
             donnes = request.form
-            name = donnes.get('name')
-            prenom = donnes.get('prenom')
-            nom_complet = name + ' ' + prenom
             email = donnes.get('email')
-            numero_telephone = donnes.get('tel')
             password = donnes.get('pwd')
             confirm_password = donnes.get('conf_pwd')
 
@@ -911,14 +907,14 @@ def signup_secretaire():
                 return redirect(request.url)
 
             try:
-                cursor.execute("""INSERT INTO secretaire_medicale (nom_complet, email_secretaire, numero_telephone, password)
-                                VALUES (%s, %s, %s, %s)""",
-                               (nom_complet, email, numero_telephone, hashed_password))
+                cursor.execute("""INSERT INTO secretaire_medicale (email_secretaire, password)
+                                  VALUES (%s, %s)""",
+                               (email, hashed_password))
                 mysql.connection.commit()
 
                 # Envoi de l'email pour informer le personnel
                 try:
-                    envoie_email_connection(email, nom_complet, password)
+                    envoie_email_connection(email, password)
                 except Exception as e:
                     print(e)
 
@@ -928,22 +924,18 @@ def signup_secretaire():
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
 
-        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role = "secretaire")
+        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role="secretaire")
     else:
         return redirect(url_for('login'))
 
-# inscription du ambulancier
-@app.route("/signup_ambulancier", methods=['POST', 'GET'])
+
+@app.route("/signup_ambulancier", methods=['GET', 'POST'])
 def signup_ambulancier():
     if 'email_admin' in session:
         loggedIn, firstName = getLogin('email_admin', 'admin')
         if request.method == 'POST':
             donnes = request.form
-            name = donnes.get('name')
-            prenom = donnes.get('prenom')
-            nom_complet = name + ' ' + prenom
             email = donnes.get('email')
-            numero_telephone = donnes.get('tel')
             password = donnes.get('pwd')
             confirm_password = donnes.get('conf_pwd')
 
@@ -962,14 +954,14 @@ def signup_ambulancier():
                 return redirect(request.url)
 
             try:
-                cursor.execute("""INSERT INTO ambulancier (nom_complet, email_ambulancier, numero_telephone, password)
-                                VALUES (%s, %s, %s, %s)""",
-                               (nom_complet, email, numero_telephone, hashed_password))
+                cursor.execute("""INSERT INTO ambulancier (email_ambulancier, password)
+                                  VALUES (%s, %s)""",
+                               (email, hashed_password))
                 mysql.connection.commit()
 
-                # Envoi de l'email pour informer le personnel
+                # Envoi de l'email pour informer l'ambulancier
                 try:
-                    envoie_email_connection(email, nom_complet, password)
+                    envoie_email_connection(email, password)
                 except Exception as e:
                     print(e)
 
@@ -979,9 +971,10 @@ def signup_ambulancier():
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
 
-        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role = "ambulancier")
+        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role="ambulancier")
     else:
         return redirect(url_for('login'))
+
 
 # inscription du caissier
 @app.route("/signup_ambulancier", methods=['POST', 'GET'])
@@ -990,11 +983,7 @@ def signup_caissier():
         loggedIn, firstName = getLogin('email_admin', 'admin')
         if request.method == 'POST':
             donnes = request.form
-            name = donnes.get('name')
-            prenom = donnes.get('prenom')
-            nom_complet = name + ' ' + prenom
             email = donnes.get('email')
-            numero_telephone = donnes.get('tel')
             password = donnes.get('pwd')
             confirm_password = donnes.get('conf_pwd')
 
@@ -1013,14 +1002,14 @@ def signup_caissier():
                 return redirect(request.url)
 
             try:
-                cursor.execute("""INSERT INTO caissier (nom_complet, email_caissier, numero_telephone, password)
-                                VALUES (%s, %s, %s, %s)""",
-                               (nom_complet, email, numero_telephone, hashed_password))
+                cursor.execute("""INSERT INTO caissier (email_caissier, password)
+                                  VALUES (%s, %s)""",
+                               (email, hashed_password))
                 mysql.connection.commit()
 
-                # Envoi de l'email pour informer le personnel
+                # Envoi de l'email pour informer le caissier
                 try:
-                    envoie_email_connection(email, nom_complet, password)
+                    envoie_email_connection(email, password)
                 except Exception as e:
                     print(e)
 
@@ -1030,9 +1019,10 @@ def signup_caissier():
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
 
-        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role = "caissier")
+        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role="caissier")
     else:
         return redirect(url_for('login'))
+
 
 # inscription du gestionnaire_logistique
 @app.route("/signup_gestionnaire_logistique", methods=['POST', 'GET'])
@@ -1041,11 +1031,7 @@ def signup_logistique():
         loggedIn, firstName = getLogin('email_admin', 'admin')
         if request.method == 'POST':
             donnes = request.form
-            name = donnes.get('name')
-            prenom = donnes.get('prenom')
-            nom_complet = name + ' ' + prenom
             email = donnes.get('email')
-            numero_telephone = donnes.get('tel')
             password = donnes.get('pwd')
             confirm_password = donnes.get('conf_pwd')
 
@@ -1064,14 +1050,14 @@ def signup_logistique():
                 return redirect(request.url)
 
             try:
-                cursor.execute("""INSERT INTO gestionnaire_logistique (nom_complet, email_logistique, numero_telephone, password)
-                                VALUES (%s, %s, %s, %s)""",
-                               (nom_complet, email, numero_telephone, hashed_password))
+                cursor.execute("""INSERT INTO gestionnaire_logistique (email_logistique, password)
+                                  VALUES (%s, %s)""",
+                               (email, hashed_password))
                 mysql.connection.commit()
 
-                # Envoi de l'email pour informer le personnel
+                # Envoi de l'email pour informer le gestionnaire logistique
                 try:
-                    envoie_email_connection(email, nom_complet, password)
+                    envoie_email_connection(email, password)
                 except Exception as e:
                     print(e)
 
@@ -1081,9 +1067,10 @@ def signup_logistique():
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
 
-        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role = "logistique")
+        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role="logistique")
     else:
         return redirect(url_for('login'))
+
 
 #inscription du gestionnaire_stock
 @app.route("/signup_gestionnaire_stock", methods=['POST', 'GET'])
@@ -1092,11 +1079,7 @@ def signup_stock():
         loggedIn, firstName = getLogin('email_admin', 'admin')
         if request.method == 'POST':
             donnes = request.form
-            name = donnes.get('name')
-            prenom = donnes.get('prenom')
-            nom_complet = name + ' ' + prenom
             email = donnes.get('email')
-            numero_telephone = donnes.get('tel')
             password = donnes.get('pwd')
             confirm_password = donnes.get('conf_pwd')
 
@@ -1115,14 +1098,14 @@ def signup_stock():
                 return redirect(request.url)
 
             try:
-                cursor.execute("""INSERT INTO gestionnaire_stock (nom_complet, email_stock, numero_telephone, password)
-                                VALUES (%s, %s, %s, %s)""",
-                               (nom_complet, email, numero_telephone, hashed_password))
+                cursor.execute("""INSERT INTO gestionnaire_stock (email_stock, password)
+                                  VALUES (%s, %s)""",
+                               (email, hashed_password))
                 mysql.connection.commit()
 
-                # Envoi de l'email pour informer le personnel
+                # Envoi de l'email pour informer le gestionnaire de stock
                 try:
-                    envoie_email_connection(email, nom_complet, password)
+                    envoie_email_connection(email, password)
                 except Exception as e:
                     print(e)
 
@@ -1132,9 +1115,10 @@ def signup_stock():
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
 
-        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role = "stock")
+        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role="stock")
     else:
         return redirect(url_for('login'))
+
 
 #inscription du infirmier
 @app.route("/signup_infirmier", methods=['POST', 'GET'])
@@ -1143,11 +1127,7 @@ def signup_infirmier():
         loggedIn, firstName = getLogin('email_admin', 'admin')
         if request.method == 'POST':
             donnes = request.form
-            name = donnes.get('name')
-            prenom = donnes.get('prenom')
-            nom_complet = name + ' ' + prenom
             email = donnes.get('email')
-            numero_telephone = donnes.get('tel')
             password = donnes.get('pwd')
             confirm_password = donnes.get('conf_pwd')
 
@@ -1166,14 +1146,14 @@ def signup_infirmier():
                 return redirect(request.url)
 
             try:
-                cursor.execute("""INSERT INTO infirmier (nom_complet, email_infirmier, numero_telephone, password)
-                                VALUES (%s, %s, %s, %s)""",
-                               (nom_complet, email, numero_telephone, hashed_password))
+                cursor.execute("""INSERT INTO infirmier (email_infirmier, password)
+                                  VALUES (%s, %s)""",
+                               (email, hashed_password))
                 mysql.connection.commit()
 
-                # Envoi de l'email pour informer le personnel
+                # Envoi de l'email pour informer l'infirmier
                 try:
-                    envoie_email_connection(email, nom_complet, password)
+                    envoie_email_connection(email, password)
                 except Exception as e:
                     print(e)
 
@@ -1183,9 +1163,10 @@ def signup_infirmier():
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
 
-        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role = "infirmier")
+        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role="infirmier")
     else:
         return redirect(url_for('login'))
+
 
 #inscription du interne_medecine
 @app.route("/signup_infirmier", methods=['POST', 'GET'])
@@ -1194,11 +1175,7 @@ def signup_interne():
         loggedIn, firstName = getLogin('email_admin', 'admin')
         if request.method == 'POST':
             donnes = request.form
-            name = donnes.get('name')
-            prenom = donnes.get('prenom')
-            nom_complet = name + ' ' + prenom
             email = donnes.get('email')
-            numero_telephone = donnes.get('tel')
             password = donnes.get('pwd')
             confirm_password = donnes.get('conf_pwd')
 
@@ -1217,26 +1194,27 @@ def signup_interne():
                 return redirect(request.url)
 
             try:
-                cursor.execute("""INSERT INTO interne_medecine (nom_complet, email_interne, numero_telephone, password)
-                                VALUES (%s, %s, %s, %s)""",
-                               (nom_complet, email, numero_telephone, hashed_password))
+                cursor.execute("""INSERT INTO interne_medecine (email_interne, password)
+                                  VALUES (%s, %s)""",
+                               (email, hashed_password))
                 mysql.connection.commit()
 
-                # Envoi de l'email pour informer le personnel
+                # Envoi de l'email pour informer l'interne
                 try:
-                    envoie_email_connection(email, nom_complet, password)
+                    envoie_email_connection(email, password)
                 except Exception as e:
                     print(e)
 
                 flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
-                return redirect(url_for(''))
+                return redirect(url_for('index'))
 
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
 
-        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role = "interne")
+        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role="interne")
     else:
         return redirect(url_for('login'))
+
 
 
 
