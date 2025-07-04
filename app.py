@@ -2,9 +2,6 @@ from flask import Flask, render_template, redirect, url_for, session, request, f
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import hashlib
-
-from pyAesCrypt.test_crypto import password
-
 from credentials import *
 from flask import Flask
 from flask_mail import Mail, Message
@@ -323,6 +320,9 @@ def index_infirmier():
 def index_patient():
     return render_template("patient/index_patient.html")
 
+
+
+
 #secretaiere medical
 @app.route("/secretaire_medicales")
 def index_secretaire_medicales():
@@ -333,6 +333,84 @@ def index_secretaire_medicales():
 def admission_patient():
     return render_template("secretaire_medicales/gestion_patients/admissions_patient.html")
 
+#modification_patients secretaire medicale
+@app.route("/secretaire_medicales/modification_patients")
+def modif_patients():
+    return render_template("secretaire_medicales/gestion_patients/modification_patients.html")
+
+#gestion_rendezvous secretaire medicale
+@app.route("/secretaire_medicales/gestion_rendezvous")
+def gestion_rendezvous():
+    return render_template("secretaire_medicales/gestion_rendez_vous/gestion_rendezvous.html")
+
+#gestion_rendezvous secretaire medicale
+@app.route("/secretaire_medicales/liste_rendezvous")
+def liste_rendezvous():
+    return render_template("secretaire_medicales/gestion_rendez_vous/liste_rendezvous.html")
+
+#Modifier_rendezvous secretaire medicale
+@app.route("/secretaire_medicales/Modifier_rendezvous")
+def Modifier_rendezvous():
+    return render_template("secretaire_medicales/gestion_rendez_vous/Modifier_rendezvous.html")
+
+#prendre_rendezvous secretaire medicale
+@app.route("/secretaire_medicales/prendre_rendezvous")
+def prendre_rendezvous():
+    return render_template("secretaire_medicales/gestion_rendez_vous/prendre_rendezvous.html")
+
+#fiche_de_paie secretaire medicale
+@app.route("/secretaire_medicales/fiche_de_paie")
+def fiche_de_paie():
+    return render_template("secretaire_medicales/gestion_salaire/fiche_de_paie.html")
+
+#messagerie secretaire medicale
+@app.route("/secretaire_medicales/messagerie")
+def messagerie():
+    return render_template("secretaire_medicales/gestion_messageries/messagerie.html")
+
+#liste_departement secretaire medicale
+@app.route("/secretaire_medicales/liste_departement")
+def liste_departement():
+    return render_template("secretaire_medicales/gestion_departement/liste_departement.html")
+
+#congé_personnel secretaire medicale
+@app.route("/secretaire_medicales/congé_personnel")
+def congé_personnel():
+    return render_template("secretaire_medicales/gestion_congé_presence/congé_personnel.html")
+
+#présence_assiduité secretaire medicale
+@app.route("/secretaire_medicales/presence_assiduite")
+def presence_assiduite():
+    return render_template("secretaire_medicales/gestion_congé_presence/presence_assiduite.html")
+
+#Reserver_chambre secretaire medicale
+@app.route("/secretaire_medicales/Reserver_chambre")
+def Reserver_chambre():
+    return render_template("secretaire_medicales/Gestion_chambre/Reserver_chambre.html")
+
+#add_ambulance secretaire medicale
+@app.route("/secretaire_medicales/add_ambulance")
+def add_ambulance():
+    return render_template("secretaire_medicales/gestion_ambulance/add_ambulance.html")
+
+#ambulance_call_list secretaire medicale
+@app.route("/secretaire_medicales/ambulance_call_list")
+def ambulance_call_list():
+    return render_template("secretaire_medicales/gestion_ambulance/ambulance_call_list.html")
+
+#ambulance_list secretaire medicale
+@app.route("/secretaire_medicales/ambulance_list")
+def ambulance_list():
+    return render_template("secretaire_medicales/gestion_ambulance/ambulance_list.html")
+
+
+#edit_ambulance secretaire medicale
+@app.route("/secretaire_medicales/edit_ambulance")
+def edit_ambulance():
+    return render_template("secretaire_medicales/gestion_ambulance/edit_ambulance.html")
+
+
+
 #ajouter_patient  secretaire medicale
 @app.route("/secretaire_medicales/ajouter_patient")
 def ajouter_patient():
@@ -342,6 +420,10 @@ def ajouter_patient():
 @app.route("/secretaire_medicales/liste_admissions")
 def liste_admissions():
     return render_template("secretaire_medicales/gestion_patients/liste_admissions.html")
+
+
+
+
 
 
 
