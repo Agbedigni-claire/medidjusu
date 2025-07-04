@@ -593,7 +593,7 @@ def logout():
 
 # les inscription
 #systeme denvoie Email
-def envoie_email_connection(email, nom, mot_de_passe):
+def envoie_email_connection(email, mot_de_passe):
 
     # ... ici tu enregistres le personnel dans la base de données ...
 
@@ -601,7 +601,7 @@ def envoie_email_connection(email, nom, mot_de_passe):
     msg = Message(
         subject="Bienvenue sur notre application",
         recipients=[email],
-        body=f"""Bonjour {nom},
+        body=f"""Bonjour,
 
             Bienvenue sur MediJutsu ! Votre compte a été créé avec succès. Vous pouvez désormais vous connecter à notre 
             application de gestion hospitalière à l'aide des identifiants suivants :
@@ -670,11 +670,7 @@ def signup_doctor():
         loggedIn, firstName = getLogin('email_admin', 'admin')
         if request.method == 'POST':
             donnes = request.form
-            name = donnes.get('name')
-            prenom = donnes.get('prenom')
-            nom_complet = name + ' ' + prenom
             email = donnes.get('email')
-            numero_telephone = donnes.get('tel')
             password = donnes.get('pwd')
             confirm_password = donnes.get('conf_pwd')
 
@@ -694,14 +690,14 @@ def signup_doctor():
 
             try:
 
-                cursor.execute("""INSERT INTO doctor (nom_complet, email_doctor, numero_telephone, password)
-                                VALUES (%s, %s, %s, %s)""",
-                               (nom_complet, email, numero_telephone, hashed_password))
+                cursor.execute("""INSERT INTO doctor (email_doctor, password)
+                                VALUES (%s, %s)""",
+                               (email, hashed_password))
                 mysql.connection.commit()
 
                 # Envoi de l'email pour informer le personnel
                 try:
-                    envoie_email_connection(email, nom_complet, password)
+                    envoie_email_connection(email, password)
                 except Exception as e:
                     print(e)
 
@@ -718,59 +714,57 @@ def signup_doctor():
 # #inscription du patient
 @app.route("/signup_patient_admin", methods=['GET', 'POST'])
 def signup_patient_admin():
-    if request.method == 'POST':
-        name = request.form['name']
-        prenom = request.form['prenom']
-        nom_complet = name + ' ' + prenom
-        email = request.form['email']
-        numero_telephone = request.form['tel']
-        password = request.form['pwd']
-        confirm_password = request.form['conf_pwd']
+    def signup_patient_admin():
+        if 'email_admin' in session:
+            loggedIn, firstName = getLogin('email_admin', 'admin')
+            if request.method == 'POST':
+                donnes = request.form
+                email = donnes.get('email')
+                password = donnes.get('pwd')
+                confirm_password = donnes.get('conf_pwd')
 
-        if password != confirm_password:
-            return "Les mots de passe ne correspondent pas. Veuillez réessayer."
+                if password != confirm_password:
+                    return "Les mots de passe ne correspondent pas. Veuillez réessayer."
 
-        hashed_password = hashlib.md5(password.encode()).hexdigest()
-        cursor = mysql.connection.cursor()
+                hashed_password = hashlib.md5(password.encode()).hexdigest()
+                cursor = mysql.connection.cursor()
 
-        cursor.execute("SELECT * FROM patient WHERE email_patient = %s", (email,))
-        existing_user = cursor.fetchone()
+                # Vérifier si l'email est déjà utilisé
+                cursor.execute("SELECT * FROM patient WHERE email_patient = %s", (email,))
+                existing_user = cursor.fetchone()
 
+                if existing_user:
+                    flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                    return redirect(request.url)
 
-        if existing_user:
-            flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
-            return redirect(request.url)
+                try:
+                    cursor.execute("""INSERT INTO patient (email_patient, password)
+                                      VALUES (%s, %s)""",
+                                   (email, hashed_password))
+                    mysql.connection.commit()
 
-        try:
-            cursor.execute("""INSERT INTO patient (nom_complet, email_patient, numero_telephone, password) 
-                            VALUES (%s, %s, %s, %s)""",
-                           (nom_complet, email, numero_telephone, hashed_password))
+                    # Envoi de l'email pour informer le patient
+                    try:
+                        envoie_email_connection(email, password)
+                    except Exception as e:
+                        print(e)
 
-            mysql.connection.commit()
+                    flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
+                    return redirect(url_for('index'))
 
-            # Envoi de l'email pour informer le personnel
-            try:
-                envoie_email_connection(email, nom_complet, password)
-            except Exception as e:
-                print(e)
+                except Exception as e:
+                    return f"Erreur lors de l'inscription : {e}"
 
-            flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
-            return redirect(url_for('index'))
+            return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName,
+                                   role="patient")
+        else:
+            return redirect(url_for('login'))
 
-        except Exception as e:
-
-            return f"Erreur lors de l'inscription : {e}"
-
-    return render_template('admin/connexion/signup.html', role = "patient")
 
 @app.route("/signup_patient", methods=['GET', 'POST'])
 def signup_patient():
     if request.method == 'POST':
-        name = request.form['name']
-        prenom = request.form['prenom']
-        nom_complet = name + ' ' + prenom
         email = request.form['email']
-        numero_telephone = request.form['tel']
         password = request.form['pwd']
         confirm_password = request.form['conf_pwd']
 
@@ -789,9 +783,9 @@ def signup_patient():
             return redirect(request.url)
 
         try:
-            cursor.execute("""INSERT INTO patient (nom_complet, email_patient, numero_telephone, password) 
-                            VALUES (%s, %s, %s, %s)""",
-                           (nom_complet, email, numero_telephone, hashed_password))
+            cursor.execute("""INSERT INTO patient (email_patient, password) 
+                            VALUES (%s, %s)""",
+                           ( email, hashed_password))
 
             mysql.connection.commit()
             # Envoi de l'email de confirmation (HTML bien design)
