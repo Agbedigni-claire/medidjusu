@@ -2,6 +2,9 @@ from flask import Flask, render_template, redirect, url_for, session, request, f
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import hashlib
+
+from pyAesCrypt.test_crypto import password
+
 from credentials import *
 from flask import Flask
 from flask_mail import Mail, Message
@@ -52,7 +55,9 @@ def index_doctor():
 def liste_doctor():
     return render_template("doctor/gestion_docteur/liste_doctor.html")
 
-@app.route("/doctor/doctor/modifier_profile", methods=['GET', 'POST'])
+
+# modification profile docteur
+@app.route("/doctor/modifier_profile", methods=['GET', 'POST'])
 def modifier_profile_doctor():
     if 'email_doctor' not in session:
         flash("Veuillez vous connecter.", "warning")
@@ -63,53 +68,105 @@ def modifier_profile_doctor():
 
     if request.method == 'POST':
         donnes = request.form
-        nom_utilisateur = donnes.get('nom_utilisateur')
+        nom_utilisateur = donnes.get('username')
         nom = donnes.get('nom')
         prenom = donnes.get('prenom')
-        nom_complet = nom + ' ' + prenom
+        nom_complet = (nom + ' ' + prenom) if nom and prenom else None
         date_naissance = donnes.get('date_naissance')
         sexe = donnes.get('sexe')
         situation_matrimoniale = donnes.get('situation_matrimoniale')
         groupe_sanguin = donnes.get('groupe_sanguin')
         photo = donnes.get('photo')
-        description = donnes.get('description')
+        description = donnes.get('biography')
         adresse = donnes.get('adresse')
         pays = donnes.get('pays')
         ville = donnes.get('ville')
         code_postal = donnes.get('code_postal')
-        numero_telephone = donnes.get('numero_telephone')
+        numero_telephone = donnes.get('telephone')
         qualification = donnes.get('qualification')
         designation = donnes.get('designation')
+        password = donnes.get('new_password')
+        confirm_password = donnes.get('confirm_new_password')
 
-        cursor.execute("""
-            UPDATE doctor SET
-                nom_utilisateur=%s,
-                nom_complet=%s,
-                date_naissance=%s,
-                sexe=%s,
-                situation_matrimoniale=%s,
-                groupe_sanguin=%s,
-                photo=%s,
-                description=%s,
-                adresse=%s,
-                pays=%s,
-                ville=%s,
-                code_postal=%s,
-                numero_telephone=%s,
-                qualification=%s,
-                designation=%s
-            WHERE email_doctor=%s
-        """, (
-            nom_utilisateur, nom_complet, date_naissance, sexe,
-            situation_matrimoniale, groupe_sanguin, photo, description,
-            adresse, pays, ville, code_postal, numero_telephone,
-            qualification, designation, email
-        ))
+        # Récupérer les anciennes données
+        cursor.execute("SELECT * FROM doctor WHERE email_doctor = %s", (email,))
+        ancien_profil = cursor.fetchone()
 
-        mysql.connection.commit()
-        cursor.close()
-        flash("Profil mis à jour avec succès.", "success")
-        return redirect(url_for('index_doctor'))
+        if not ancien_profil:
+            flash("Profil non trouvé.", "danger")
+            return redirect(url_for('index_doctor'))
+
+        # Vérification du nom d'utilisateur déjà utilisé par un autre compte
+        if nom_utilisateur and nom_utilisateur != ancien_profil['nom_utilisateur']:
+            cursor.execute("SELECT * FROM doctor WHERE nom_utilisateur = %s AND email_doctor != %s",
+                           (nom_utilisateur, email))
+            existing_user = cursor.fetchone()
+            if existing_user:
+                flash("Ce nom d'utilisateur est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                return redirect(request.url)
+
+        # Gestion mot de passe
+        if password:
+            if password != confirm_password:
+                flash("Les mots de passe ne correspondent pas. Veuillez réessayer.", "danger")
+                return redirect(request.url)
+            hashed_password = hashlib.md5(password.encode()).hexdigest()
+        else:
+            hashed_password = ancien_profil['password']
+
+        # Préparer les valeurs, en gardant l'ancienne si champ vide
+        nom_utilisateur = nom_utilisateur or ancien_profil['nom_utilisateur']
+        nom_complet = nom_complet or ancien_profil['nom_complet']
+        date_naissance = date_naissance or ancien_profil['date_naissance']
+        sexe = sexe or ancien_profil['sexe']
+        situation_matrimoniale = situation_matrimoniale or ancien_profil['situation_matrimoniale']
+        groupe_sanguin = groupe_sanguin or ancien_profil['groupe_sanguin']
+        photo = photo or ancien_profil['photo']
+        description = description or ancien_profil['description']
+        adresse = adresse or ancien_profil['adresse']
+        pays = pays or ancien_profil['pays']
+        ville = ville or ancien_profil['ville']
+        code_postal = code_postal or ancien_profil['code_postal']
+        numero_telephone = numero_telephone or ancien_profil['numero_telephone']
+        qualification = qualification or ancien_profil['qualification']
+        designation = designation or ancien_profil['designation']
+
+        try:
+            cursor.execute("""
+                UPDATE doctor SET
+                    nom_utilisateur=%s,
+                    nom_complet=%s,
+                    date_naissance=%s,
+                    sexe=%s,
+                    situation_matrimoniale=%s,
+                    groupe_sanguin=%s,
+                    photo=%s,
+                    description=%s,
+                    adresse=%s,
+                    pays=%s,
+                    ville=%s,
+                    code_postal=%s,
+                    numero_telephone=%s,
+                    qualification=%s,
+                    designation=%s,
+                    password=%s
+                WHERE email_doctor=%s
+            """, (
+                nom_utilisateur, nom_complet, date_naissance, sexe,
+                situation_matrimoniale, groupe_sanguin, photo, description,
+                adresse, pays, ville, code_postal, numero_telephone,
+                qualification, designation, hashed_password, email
+            ))
+
+            mysql.connection.commit()
+            cursor.close()
+            flash("Profil mis à jour avec succès.", "success")
+            return redirect(url_for('index_doctor'))
+
+        except Exception as e:
+            print("Erreur lors de la modification du profil :", e)
+            flash("Erreur lors de la modification du profil.", "danger")
+            return redirect(request.url)
 
     # En GET : Pré-remplir les champs
     cursor.execute("SELECT * FROM doctor WHERE email_doctor = %s", (email,))
