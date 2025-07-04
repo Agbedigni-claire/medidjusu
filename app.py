@@ -441,7 +441,7 @@ def login():
 
         elif is_valid(email, "email_secretaire", password, "secretaire_medicale"):
             session['email_secretaire'] = email
-            return redirect(url_for('index_secretaire'))
+            return redirect(url_for('index_secretaire_medicales'))
 
         elif is_valid(email, "email_ambulancier", password, "ambulancier"):
             session['email_ambulancier'] = email

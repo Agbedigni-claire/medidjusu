@@ -39,220 +39,220 @@
                 <div class="tab-content">
                   <!-- Détails personnel -->
                   <div class="tab-pane fade show active" id="oneA" role="tabpanel">
-                    <form action="/update-personal-details" method="post">
-                      <div class="row gx-3">
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <div class="mb-3">
-                            <label for="a1">Nom</label>
-                            <div class="input-group">
-                              <span class="input-group-text"><i class="ri-account-circle-line"></i></span>
-                              <input type="text" class="form-control" id="a1" name="nom" placeholder="Nom">
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <div class="mb-3">
-                            <label for="a2">Prénom</label>
-                            <div class="input-group">
-                              <span class="input-group-text"><i class="ri-account-circle-line"></i></span>
-                              <input type="text" class="form-control" id="a2" name="prenom" placeholder="Prénom">
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <div class="mb-3">
-                            <label for="dob">Date de naissance</label>
-                            <div class="input-group">
-                              <span class="input-group-text"><i class="ri-calendar-line"></i></span>
-                              <input type="date" class="form-control" id="dob" name="date_naissance">
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label class="form-label">Sexe</label>
-                          <div>
-                            <div class="form-check form-check-inline">
-                              <input class="form-check-input" type="radio" name="sexe" value="homme" id="selectGender1"
-                                checked>
-                              <label class="form-check-label" for="selectGender1">Homme</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                              <input class="form-check-input" type="radio" name="sexe" value="femme" id="selectGender2">
-                              <label class="form-check-label" for="selectGender2">Femme</label>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label for="a6">Téléphone</label>
+                    <div class="row gx-3">
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label for="a1">Nom</label>
                           <div class="input-group">
-                            <span class="input-group-text"><i class="ri-phone-line"></i></span>
-                            <input type="text" class="form-control" id="a6" name="telephone"
-                              placeholder="Numéro de téléphone">
-                          </div>
-                        </div>
-
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label for="a7">Situation Matrimoniale</label>
-                          <div class="input-group">
-                            <span class="input-group-text"><i class="ri-vip-crown-2-line"></i></span>
-                            <select class="form-select" id="a7" name="situation_matrimoniale">
-                              <option value="Marié">Marié</option>
-                              <option value="Veuf">Veuf</option>
-                              <option value="Célibataire">Célibataire</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label for="a8">Qualification</label>
-                          <div class="input-group">
-                            <span class="input-group-text"><i class="ri-copper-diamond-line"></i></span>
-                            <select class="form-select" id="a8" name="qualification">
-                              <option value="MBBS, MS">MBBS, MS</option>
-                              <option value="MBBS, MD">MBBS, MD</option>
-                              <option value="MBBS">MBBS</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label for="a9">Désignation</label>
-                          <div class="input-group">
-                            <span class="input-group-text"><i class="ri-nft-line"></i></span>
-                            <select class="form-select" id="a9" name="designation">
-                              <option value="Médecin">Médecin</option>
-                              <option value="Chef du département">Chef du département</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label for="a10">Groupe sanguin</label>
-                          <div class="input-group">
-                            <span class="input-group-text"><i class="ri-drop-line"></i></span>
-                            <select class="form-select" id="a10" name="groupe_sanguin">
-                              <option value="O+">O+</option>
-                              <option value="A+">A+</option>
-                              <option value="A-">A-</option>
-                              <option value="B+">B+</option>
-                              <option value="B-">B-</option>
-                              <option value="O-">O-</option>
-                              <option value="AB+">AB+</option>
-                              <option value="AB-">AB-</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label for="a11">Adresse</label>
-                          <div class="input-group">
-                            <span class="input-group-text"><i class="ri-projector-line"></i></span>
-                            <input type="text" class="form-control" id="a11" name="adresse" placeholder="Adresse">
-                          </div>
-                        </div>
-
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label for="a12">Pays</label>
-                          <div class="input-group">
-                            <span class="input-group-text"><i class="ri-flag-line"></i></span>
-                            <select class="form-select" id="a12" name="pays">
-                              <option value="Togo">Togo</option>
-                              <option value="USA">USA</option>
-                              <option value="Canada">Canada</option>
-                              <option value="Brazil">Brazil</option>
-                              <option value="India">India</option>
-                              <option value="China">China</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label for="a14">Ville</label>
-                          <div class="input-group">
-                            <span class="input-group-text"><i class="ri-scan-line"></i></span>
-                            <input type="text" class="form-control" id="a14" name="ville" placeholder="Ville">
-                          </div>
-                        </div>
-
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label for="a15">Code Postal</label>
-                          <div class="input-group">
-                            <span class="input-group-text"><i class="ri-qr-scan-line"></i></span>
-                            <input type="text" class="form-control" id="a15" name="code_postal"
-                              placeholder="Code Postal">
+                            <span class="input-group-text"><i class="ri-account-circle-line"></i></span>
+                            <input type="text" class="form-control" id="a1" name="nom" placeholder="Nom">
                           </div>
                         </div>
                       </div>
-                    </form>
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label for="a2">Prénom</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ri-account-circle-line"></i></span>
+                            <input type="text" class="form-control" id="a2" name="prenom" placeholder="Prénom">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label for="dob">Date de naissance</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                            <input type="date" class="form-control" id="dob" name="date_naissance">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label class="form-label">Sexe</label>
+                        <div>
+                          <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="sexe" value="homme" id="selectGender1"
+                              checked>
+                            <label class="form-check-label" for="selectGender1">Homme</label>
+                          </div>
+                          <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="sexe" value="femme" id="selectGender2">
+                            <label class="form-check-label" for="selectGender2">Femme</label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a6">Téléphone</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-phone-line"></i></span>
+                          <input type="text" class="form-control" id="a6" name="telephone"
+                            placeholder="Numéro de téléphone">
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a7">Situation Matrimoniale</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-vip-crown-2-line"></i></span>
+                          <select class="form-select" id="a7" name="situation_matrimoniale">
+                            <option value="" selected disabled>-- Choisissez --</option>
+                            <option value="Marié">Marié</option>
+                            <option value="Veuf">Veuf</option>
+                            <option value="Célibataire">Célibataire</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a8">Qualification</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-copper-diamond-line"></i></span>
+                          <select class="form-select" id="a8" name="qualification">
+                            <option value="" selected disabled>-- Choisissez --</option>
+                            <option value="MBBS, MS">MBBS, MS</option>
+                            <option value="MBBS, MD">MBBS, MD</option>
+                            <option value="MBBS">MBBS</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a9">Désignation</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-nft-line"></i></span>
+                          <select class="form-select" id="a9" name="designation">
+                            <option value="" selected disabled>-- Choisissez --</option>
+                            <option value="Médecin">Médecin</option>
+                            <option value="Chef du département">Chef du département</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a10">Groupe sanguin</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-drop-line"></i></span>
+                          <select class="form-select" id="a10" name="groupe_sanguin">
+                            <option value="" selected disabled>-- Choisissez --</option>
+                            <option value="O+">O+</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="O-">O-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a11">Adresse</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-projector-line"></i></span>
+                          <input type="text" class="form-control" id="a11" name="adresse" placeholder="Adresse">
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a12">Pays</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-flag-line"></i></span>
+                          <select class="form-select" id="a12" name="pays">
+                            <option value="Togo">Togo</option>
+                            <option value="USA">USA</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Brazil">Brazil</option>
+                            <option value="India">India</option>
+                            <option value="China">China</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a14">Ville</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-scan-line"></i></span>
+                          <input type="text" class="form-control" id="a14" name="ville" placeholder="Ville">
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a15">Code Postal</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-qr-scan-line"></i></span>
+                          <input type="text" class="form-control" id="a15" name="code_postal" placeholder="Code Postal">
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
 
                   <!-- Profile et biographie -->
                   <div class="tab-pane fade" id="twoA" role="tabpanel">
-                    <form action="/update-profile-biography" method="post">
-                      <div class="row gx-3">
-                        <div class="col-sm-2">
-                          <div class="mb-3">
-                            <img src="{{ url_for('static', filename='images/user3.png') }}" class="img-fluid rounded-2"
-                              alt="Doctor">
-                          </div>
-                        </div>
-                        <div class="col-sm-2">
-                          <div id="dropzone" class="mb-3">
-                            <form action="https://buybootstrap.com/upload" class="dropzone dz-clickable"
-                              id="demo-upload">
-                              <div class="dz-message">
-                                <button type="button" class="dz-button">Mettre une nouvelle photo</button>
-                              </div>
-                            </form>
-                          </div>
-                        </div>
-                        <div class="col-sm-12">
-                          <textarea name="biography" class="form-control" rows="10"
-                            placeholder="Écrivez votre biographie ici..."></textarea>
+
+                    <div class="row gx-3">
+                      <div class="col-sm-2">
+                        <div class="mb-3">
+                          <img src="{{ url_for('static', filename='images/user3.png') }}" class="img-fluid rounded-2"
+                            alt="Doctor">
                         </div>
                       </div>
-                    </form>
+                      <div class="col-sm-2">
+                        <div id="dropzone" class="mb-3">
+                          <div class="dz-message">
+                            <button type="button" class="dz-button">Mettre une nouvelle photo</button>
+                          </div>
+
+                        </div>
+                      </div>
+                      <div class="col-sm-12">
+                        <textarea name="biography" class="form-control" rows="10"
+                          placeholder="Écrivez votre biographie ici..."></textarea>
+                      </div>
+                    </div>
+
                   </div>
 
                   <!-- Détails du compte -->
                   <div class="tab-pane fade" id="fourA" role="tabpanel">
-                    <form action="/update-account-details" method="post">
-                      <div class="row gx-3">
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label for="u1">Nom d'utilisateur</label>
-                          <div class="input-group">
-                            <span class="input-group-text"><i class="ri-account-pin-circle-line"></i></span>
-                            <input type="text" id="u1" name="username" class="form-control"
-                              placeholder="Nom d'utilisateur">
-                          </div>
-                        </div>
 
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label for="u2">Nouveau mot de passe</label>
-                          <div class="input-group">
-                            <span class="input-group-text"><i class="ri-lock-password-line"></i></span>
-                            <input type="password" id="u2" name="new_password" class="form-control"
-                              placeholder="Mot de passe">
-                            <button class="btn btn-outline-secondary" type="button">
-                              <i class="ri-eye-line"></i>
-                            </button>
-                          </div>
-                        </div>
-
-                        <div class="col-xxl-3 col-lg-4 col-sm-6">
-                          <label for="u3">Confirmer mot de passe</label>
-                          <div class="input-group">
-                            <span class="input-group-text"><i class="ri-lock-password-line"></i></span>
-                            <input type="password" id="u3" name="confirm_new_password" class="form-control"
-                              placeholder="Confirmer mot de passe">
-                            <button class="btn btn-outline-secondary" type="button">
-                              <i class="ri-eye-off-line"></i>
-                            </button>
-                          </div>
+                    <div class="row gx-3">
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="u1">Nom d'utilisateur</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-account-pin-circle-line"></i></span>
+                          <input type="text" id="u1" name="username" class="form-control"
+                            placeholder="Nom d'utilisateur">
                         </div>
                       </div>
-                    </form>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="u2">Nouveau mot de passe</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-lock-password-line"></i></span>
+                          <input type="password" id="u2" name="new_password" class="form-control"
+                            placeholder="Mot de passe">
+                          <button class="btn btn-outline-secondary" type="button">
+                            <i class="ri-eye-line"></i>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="u3">Confirmer mot de passe</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-lock-password-line"></i></span>
+                          <input type="password" id="u3" name="confirm_new_password" class="form-control"
+                            placeholder="Confirmer mot de passe">
+                          <button class="btn btn-outline-secondary" type="button">
+                            <i class="ri-eye-off-line"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
