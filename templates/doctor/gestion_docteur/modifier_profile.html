@@ -96,11 +96,18 @@
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-vip-crown-2-line"></i></span>
                           <select class="form-select" id="a7" name="situation_matrimoniale">
-                            <option value="" selected disabled>-- Choisissez --</option>
-                            <option value="Marié">Marié</option>
-                            <option value="Veuf">Veuf</option>
+                            <option value="" selected disabled>-- Choisissez votre situation matrimoniale --</option>
                             <option value="Célibataire">Célibataire</option>
+                            <option value="Marié(e)">Marié(e)</option>
+                            <option value="Divorcé(e)">Divorcé(e)</option>
+                            <option value="Veuf(ve)">Veuf(ve)</option>
+                            <option value="Séparé(e)">Séparé(e)</option>
+                            <option value="En concubinage">En concubinage</option>
+                            <option value="Pacsé(e)">Pacsé(e)</option>
+                            <option value="Union libre">Union libre</option>
+                            <option value="Fiancé(e)">Fiancé(e)</option>
                           </select>
+
                         </div>
                       </div>
 
@@ -109,11 +116,45 @@
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-copper-diamond-line"></i></span>
                           <select class="form-select" id="a8" name="qualification">
-                            <option value="" selected disabled>-- Choisissez --</option>
+                            <option value="" selected disabled>-- Choisissez une qualification --</option>
+                            <!-- Diplômes médicaux -->
+                            <option value="MBBS">MBBS</option>
                             <option value="MBBS, MS">MBBS, MS</option>
                             <option value="MBBS, MD">MBBS, MD</option>
-                            <option value="MBBS">MBBS</option>
+                            <option value="MD">MD</option>
+                            <option value="DO (Doctor of Osteopathic Medicine)">DO (Doctor of Osteopathic Medicine)
+                            </option>
+                            <option value="Diplôme d'État de docteur en médecine">Diplôme d'État de docteur en médecine
+                            </option>
+                            <option value="DES (Diplôme d'Études Spécialisées)">DES (Diplôme d'Études Spécialisées)
+                            </option>
+                            <option value="PhD en Médecine">PhD en Médecine</option>
+
+                            <!-- Diplômes paramédicaux -->
+                            <option value="Diplôme d'État d'infirmier">Diplôme d'État d'infirmier</option>
+                            <option value="Diplôme de technicien de laboratoire">Diplôme de technicien de laboratoire
+                            </option>
+                            <option value="Diplôme de sage-femme">Diplôme de sage-femme</option>
+                            <option value="BTS en Imagerie Médicale">BTS en Imagerie Médicale</option>
+                            <option value="Licence en Kinésithérapie">Licence en Kinésithérapie</option>
+                            <option value="Diplôme d'État de manipulateur radio">Diplôme d'État de manipulateur radio
+                            </option>
+
+                            <!-- Diplômes pharmaceutiques et autres -->
+                            <option value="Doctorat en Pharmacie">Doctorat en Pharmacie</option>
+                            <option value="Diplôme de préparateur en pharmacie">Diplôme de préparateur en pharmacie
+                            </option>
+                            <option value="Licence en Psychologie">Licence en Psychologie</option>
+                            <option value="Master en Psychologie Clinique">Master en Psychologie Clinique</option>
+
+                            <!-- Qualifications administratives/logistiques -->
+                            <option value="Licence en gestion hospitalière">Licence en gestion hospitalière</option>
+                            <option value="BTS en logistique">BTS en logistique</option>
+                            <option value="Licence en Administration des Services de Santé">Licence en Administration
+                              des Services de Santé</option>
+                            <option value="BTS Secrétariat Médical">BTS Secrétariat Médical</option>
                           </select>
+
                         </div>
                       </div>
 
@@ -124,8 +165,31 @@
                           <select class="form-select" id="a9" name="designation">
                             <option value="" selected disabled>-- Choisissez --</option>
                             <option value="Médecin">Médecin</option>
+                            <option value="Interne en médecine">Interne en médecine</option>
                             <option value="Chef du département">Chef du département</option>
+                            <option value="Infirmier / Infirmière">Infirmier / Infirmière</option>
+                            <option value="Chirurgien">Chirurgien</option>
+                            <option value="Anesthésiste">Anesthésiste</option>
+                            <option value="Radiologue">Radiologue</option>
+                            <option value="Pédiatre">Pédiatre</option>
+                            <option value="Gynécologue">Gynécologue</option>
+                            <option value="Cardiologue">Cardiologue</option>
+                            <option value="Urgentiste">Urgentiste</option>
+                            <option value="Sage-femme">Sage-femme</option>
+                            <option value="Pharmacien">Pharmacien</option>
+                            <option value="Technicien de laboratoire">Technicien de laboratoire</option>
+                            <option value="Kinésithérapeute">Kinésithérapeute</option>
+                            <option value="Psychologue">Psychologue</option>
+                            <option value="Dentiste">Dentiste</option>
+                            <option value="Gestionnaire logistique">Gestionnaire logistique</option>
+                            <option value="Gestionnaire de stock">Gestionnaire de stock</option>
+                            <option value="Caissier">Caissier</option>
+                            <option value="Secrétaire médicale">Secrétaire médicale</option>
+                            <option value="Administrateur médical">Administrateur médical</option>
+                            <option value="Agent de santé communautaire">Agent de santé communautaire</option>
+                            <option value="Personnel de nettoyage">Personnel de nettoyage</option>
                           </select>
+
                         </div>
                       </div>
 
@@ -134,7 +198,7 @@
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-drop-line"></i></span>
                           <select class="form-select" id="a10" name="groupe_sanguin">
-                            <option value="" selected disabled>-- Choisissez --</option>
+                            <option value="" selected disabled>-- Choisissez un groupe_sanguin --</option>
                             <option value="O+">O+</option>
                             <option value="A+">A+</option>
                             <option value="A-">A-</option>
@@ -160,12 +224,10 @@
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-flag-line"></i></span>
                           <select class="form-select" id="a12" name="pays">
-                            <option value="Togo">Togo</option>
-                            <option value="USA">USA</option>
-                            <option value="Canada">Canada</option>
-                            <option value="Brazil">Brazil</option>
-                            <option value="India">India</option>
-                            <option value="China">China</option>
+                            <option value="" selected disabled>-- Choisissez un pays --</option>
+                            {% for p in pays %}
+                            <option value="{{ p }}">{{ p }}</option>
+                            {% endfor %}
                           </select>
                         </div>
                       </div>
