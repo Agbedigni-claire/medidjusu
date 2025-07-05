@@ -31,27 +31,151 @@ mysql = MySQL()
 mysql.init_app(app)
 
 app.secret_key = my_secret_key
+
+
+
+"""debut admin"""
+#admin
 @app.route("/admin")
 def index():
     return render_template("admin/index_admin.html")
 
+#admin liste admin
+@app.route('/admin/liste_admin')
+def liste_admin():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT ident, nom_complet, email_admin, numero_telephone FROM admin")
+    admins = cursor.fetchall()
+    cursor.close()
+    return render_template("admin/gestion_admin/liste_admin.html", admins=admins)
+
+#suprimer admin
+@app.route('/admin/supprimer/<int:id>', methods=['GET', 'POST'])
+def supprimer_admin(id):
+    cursor = mysql.connection.cursor()
+    try:
+        # Supprimer l’admin avec l’identifiant donné
+        cursor.execute("DELETE FROM admin WHERE ident = %s", (id,))
+        mysql.connection.commit()
+        flash("Administrateur supprimé avec succès.", "success")
+    except Exception as e:
+        flash("Erreur lors de la suppression : " + str(e), "danger")
+    finally:
+        cursor.close()
+
+    # Redirection vers la liste des admins (ou une autre page)
+    return redirect(url_for('liste_admin'))
+
+
+#modifier admin
+@app.route("/modifier-admin/<int:id>", methods=["GET", "POST"])
+def modifier_admin(id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    if request.method == "POST":
+        nom_complet = request.form['nom_complet']
+        email = request.form['email_admin']
+        numero_telephone = request.form['numero_telephone']
+
+        # Exécution de la requête UPDATE
+        cursor.execute("""
+            UPDATE admin SET nom_complet=%s, email_admin=%s, numero_telephone=%s 
+            WHERE ident=%s
+        """, (nom_complet, email, numero_telephone, id))
+
+        mysql.connection.commit()
+        flash("Les informations ont été modifiées avec succès.", "success")
+        return redirect(url_for('liste_admin'))  # attention au nom exact de la fonction liste
+
+    # Sinon (GET), on affiche les infos actuelles dans le formulaire
+    cursor.execute("SELECT * FROM admin WHERE ident = %s", (id,))
+    admin = cursor.fetchone()
+    return render_template("admin/gestion_admin/modifier_admin.html", admin=admin)
+
+
+#liste docteur admin
+@app.route("/admin/liste_docteur")
+def liste_docteur_admin():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM doctor")
+    doctors = cursor.fetchall()
+    return render_template("admin/gestion_docteur/Liste_docteur.html", doctors=doctors)
+
+# uprimer admin
+@app.route('/admin/supprimer_docteur/<int:id>')
+def supprimer_docteur(id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM doctor WHERE ident = %s", (id,))
+    mysql.connection.commit()
+    flash("Médecin supprimé avec succès.", "success")
+    return redirect(url_for('liste_docteur_admin'))
+
+#profile admin
+@app.route('/admin/voir/<int:id>')
+def voir_admin(id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT ident, nom_complet, email_admin, numero_telephone, date_inscription FROM admin WHERE ident = %s", (id,))
+    admin = cursor.fetchone()  # Un seul admin
+
+    if not admin:
+        flash("Administrateur introuvable.", "warning")
+        return redirect(url_for('liste_admin'))
+
+    return render_template("admin/gestion_admin/profile_admin.html", admin=admin)
+
+# mmodifier profile docteur par admin
+@app.route('/admin/docteur/<int:id>')
+def profile_doctor_admin(id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM doctor WHERE ident = %s", (id,))
+    mysql.connection.commit()
+    flash("Médecin supprimé avec succès.", "success")
+    return render_template("admin/gestion_docteur/voir_profile_doctor.html")
+
+@app.route('/admin/docteur/<int:id>')
+def modifier_profile_doctor_admin(id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM doctor WHERE ident = %s", (id,))
+    mysql.connection.commit()
+    flash("Médecin supprimé avec succès.", "success")
+    return render_template("admin/gestion_docteur/voir_profile_doctor.html")
+"""fin admin"""
+
+
+
+"""debut ambulance """
 @app.route("/ambulance")
 def index_ambulance():
     return render_template("ambulance/index_ambulance.html")
+"""fin ambulance"""
 
+
+"""debut caissier"""
 @app.route("/caissier")
 def index_caissier():
     return render_template("caissier/index_caissier.html")
 
+"""fin caissier"""
+
+
+
+
+
+
+"""debut docteur"""
 # docteur
 @app.route("/doctor")
 def index_doctor():
     return render_template("doctor/index_doctor.html")
 
+# liste docteur docteur
 @app.route("/doctor/liste_doctor")
 def liste_doctor():
     return render_template("doctor/gestion_docteur/liste_doctor.html")
-
 
 # modification profile docteur
 @app.route("/doctor/modifier_profile", methods=['GET', 'POST'])
@@ -84,7 +208,22 @@ def modifier_profile_doctor():
         designation = donnes.get('designation')
         password = donnes.get('new_password')
         confirm_password = donnes.get('confirm_new_password')
+        heure_debut_dimanche = donnes.get('dimanche_debut')
+        heure_fin_dimanche = donnes.get('dimanche_fin')
+        heure_debut_lundi = donnes.get('lundi_debut')
+        heure_fin_lundi = donnes.get('lundi_fin')
+        heure_debut_mardi = donnes.get('mardi_debut')
+        heure_fin_mardi = donnes.get('mardi_fin')
+        heure_debut_mercredi = donnes.get('mercredi_debut')
+        heure_fin_mercredi = donnes.get('mercredi_fin')
+        heure_debut_jeudi = donnes.get('jeudi_debut')
+        heure_fin_jeudi = donnes.get('jeudi_fin')
+        heure_debut_vendredi = donnes.get('vendredi_debut')
+        heure_fin_vendredi = donnes.get('vendredi_fin')
+        heure_debut_samedi = donnes.get('samedi_debut')
+        heure_fin_samedi = donnes.get('samedi_fin')
 
+        print(heure_fin_samedi)
         # Récupérer les anciennes données
         cursor.execute("SELECT * FROM doctor WHERE email_doctor = %s", (email,))
         ancien_profil = cursor.fetchone()
@@ -127,32 +266,68 @@ def modifier_profile_doctor():
         numero_telephone = numero_telephone or ancien_profil['numero_telephone']
         qualification = qualification or ancien_profil['qualification']
         designation = designation or ancien_profil['designation']
+        heure_debut_dimanche = heure_debut_dimanche or ancien_profil.get('heure_debut_dimanche')
+        heure_fin_dimanche = heure_fin_dimanche or ancien_profil.get('heure_fin_dimanche')
+        heure_debut_lundi = heure_debut_lundi or ancien_profil.get('heure_debut_lundi')
+        heure_fin_lundi = heure_fin_lundi or ancien_profil.get('heure_fin_lundi')
+        heure_debut_mardi = heure_debut_mardi or ancien_profil.get('heure_debut_mardi')
+        heure_fin_mardi = heure_fin_mardi or ancien_profil.get('heure_fin_mardi')
+        heure_debut_mercredi = heure_debut_mercredi or ancien_profil.get('heure_debut_mercredi')
+        heure_fin_mercredi = heure_fin_mercredi or ancien_profil.get('heure_fin_mercredi')
+        heure_debut_jeudi = heure_debut_jeudi or ancien_profil.get('heure_debut_jeudi')
+        heure_fin_jeudi = heure_fin_jeudi or ancien_profil.get('heure_fin_jeudi')
+        heure_debut_vendredi = heure_debut_vendredi or ancien_profil.get('heure_debut_vendredi')
+        heure_fin_vendredi = heure_fin_vendredi or ancien_profil.get('heure_fin_vendredi')
+        heure_debut_samedi = heure_debut_samedi or ancien_profil.get('heure_debut_samedi')
+        heure_fin_samedi = heure_fin_samedi or ancien_profil.get('heure_fin_samedi')
 
         try:
             cursor.execute("""
-                UPDATE doctor SET
-                    nom_utilisateur=%s,
-                    nom_complet=%s,
-                    date_naissance=%s,
-                    sexe=%s,
-                    situation_matrimoniale=%s,
-                    groupe_sanguin=%s,
-                    photo=%s,
-                    description=%s,
-                    adresse=%s,
-                    pays=%s,
-                    ville=%s,
-                    code_postal=%s,
-                    numero_telephone=%s,
-                    qualification=%s,
-                    designation=%s,
-                    password=%s
-                WHERE email_doctor=%s
-            """, (
+                            UPDATE doctor SET
+                                nom_utilisateur=%s,
+                                nom_complet=%s,
+                                date_naissance=%s,
+                                sexe=%s,
+                                situation_matrimoniale=%s,
+                                groupe_sanguin=%s,
+                                photo=%s,
+                                description=%s,
+                                adresse=%s,
+                                pays=%s,
+                                ville=%s,
+                                code_postal=%s,
+                                numero_telephone=%s,
+                                qualification=%s,
+                                designation=%s,
+                                password=%s,
+                                heure_debut_dimanche=%s,
+                                heure_fin_dimanche=%s,
+                                heure_debut_lundi=%s,
+                                heure_fin_lundi=%s,
+                                heure_debut_mardi=%s,
+                                heure_fin_mardi=%s,
+                                heure_debut_mercredi=%s,
+                                heure_fin_mercredi=%s,
+                                heure_debut_jeudi=%s,
+                                heure_fin_jeudi=%s,
+                                heure_debut_vendredi=%s,
+                                heure_fin_vendredi=%s,
+                                heure_debut_samedi=%s,
+                                heure_fin_samedi=%s
+                            WHERE email_doctor=%s
+                        """, (
                 nom_utilisateur, nom_complet, date_naissance, sexe,
                 situation_matrimoniale, groupe_sanguin, photo, description,
                 adresse, pays, ville, code_postal, numero_telephone,
-                qualification, designation, hashed_password, email
+                qualification, designation, hashed_password,
+                heure_debut_dimanche, heure_fin_dimanche,
+                heure_debut_lundi, heure_fin_lundi,
+                heure_debut_mardi, heure_fin_mardi,
+                heure_debut_mercredi, heure_fin_mercredi,
+                heure_debut_jeudi, heure_fin_jeudi,
+                heure_debut_vendredi, heure_fin_vendredi,
+                heure_debut_samedi, heure_fin_samedi,
+                email
             ))
 
             mysql.connection.commit()
@@ -201,7 +376,7 @@ def modifier_profile_doctor():
         "Zimbabwe"
     ]
 
-    return render_template("doctor/gestion_docteur/modifier_profile.html", pays=pays)
+    return render_template("doctor/gestion_docteur/modifier_profile.html", pays=pays, doctor=doctor)
 
 @app.route("/doctor/profile_doctor")
 def profile_doctor():
@@ -302,7 +477,7 @@ def dossier_medical_doctor():
 def consultation_doctor():
     return render_template("doctor/consultation/consultation.html")
 
-
+"""fin docteur"""
 
 
 
@@ -476,7 +651,6 @@ def getLogin(session_key, table):
     cur.close()
     return loggedIn, firstName
 
-
 # Fonction is_valid
 
 def is_valid(email, email_field, password, table):
@@ -509,10 +683,7 @@ def is_valid(email, email_field, password, table):
 
     return result is not None
 
-
-
-
-
+#fonction login
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -548,84 +719,204 @@ def login():
 
                 return redirect(url_for('modifier_profile_doctor'))
 
+
         elif is_valid(email, "email_patient", password, "patient"):
+
             session['email_patient'] = email
-            return redirect(url_for('index_patient'))
+
+            # Connexion à la base
+
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+            cursor.execute("SELECT nom_utilisateur FROM patient WHERE email_patient = %s", (email,))
+
+            result = cursor.fetchone()
+
+            cursor.close()
+
+            if result and result['nom_utilisateur']:  # Si rempli
+
+                return redirect(url_for('index_patient'))
+
+            else:  # Si vide ou NULL
+
+                return redirect(url_for('modifier_profile_patient'))
+
 
         elif is_valid(email, "email_secretaire", password, "secretaire_medicale"):
+
             session['email_secretaire'] = email
-            return redirect(url_for('index_secretaire_medicales'))
+
+            # Connexion à la base
+
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+            cursor.execute("SELECT nom_utilisateur FROM secretaire_medicale WHERE email_secretaire = %s", (email,))
+
+            result = cursor.fetchone()
+
+            cursor.close()
+
+            if result and result['nom_utilisateur']:  # Si rempli
+
+                return redirect(url_for('index_secretaire_medicales'))
+
+            else:  # Si vide ou NULL
+
+                return redirect(url_for('modifier_profile_secretaire'))
+
+
 
         elif is_valid(email, "email_ambulancier", password, "ambulancier"):
+
             session['email_ambulancier'] = email
-            return redirect(url_for('index_ambulancier'))
+
+            # Connexion à la base
+
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+            cursor.execute("SELECT nom_utilisateur FROM ambulancier WHERE email_ambulancier = %s", (email,))
+
+            result = cursor.fetchone()
+
+            cursor.close()
+
+            if result and result['nom_utilisateur']:  # Si rempli
+
+                return redirect(url_for('index_ambulancier'))
+
+            else:  # Si vide ou NULL
+
+                return redirect(url_for('modifier_profile_ambulancier'))
+
+
 
         elif is_valid(email, "email_caissier", password, "caissier"):
+
             session['email_caissier'] = email
-            return redirect(url_for('index_caissier'))
+
+            # Connexion à la base
+
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+            cursor.execute("SELECT nom_utilisateur FROM caissier WHERE email_caissier = %s", (email,))
+
+            result = cursor.fetchone()
+
+            cursor.close()
+
+            if result and result['nom_utilisateur']:  # Si rempli
+
+                return redirect(url_for('index_caissier'))
+
+            else:  # Si vide ou NULL
+
+                return redirect(url_for('modifier_profile_caissier'))
+
+
 
         elif is_valid(email, "email_logistique", password, "gestionnaire_logistique"):
+
             session['email_logistique'] = email
-            return redirect(url_for('index_logistique'))
+
+            # Connexion à la base
+
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+            cursor.execute("SELECT nom_utilisateur FROM gestionnaire_logistique WHERE email_logistique = %s", (email,))
+
+            result = cursor.fetchone()
+
+            cursor.close()
+
+            if result and result['nom_utilisateur']:  # Si rempli
+
+                return redirect(url_for('index_logistique'))
+
+            else:  # Si vide ou NULL
+
+                return redirect(url_for('modifier_profile_logistique'))
+
+
 
         elif is_valid(email, "email_stock", password, "gestionnaire_stock"):
+
             session['email_stock'] = email
-            return redirect(url_for('index_stock'))
+
+            # Connexion à la base
+
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+            cursor.execute("SELECT nom_utilisateur FROM gestionnaire_stock WHERE email_stock = %s", (email,))
+
+            result = cursor.fetchone()
+
+            cursor.close()
+
+            if result and result['nom_utilisateur']:  # Si rempli
+
+                return redirect(url_for('index_stock'))
+
+            else:  # Si vide ou NULL
+
+                return redirect(url_for('modifier_profile_stock'))
+
+
 
         elif is_valid(email, "email_infirmier", password, "infirmier"):
+
             session['email_infirmier'] = email
-            return redirect(url_for('index_infirmier'))
+
+            # Connexion à la base
+
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+            cursor.execute("SELECT nom_utilisateur FROM infirmier WHERE email_infirmier = %s", (email,))
+
+            result = cursor.fetchone()
+
+            cursor.close()
+
+            if result and result['nom_utilisateur']:  # Si rempli
+
+                return redirect(url_for('index_infirmier'))
+
+            else:  # Si vide ou NULL
+
+                return redirect(url_for('modifier_profile_infirmier'))
+
+
 
         elif is_valid(email, "email_interne", password, "interne_medecine"):
+
             session['email_interne'] = email
-            return redirect(url_for('index_interne'))
+
+            # Connexion à la base
+
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+            cursor.execute("SELECT nom_utilisateur FROM interne_medecine WHERE email_interne = %s", (email,))
+
+            result = cursor.fetchone()
+
+            cursor.close()
+
+            if result and result['nom_utilisateur']:  # Si rempli
+
+                return redirect(url_for('index_interne'))
+
+            else:  # Si vide ou NULL
+
+                return redirect(url_for('modifier_profile_interne'))
+
         else:
             flash('Email ou mot de passe incorrect.', 'danger')
             return redirect(url_for('login'))
     return render_template('admin/connexion/login.html')
 
-"""
-# connection du patient
-@app.route("/login_patient", methods = ["POST", "GET"])
-def login_patient():
-    def recherche_utilisateur(email_utilisateur, mot_pass):
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT email_patient, password, nom_complet FROM patient")
-        lignes = cur.fetchall()
-        cur.close()
-        mot_pass_hash = hashlib.md5(mot_pass.encode()).hexdigest()
-        for ligne in lignes:
-            if ligne[0] == email_utilisateur and ligne[1] == mot_pass_hash:
-                return ligne
-        return None
 
-    #traitement de donnés
-    if request.method == "POST":
-        donnes_patient = request.form
-        email = donnes_patient.get('email')
-        pwd = donnes_patient.get('pwd')
 
-        utilisateur = recherche_utilisateur(email, pwd)
 
-        if utilisateur is not None:
-            print("utilisateur trouvé")
-            session['email_utilisateur'] = utilisateur[0]
-            session['nom'] = utilisateur[2]
-            print(session)
-            flash("utilisateur trouver connection", "success")
-            return redirect(url_for('index_patient'))
-        else:
-            print('utilisateur inconue')
-            print(email , pwd)
-            flash("Utilusateur inconnu", "danger")
-            return redirect(request.url)
-    #si l'utilisateur est deja connecter a une session
-    else:
-        if  'email_utilisateur' in session:
-            print(session)
-            return redirect(url_for('index_patient'))
-        return render_template("admin/login.html", role = 'patient')
-"""
 
 # les deconnection
 @app.route('/logout')
@@ -673,6 +964,9 @@ def logout():
 
 
 
+
+
+
 # les inscription
 #systeme denvoie Email
 def envoie_email_connection(email, mot_de_passe):
@@ -706,8 +1000,9 @@ def signup():
         loggedIn, firstName = getLogin('email_admin', 'admin')
         if request.method == 'POST':
             donnes = request.form
-            name = donnes.get('name')
-            prenom = donnes.get('prenom')
+            donnes = request.form
+            name = (donnes.get('name') or '').strip()
+            prenom = (donnes.get('prenom') or '').strip()
             nom_complet = name + ' ' + prenom
             email = donnes.get('email')
             numero_telephone = donnes.get('tel')
@@ -736,7 +1031,7 @@ def signup():
                 # Envoi de l'email de confirmation (HTML bien design)
 
                 flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
-                return redirect(url_for('login'))
+                return redirect(url_for('liste_admin'))
 
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
@@ -784,7 +1079,7 @@ def signup_doctor():
                     print(e)
 
                 flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
-                return redirect(url_for('index'))
+                return redirect(url_for('liste_docteur_admin'))
 
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"

@@ -28,16 +28,13 @@
                 </a>
                 <ul class="treeview-menu">
                     <li>
-                        <a href="doctors-list.html"></a>
+                        <a href="{{url_for('liste_admin')}}">Liste des Admin</a>
                     </li>
                     <li>
-                        <a href="doctors-cards.html">Liste des Admin</a>
+                        <a href="{{url_for('signup')}}">Ajouter Admin</a>
                     </li>
                     <li>
-                        <a href="add-doctors.html">Ajouter Admin</a>
-                    </li>
-                    <li>
-                        <a href="edit-doctors.html">Modifier Admin</a>
+                        <a href="{{ url_for('liste_admin') }}">Gérer les admins</a>
                     </li>
                 </ul>
             </li>
@@ -48,16 +45,10 @@
                 </a>
                 <ul class="treeview-menu">
                     <li>
-                        <a href="doctors-list.html"></a>
+                        <a href="{{url_for('liste_docteur_admin')}}">Liste des Docteur</a>
                     </li>
                     <li>
-                        <a href="doctors-cards.html">Liste des Docteur</a>
-                    </li>
-                    <li>
-                        <a href="add-doctors.html">Ajouter Docteur</a>
-                    </li>
-                    <li>
-                        <a href="edit-doctors.html">Modifier Docteur</a>
+                        <a href="{{url_for('signup_doctor')}}">Ajouter Docteur</a>
                     </li>
                 </ul>
             </li>
