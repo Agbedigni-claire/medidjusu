@@ -1000,7 +1000,6 @@ def signup():
         loggedIn, firstName = getLogin('email_admin', 'admin')
         if request.method == 'POST':
             donnes = request.form
-            donnes = request.form
             name = (donnes.get('name') or '').strip()
             prenom = (donnes.get('prenom') or '').strip()
             nom_complet = name + ' ' + prenom

@@ -81,6 +81,22 @@
           <h4 class="mb-4">Inscription d'un Interne Medecine</h4>
           {% endif %}
 
+          {% if role == "admin" %}
+          <div class="mb-3">
+            <label class="form-label" for="name">Nom <span class="text-danger">*</span></label>
+            <input type="text" id="name" name="name" class="form-control" placeholder="Entrez le nom" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="prenom">Prénom <span class="text-danger">*</span></label>
+            <input type="text" id="prenom" name="prenom" class="form-control" placeholder="Entrez le prénom" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="tel">Numéro de téléphone</label>
+            <input type="text" id="tel" name="tel" class="form-control" placeholder="Entrez le numéro de téléphone">
+          </div>
+          {% endif %}
 
 
           <div class="mb-3">
