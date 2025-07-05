@@ -35,3 +35,9 @@ dist/
 # === FICHIERS DU SYSTÈME ===
 .DS_Store
 Thumbs.db
+
+
+
+# === FICHIERS TEST ===
+
+text.py
