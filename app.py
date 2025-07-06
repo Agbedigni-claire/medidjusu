@@ -5,6 +5,7 @@ import hashlib
 from credentials import *
 from flask import Flask
 from flask_mail import Mail, Message
+import re
 
 app = Flask(__name__)
 
@@ -968,6 +969,7 @@ def logout():
 
 
 # les inscription
+pattern_email = r'(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))'
 #systeme denvoie Email
 def envoie_email_connection(email, mot_de_passe):
 
@@ -993,6 +995,7 @@ def envoie_email_connection(email, mot_de_passe):
     mail.send(msg)
 
     return redirect(url_for("index"))  # ou une page de succès
+
 # inscription de l'admininsatrateur
 @app.route("/signup_admin", methods=['GET', 'POST'])
 def signup():
@@ -1020,6 +1023,13 @@ def signup():
 
             if existing_user:
                 flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                return redirect(request.url)
+
+            # verifier si email est valide
+            if re.match(pattern_email, email):
+                pass
+            else:
+                flash("Votre email est invalide", "danger")
                 return redirect(request.url)
 
             try:
@@ -1056,12 +1066,21 @@ def signup_doctor():
             hashed_password = hashlib.md5(password.encode()).hexdigest()
             cursor = mysql.connection.cursor()
 
+
+
             # Vérifier si l'email est déjà utilisé
             cursor.execute("SELECT * FROM doctor WHERE email_doctor = %s", (email,))
             existing_user = cursor.fetchone()
 
             if existing_user:
                 flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                return redirect(request.url)
+
+            # verifier si email est valide
+            if re.match(pattern_email, email):
+                pass
+            else:
+                flash("Votre email est invalide", "danger")
                 return redirect(request.url)
 
             try:
@@ -1090,51 +1109,57 @@ def signup_doctor():
 # #inscription du patient
 @app.route("/signup_patient_admin", methods=['GET', 'POST'])
 def signup_patient_admin():
-    def signup_patient_admin():
-        if 'email_admin' in session:
-            loggedIn, firstName = getLogin('email_admin', 'admin')
-            if request.method == 'POST':
-                donnes = request.form
-                email = donnes.get('email')
-                password = donnes.get('pwd')
-                confirm_password = donnes.get('conf_pwd')
 
-                if password != confirm_password:
-                    return "Les mots de passe ne correspondent pas. Veuillez réessayer."
+    if 'email_admin' in session:
+        loggedIn, firstName = getLogin('email_admin', 'admin')
+        if request.method == 'POST':
+            donnes = request.form
+            email = donnes.get('email')
+            password = donnes.get('pwd')
+            confirm_password = donnes.get('conf_pwd')
 
-                hashed_password = hashlib.md5(password.encode()).hexdigest()
-                cursor = mysql.connection.cursor()
+            if password != confirm_password:
+                return "Les mots de passe ne correspondent pas. Veuillez réessayer."
 
-                # Vérifier si l'email est déjà utilisé
-                cursor.execute("SELECT * FROM patient WHERE email_patient = %s", (email,))
-                existing_user = cursor.fetchone()
+            hashed_password = hashlib.md5(password.encode()).hexdigest()
+            cursor = mysql.connection.cursor()
 
-                if existing_user:
-                    flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
-                    return redirect(request.url)
+            # Vérifier si l'email est déjà utilisé
+            cursor.execute("SELECT * FROM patient WHERE email_patient = %s", (email,))
+            existing_user = cursor.fetchone()
 
+            if existing_user:
+                flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                return redirect(request.url)
+
+            # verifier si email est valide
+            if re.match(pattern_email, email):
+                pass
+            else:
+                flash("Votre email est invalide", "danger")
+                return redirect(request.url)
+            try:
+                cursor.execute("""INSERT INTO patient (email_patient, password)
+                                  VALUES (%s, %s)""",
+                               (email, hashed_password))
+                mysql.connection.commit()
+
+                # Envoi de l'email pour informer le patient
                 try:
-                    cursor.execute("""INSERT INTO patient (email_patient, password)
-                                      VALUES (%s, %s)""",
-                                   (email, hashed_password))
-                    mysql.connection.commit()
-
-                    # Envoi de l'email pour informer le patient
-                    try:
-                        envoie_email_connection(email, password)
-                    except Exception as e:
-                        print(e)
-
-                    flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
-                    return redirect(url_for('index'))
-
+                    envoie_email_connection(email, password)
                 except Exception as e:
-                    return f"Erreur lors de l'inscription : {e}"
+                    print(e)
 
-            return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName,
-                                   role="patient")
-        else:
-            return redirect(url_for('login'))
+                flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
+                return redirect(url_for('index'))
+
+            except Exception as e:
+                return f"Erreur lors de l'inscription : {e}"
+
+        return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName,
+                               role="patient")
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route("/signup_patient", methods=['GET', 'POST'])
@@ -1153,10 +1178,15 @@ def signup_patient():
         cursor.execute("SELECT * FROM patient WHERE email_patient = %s", (email,))
         existing_user = cursor.fetchone()
 
-
-        if existing_user:
-            flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+        # verifier si email est valide
+        if re.match(pattern_email, email):
+            if existing_user:
+                flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                return redirect(request.url)
+        else:
+            flash("Votre email est invalide", "danger")
             return redirect(request.url)
+
 
         try:
             cursor.execute("""INSERT INTO patient (email_patient, password) 
@@ -1196,8 +1226,13 @@ def signup_secretaire():
             cursor.execute("SELECT * FROM secretaire_medicale WHERE email_secretaire = %s", (email,))
             existing_user = cursor.fetchone()
 
-            if existing_user:
-                flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+            # verifier si email est valide
+            if re.match(pattern_email, email):
+                if existing_user:
+                    flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                    return redirect(request.url)
+            else:
+                flash("Votre email est invalide", "danger")
                 return redirect(request.url)
 
             try:
@@ -1243,8 +1278,13 @@ def signup_ambulancier():
             cursor.execute("SELECT * FROM ambulancier WHERE email_ambulancier = %s", (email,))
             existing_user = cursor.fetchone()
 
-            if existing_user:
-                flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+            # verifier si email est valide
+            if re.match(pattern_email, email):
+                if existing_user:
+                    flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                    return redirect(request.url)
+            else:
+                flash("Votre email est invalide", "danger")
                 return redirect(request.url)
 
             try:
@@ -1291,8 +1331,13 @@ def signup_caissier():
             cursor.execute("SELECT * FROM caissier WHERE email_caissier = %s", (email,))
             existing_user = cursor.fetchone()
 
-            if existing_user:
-                flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+            # verifier si email est valide
+            if re.match(pattern_email, email):
+                if existing_user:
+                    flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                    return redirect(request.url)
+            else:
+                flash("Votre email est invalide", "danger")
                 return redirect(request.url)
 
             try:
@@ -1339,8 +1384,13 @@ def signup_logistique():
             cursor.execute("SELECT * FROM gestionnaire_logistique WHERE email_logistique = %s", (email,))
             existing_user = cursor.fetchone()
 
-            if existing_user:
-                flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+            # verifier si email est valide
+            if re.match(pattern_email, email):
+                if existing_user:
+                    flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                    return redirect(request.url)
+            else:
+                flash("Votre email est invalide", "danger")
                 return redirect(request.url)
 
             try:
@@ -1387,8 +1437,13 @@ def signup_stock():
             cursor.execute("SELECT * FROM gestionnaire_stock WHERE email_stock = %s", (email,))
             existing_user = cursor.fetchone()
 
-            if existing_user:
-                flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+            # verifier si email est valide
+            if re.match(pattern_email, email):
+                if existing_user:
+                    flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                    return redirect(request.url)
+            else:
+                flash("Votre email est invalide", "danger")
                 return redirect(request.url)
 
             try:
@@ -1435,8 +1490,13 @@ def signup_infirmier():
             cursor.execute("SELECT * FROM infirmier WHERE email_infirmier = %s", (email,))
             existing_user = cursor.fetchone()
 
-            if existing_user:
-                flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+            # verifier si email est valide
+            if re.match(pattern_email, email):
+                if existing_user:
+                    flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                    return redirect(request.url)
+            else:
+                flash("Votre email est invalide", "danger")
                 return redirect(request.url)
 
             try:
@@ -1483,8 +1543,13 @@ def signup_interne():
             cursor.execute("SELECT * FROM interne_medecine WHERE email_interne = %s", (email,))
             existing_user = cursor.fetchone()
 
-            if existing_user:
-                flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+            # verifier si email est valide
+            if re.match(pattern_email, email):
+                if existing_user:
+                    flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                    return redirect(request.url)
+            else:
+                flash("Votre email est invalide", "danger")
                 return redirect(request.url)
 
             try:
