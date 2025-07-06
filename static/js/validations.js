@@ -22,6 +22,7 @@
   });
 })();
 
+// supresson docteur
 function setDeleteUrl(doctorId) {
   const url = `/admin/supprimer_docteur/${doctorId}`;
   const confirmBtn = document.getElementById("confirmDeleteBtn");
@@ -29,8 +30,24 @@ function setDeleteUrl(doctorId) {
     confirmBtn.setAttribute("href", url);
   }
 }
+
+//supresion admin
 function updateDeleteLink(button) {
   const adminId = button.getAttribute("data-id");
   const deleteUrl = `/admin/supprimer/${adminId}`; // Chemin exact selon ta route Flask
+  document.getElementById("confirmDeleteBtn").setAttribute("href", deleteUrl);
+}
+
+// supresion patient
+function updateDeleteLinkPatient(button) {
+  const patientId = button.getAttribute("data-id");
+  const deleteUrl = `/admin/patient/supprimer/${patientId}`; // Assure-toi que cette route existe en Flask
+  document.getElementById("confirmDeleteBtn").setAttribute("href", deleteUrl);
+}
+
+// supression secretaire medical
+function updateDeleteLinkSecretaire(button) {
+  const secretaireId = button.getAttribute("data-id");
+  const deleteUrl = `/admin/secretaire/supprimer/${secretaireId}`;
   document.getElementById("confirmDeleteBtn").setAttribute("href", deleteUrl);
 }

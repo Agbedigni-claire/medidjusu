@@ -64,7 +64,7 @@
                   <tr>
                     <td>#{{ doctor.ident }}</td>
                     <td>
-                      <img src="{{ url_for('static', filename=doctor.photo or 'images/user.png') }}"
+                      <img src="{{ url_for('static', filename=doctor.photo or 'images/user4.png') }}"
                         class="img-shadow img-2x rounded-5 me-1" alt="Photo">
                       {% if doctor.nom_complet %}
                       {{ doctor.nom_complet }}
@@ -135,12 +135,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Pied de page -->
-  <div class="app-footer bg-white">
-    <span>© Medflex Admin 2024</span>
-  </div>
-
 </div>
 
 {% endblock %}

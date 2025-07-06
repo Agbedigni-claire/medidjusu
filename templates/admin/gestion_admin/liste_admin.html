@@ -36,7 +36,8 @@
                         <tr>
                             <td>#{{ admin.ident }}</td>
                             <td>
-                                <i class="ri-shield-user-line text-primary me-2" title="Administrateur"></i>
+                                <img src="{{ url_for('static', filename='images/admin.png') }}"
+                                    class="img-shadow img-2x rounded-5 me-1" alt="Photo">
                                 {{ admin.nom_complet or "Non défini" }}
                             </td>
                             <td>{{ admin.email_admin }}</td>

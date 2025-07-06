@@ -128,8 +128,8 @@ def voir_admin(id):
 
     return render_template("admin/gestion_admin/profile_admin.html", admin=admin)
 
-# mmodifier profile docteur par admin
-@app.route('/admin/docteur/<int:id>')
+# voir profile docteur par admin
+@app.route('/admin/docteur/profile/<int:id>')
 def profile_doctor_admin(id):
     cursor = mysql.connection.cursor()
     cursor.execute("DELETE FROM doctor WHERE ident = %s", (id,))
@@ -137,13 +137,99 @@ def profile_doctor_admin(id):
     flash("Médecin supprimé avec succès.", "success")
     return render_template("admin/gestion_docteur/voir_profile_doctor.html")
 
-@app.route('/admin/docteur/<int:id>')
+# mmodifier profile docteur par admin
+@app.route('/admin/docteur/modifier_profil/<int:id>')
 def modifier_profile_doctor_admin(id):
     cursor = mysql.connection.cursor()
     cursor.execute("DELETE FROM doctor WHERE ident = %s", (id,))
     mysql.connection.commit()
     flash("Médecin supprimé avec succès.", "success")
-    return render_template("admin/gestion_docteur/voir_profile_doctor.html")
+    return render_template("admin/gestion_docteur/modifier_docteur.html")
+
+#liste des patient admin
+@app.route("/admin/liste_patient")
+def liste_patient_admin():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM patient")
+    patients = cursor.fetchall()
+
+    return render_template("admin/gestion_patient/liste_patient.html", patients=patients)
+
+#modifier profiel pateint admin
+@app.route('/admin/patient/<int:id>/modifier_profile')
+def modifier_profile_patient_admin(id):
+    return render_template("admin/gestion_patient/modifier_patient.html")
+
+#voir profile pateitn admin
+@app.route('/admin/patient/<int:id>/voir_profile')
+def profile_patient_admin(id):
+    return render_template("admin/gestion_patient/voir_profile_patient.html")
+
+#surpimer pateirna admin
+@app.route("/admin/patient/supprimer/<int:id>")
+def supprimer_patient_admin(id):
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM patient WHERE ident = %s", (id,))
+    mysql.connection.commit()
+    flash("Le patient a été supprimé avec succès.", "success")
+    return redirect(url_for('liste_patient_admin'))
+
+#liste secretaire medical admin
+@app.route("/admin/liste_secretaire")
+def liste_secretaire_admin():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM secretaire_medicale")
+    secretaires = cursor.fetchall()
+
+    return render_template("admin/gestion_secretaire_medicale/liste_secretaire_medicale.html", secretaires=secretaires)
+
+# supression secretaire medical admin
+@app.route("/admin/secretaire/supprimer/<int:id>")
+def supprimer_secretaire_admin(id):
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM secretaire_medicale WHERE ident = %s", (id,))
+    mysql.connection.commit()
+    flash("Secrétaire médicale supprimée avec succès.", "success")
+    return redirect(url_for('liste_secretaire_admin'))
+
+#voir profile secretaire medical admin
+@app.route("/admin/secretaire/<int:id>/profile")
+def voir_secretaire_admin(id):
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM secretaire_medicale WHERE ident = %s", (id,))
+    secretaire = cursor.fetchone()
+
+    if not secretaire:
+        flash("Secrétaire introuvable.", "danger")
+        return redirect(url_for('liste_secretaire_admin'))
+
+    return render_template("admin/gestion_secretaire_medicale/voir_profile_secretaire_medicale.html", secretaire=secretaire)
+
+# modifier profil secretaire medical admin
+@app.route("/admin/secretaire/<int:id>/modifier", methods=['GET', 'POST'])
+def modifier_secretaire_admin(id):
+    return render_template("admin/gestion_secretaire_medicale/modifier_secretaire_medicale.html")
+
 """fin admin"""
 
 
@@ -492,13 +578,26 @@ def index_gestionaire_stock():
 def index_infirmier():
     return render_template("infirmier/index_infirmier.html")
 
+
+
+
+"""debut patient"""
 @app.route("/patient")
 def index_patient():
     return render_template("patient/index_patient.html")
 
+# modifier profile patient
+@app.route('/patient/profile/modifier', methods=['GET', 'POST'])
+def modifier_profile_patient():
+    return render_template("patient/gestion_patient/modifier_profile..html")
 
 
 
+"""fin patient"""
+
+
+
+"""debut secretaire secretaire medical"""
 #secretaiere medical
 @app.route("/secretaire_medicales")
 def index_secretaire_medicales():
@@ -597,6 +696,13 @@ def ajouter_patient():
 def liste_admissions():
     return render_template("secretaire_medicales/gestion_patients/liste_admissions.html")
 
+# modifier profile secretaire
+@app.route('/secretaire/profile/modifier')
+def modifier_profile_secretaire():
+    return render_template("secretaire_medicales/gestion _secretaire_medical/modifier_profile.html")
+
+
+"""fin secretaire medical"""
 
 
 
@@ -762,7 +868,7 @@ def login():
 
                 return redirect(url_for('index_secretaire_medicales'))
 
-            else:  # Si vide ou NULL
+            else:
 
                 return redirect(url_for('modifier_profile_secretaire'))
 
@@ -1151,7 +1257,7 @@ def signup_patient_admin():
                     print(e)
 
                 flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
-                return redirect(url_for('index'))
+                return redirect(url_for('liste_patient_admin'))
 
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
@@ -1248,7 +1354,7 @@ def signup_secretaire():
                     print(e)
 
                 flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
-                return redirect(url_for('index'))
+                return redirect(url_for('liste_secretaire_admin'))
 
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
@@ -1588,25 +1694,6 @@ def reset_pasword():
 @app.route("/mot_de_passe_oublié")
 def forgot_password():
     return render_template("admin/connexion/forgot_password.html")
-
-
-
-@app.route("/list_patient")
-def list_patient():
-    return render_template("admin/liste_des_utilisateur/list_patient.html")
-
-@app.route("/list_doctor")
-def list_doctor():
-    return  render_template("admin/liste_des_utilisateur/list_doctor.html")
-
-@app.route("/list_admin")
-def list_admin():
-    return  render_template("admin/liste_des_utilisateur/list_admin.html")
-
-@app.route("/list_personnel")
-def list_personnel():
-    return  render_template("admin/liste_des_utilisateur/list_personnel.html")
-
 
 if __name__ == "__main__":
     app.run(debug=True)
