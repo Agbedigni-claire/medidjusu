@@ -33,8 +33,9 @@ mysql.init_app(app)
 
 app.secret_key = my_secret_key
 
-
-
+#les patern
+pattern_email = r'(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))'
+pattern_phone = r'^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$'
 """debut admin"""
 #admin
 @app.route("/admin")
@@ -336,6 +337,13 @@ def modifier_profile_doctor():
             hashed_password = hashlib.md5(password.encode()).hexdigest()
         else:
             hashed_password = ancien_profil['password']
+
+        # verifier si le numero est valide
+        if re.match(pattern_phone, numero_telephone):
+            pass
+        else:
+            flash("phone number invalide", "danger")
+            return redirect(request.url)
 
         # Préparer les valeurs, en gardant l'ancienne si champ vide
         nom_utilisateur = nom_utilisateur or ancien_profil['nom_utilisateur']
@@ -1075,7 +1083,6 @@ def logout():
 
 
 # les inscription
-pattern_email = r'(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))'
 #systeme denvoie Email
 def envoie_email_connection(email, mot_de_passe):
 
@@ -1127,15 +1134,22 @@ def signup():
             cursor.execute("SELECT * FROM admin WHERE email_admin = %s", (email,))
             existing_user = cursor.fetchone()
 
-            if existing_user:
-                flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
-                return redirect(request.url)
+
 
             # verifier si email est valide
             if re.match(pattern_email, email):
-                pass
+                if existing_user:
+                    flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                    return redirect(request.url)
             else:
                 flash("Votre email est invalide", "danger")
+                return redirect(request.url)
+
+            # verifier si le numero est valide
+            if re.match(pattern_phone, numero_telephone):
+                pass
+            else:
+                flash("phone number invalide", "danger")
                 return redirect(request.url)
 
             try:
@@ -1271,9 +1285,14 @@ def signup_patient_admin():
 @app.route("/signup_patient", methods=['GET', 'POST'])
 def signup_patient():
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['pwd']
-        confirm_password = request.form['conf_pwd']
+        donnes = request.form
+        name = (donnes.get('name') or '').strip()
+        prenom = (donnes.get('prenom') or '').strip()
+        nom_complet = name + ' ' + prenom
+        email = donnes.get('email')
+        numero_telephone = donnes.get('tel')
+        password = donnes.get('pwd')
+        confirm_password = donnes.get('conf_pwd')
 
         if password != confirm_password:
             return "Les mots de passe ne correspondent pas. Veuillez réessayer."
@@ -1293,14 +1312,19 @@ def signup_patient():
             flash("Votre email est invalide", "danger")
             return redirect(request.url)
 
+        # verifier si le numero est valide
+        if re.match(pattern_phone, numero_telephone):
+            pass
+        else:
+            flash("phone number invalide", "danger")
+            return redirect(request.url)
 
         try:
-            cursor.execute("""INSERT INTO patient (email_patient, password) 
+            cursor.execute("""INSERT INTO patient (nom_complet, email_patient, numero_telephone, password) 
                             VALUES (%s, %s)""",
-                           ( email, hashed_password))
+                           (nom_complet, email, numero_telephone, hashed_password))
 
             mysql.connection.commit()
-            # Envoi de l'email de confirmation (HTML bien design)
 
             flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
             return redirect(url_for('index_patient'))
