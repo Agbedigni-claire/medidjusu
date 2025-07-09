@@ -1,0 +1,72 @@
+{% extends "doctor/base_doctor.html" %}
+
+{% block content %}
+<div class="app-container">
+
+    <!-- En-tête -->
+    <div class="app-hero-header d-flex align-items-center">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <i class="ri-home-8-line lh-1 pe-3 me-3 border-end"></i>
+                <a href="{{ url_for('index_doctor') }}">Tableau de bord</a>
+            </li>
+            <li class="breadcrumb-item text-primary" aria-current="page">Historique des consultations</li>
+        </ol>
+    </div>
+
+    <!-- Corps -->
+    <div class="app-body">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title">Historique de vos consultations</h5>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Motif</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for info in consultations_info %}
+                        {% set c = info.consultation %}
+                        {% if c.etat == "Terminée" %}
+                        <tr>
+                            <td>#{{ c.id }}</td>
+                            <td>{{ c.date_consultation.strftime('%d/%m/%Y %H:%M') if c.date_consultation else 'Non
+                                précisée' }}</td>
+                            <td>{{ c.patient.nom_complet or "Inconnu" }}</td>
+                            <td>{{ c.motif or "Non précisé" }}</td>
+                            <td>
+                                <a href="{{ url_for('voir_consultation_doctor', id=c.id) }}"
+                                    class="btn btn-outline-info btn-sm" title="Voir les détails">
+                                    <i class="ri-eye-line"></i>
+                                </a>
+
+                                {% if info.modifiable %}
+                                <a href="{{ url_for('modifier_consultation_doctor', id=c.id) }}"
+                                    class="btn btn-outline-success btn-sm" title="Modifier la consultation">
+                                    <i class="ri-edit-box-line"></i>
+                                </a>
+                                {% else %}
+                                <button class="btn btn-outline-secondary btn-sm" disabled title="Délai dépassé">
+                                    <i class="ri-edit-box-line"></i>
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

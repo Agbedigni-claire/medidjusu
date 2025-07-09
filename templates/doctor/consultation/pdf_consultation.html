@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Consultation #{{ consultation.id }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 40px 60px;
+            color: #2c3e50;
+            background-color: #f9fafb;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            border-bottom: 4px solid #2980b9;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 110px;
+            height: auto;
+        }
+
+        .title {
+            margin-left: 25px;
+            color: #2980b9;
+        }
+
+        .title h1 {
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            font-size: 28px;
+            letter-spacing: 1.2px;
+        }
+
+        .title p {
+            font-weight: 500;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .photo {
+            float: right;
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 3px solid #2980b9;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            margin-top: -100px;
+        }
+
+        .section {
+            background: white;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+        }
+
+        .section h3 {
+            border-bottom: 3px solid #2980b9;
+            color: #2980b9;
+            padding-bottom: 8px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .section p {
+            font-size: 15px;
+            line-height: 1.5em;
+            margin: 8px 0;
+        }
+
+        .section p strong {
+            color: #34495e;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #95a5a6;
+            border-top: 1px solid #dcdde1;
+            padding-top: 12px;
+            letter-spacing: 0.4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <img src="{{ url_for('static', filename='images/logo/logo_header1.png') }}" class="logo"
+            alt="Logo MediJustus" />
+        <div class="title">
+            <h1>Fiche de Consultation Médicale</h1>
+            <p>Consultation N° {{ consultation.id }}</p>
+        </div>
+    </div>
+
+    {% if consultation.patient.photo %}
+    <img src="{{ url_for('static', filename='photos/' ~ consultation.patient.photo) }}" class="photo"
+        alt="Photo Patient" />
+    {% endif %}
+
+    <div class="section">
+        <h3>Informations Générales</h3>
+        <p><strong>Nom du patient :</strong> {{ consultation.patient.nom_complet }}</p>
+        <p><strong>Médecin :</strong> Dr {{ consultation.doctor.nom_complet }}</p>
+        <p><strong>Date de consultation :</strong> {{ consultation.date_consultation.strftime('%d/%m/%Y') }}</p>
+        <p><strong>Date de fin :</strong>
+            {% if consultation.date_fin_consultation %}
+            {{ consultation.date_fin_consultation.strftime('%d/%m/%Y') }}
+            {% else %}
+            En cours
+            {% endif %}
+        </p>
+        <p><strong>Statut :</strong> {{ consultation.etat or "Non défini" }}</p>
+    </div>
+
+    <div class="section">
+        <h3>Détails Médicaux</h3>
+        <p><strong>Motif :</strong><br> {{ consultation.motif or "Non précisé" }}</p>
+        <p><strong>Diagnostic :</strong><br> {{ consultation.diagnostic or "Non défini" }}</p>
+        <p><strong>Traitement :</strong><br> {{ consultation.traitement or "Non défini" }}</p>
+        <p><strong>Prescription :</strong><br> {{ consultation.prescription or "Aucune" }}</p>
+    </div>
+
+    <div class="footer">
+        Ce document a été généré automatiquement par MediJustsu | {{ now().strftime('%d/%m/%Y') }}
+    </div>
+
+</body>
+
+</html>

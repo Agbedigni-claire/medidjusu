@@ -1,0 +1,52 @@
+{% extends "doctor/base_doctor.html" %}
+
+{% block content %}
+<div class="app-container">
+
+    <div class="app-hero-header d-flex align-items-center justify-content-between">
+        <h4>Détail de la consultation N°{{ consultation.id }}</h4>
+        <a href="{{ url_for('historique_consultations_doctor') }}" class="btn btn-secondary btn-sm">← Retour</a>
+    </div>
+
+    <div class="app-body mt-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">Informations générales</div>
+            <div class="card-body">
+                <p><strong>Patient :</strong> {{ consultation.patient.nom_complet }}</p>
+                <p><strong>Médecin :</strong> Dr {{ consultation.doctor.nom_complet }}</p>
+                <p><strong>Date de consultation :</strong> {{ consultation.date_consultation.strftime('%d/%m/%Y') }}</p>
+                <p><strong>Date de fin :</strong>
+                    {% if consultation.date_fin_consultation %}
+                    {{ consultation.date_fin_consultation.strftime('%d/%m/%Y') }}
+                    {% else %}
+                    <span class="text-muted fst-italic">Non terminée</span>
+                    {% endif %}
+                </p>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>État :</strong>
+                        <span class="badge bg-info">{{ consultation.etat or "Non défini" }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Date de fin :</strong>
+                        {{ consultation.date_fin_consultation.strftime('%d/%m/%Y') if consultation.date_fin_consultation
+                        else "En cours" }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-header bg-light border-top">Détails médicaux</div>
+            <div class="card-body">
+                <p><strong>Motif :</strong><br> {{ consultation.motif or 'Non précisé' }}</p>
+                <p><strong>Diagnostic :</strong><br> {{ consultation.diagnostic or 'Non défini' }}</p>
+                <p><strong>Traitement :</strong><br> {{ consultation.traitement or 'Non défini' }}</p>
+                <p><strong>Prescription :</strong><br> {{ consultation.prescription or 'Aucune' }}</p>
+            </div>
+            <a href="{{ url_for('telecharger_consultation', id=consultation.id) }}"
+                class="btn btn-outline-primary mt-3">
+                <i class="ri-download-2-line"></i> Télécharger en PDF
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

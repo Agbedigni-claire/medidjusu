@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, session, request, flash
+from flask import Flask, render_template, redirect, url_for, session, request, flash, send_file,make_response
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import hashlib
@@ -6,6 +6,11 @@ from credentials import *
 from flask import Flask
 from flask_mail import Mail, Message
 import re
+from  models import db, Consultation, Patient, Doctor
+from datetime import  datetime, date, time
+from flask_migrate import Migrate
+from xhtml2pdf import pisa
+from io import BytesIO
 
 app = Flask(__name__)
 
@@ -17,6 +22,20 @@ app.config['MYSQL_PASSWORD'] = my_password
 app.config['MYSQL_DB'] =  my_db
 app.config['MYSQL_CURSORCLASS'] =my_CURSORCLASS
 
+# pour la base de donner ORM
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{my_user}:{my_password}@{my_host}/{my_db}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = True
+
+# Initialisation pour la mise a jour des table lors de la modification du model
+migrate = Migrate(app, db)
+
+# initialisation de l'orm
+db.init_app(app)
+
+# Créer une table mm si elle n'existe pas
+with app.app_context():
+    db.create_all()
 
 #pour l'envoie de Email
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -33,7 +52,7 @@ mysql.init_app(app)
 
 app.secret_key = my_secret_key
 
-#les patern
+#les pattern
 pattern_email = r'(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))'
 pattern_phone = r'^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$'
 """debut admin"""
@@ -132,19 +151,12 @@ def voir_admin(id):
 # voir profile docteur par admin
 @app.route('/admin/docteur/profile/<int:id>')
 def profile_doctor_admin(id):
-    cursor = mysql.connection.cursor()
-    cursor.execute("DELETE FROM doctor WHERE ident = %s", (id,))
-    mysql.connection.commit()
-    flash("Médecin supprimé avec succès.", "success")
     return render_template("admin/gestion_docteur/voir_profile_doctor.html")
 
 # mmodifier profile docteur par admin
 @app.route('/admin/docteur/modifier_profil/<int:id>')
 def modifier_profile_doctor_admin(id):
-    cursor = mysql.connection.cursor()
-    cursor.execute("DELETE FROM doctor WHERE ident = %s", (id,))
-    mysql.connection.commit()
-    flash("Médecin supprimé avec succès.", "success")
+
     return render_template("admin/gestion_docteur/modifier_docteur.html")
 
 #liste des patient admin
@@ -258,6 +270,7 @@ def index_caissier():
 # docteur
 @app.route("/doctor")
 def index_doctor():
+    print("Session:", session)
     return render_template("doctor/index_doctor.html")
 
 # liste docteur docteur
@@ -338,12 +351,7 @@ def modifier_profile_doctor():
         else:
             hashed_password = ancien_profil['password']
 
-        # verifier si le numero est valide
-        if re.match(pattern_phone, numero_telephone):
-            pass
-        else:
-            flash("phone number invalide", "danger")
-            return redirect(request.url)
+
 
         # Préparer les valeurs, en gardant l'ancienne si champ vide
         nom_utilisateur = nom_utilisateur or ancien_profil['nom_utilisateur']
@@ -376,6 +384,15 @@ def modifier_profile_doctor():
         heure_debut_samedi = heure_debut_samedi or ancien_profil.get('heure_debut_samedi')
         heure_fin_samedi = heure_fin_samedi or ancien_profil.get('heure_fin_samedi')
 
+        # verifier si le numero est valide
+        if numero_telephone==ancien_profil['numero_telephone']:
+            pass
+        elif re.match(pattern_phone, numero_telephone) :
+            pass
+        else:
+            print("tel incorect")
+            flash("phone number invalide", "danger")
+            return redirect(request.url)
         try:
             cursor.execute("""
                             UPDATE doctor SET
@@ -826,6 +843,10 @@ def login():
 
             cursor.close()
 
+            # recuperation des donner dans la base de donner
+            doctor = Doctor.query.filter_by(email_doctor=email).first()
+            session['doctor_id'] = doctor.ident
+
             if result and result['nom_utilisateur']:  # Si rempli
 
                 return redirect(url_for('index_doctor'))
@@ -1028,7 +1049,6 @@ def login():
             flash('Email ou mot de passe incorrect.', 'danger')
             return redirect(url_for('login'))
     return render_template('admin/connexion/login.html')
-
 
 
 
@@ -1321,7 +1341,7 @@ def signup_patient():
 
         try:
             cursor.execute("""INSERT INTO patient (nom_complet, email_patient, numero_telephone, password) 
-                            VALUES (%s, %s)""",
+                              VALUES (%s, %s, %s, %s)""",
                            (nom_complet, email, numero_telephone, hashed_password))
 
             mysql.connection.commit()
@@ -1705,6 +1725,185 @@ def signup_interne():
         return redirect(url_for('login'))
 
 
+"""debut consultation"""
+# gestion de conssutation
+from flask import render_template, request, redirect, url_for, flash
+from models import db, Consultation, Patient, Doctor
+
+# ajouter une consultation secretaire medical
+@app.route('/consultations/nouvelle', methods=['GET', 'POST'])
+def nouvelle_consultation():
+    patients = Patient.query.all()
+    doctors = Doctor.query.all()
+
+    if request.method == 'POST':
+        patient_id = request.form.get('patient_id')
+        doctor_id = request.form.get('doctor_id')
+        motif = request.form.get('motif')
+
+        if not patient_id or not doctor_id:
+            flash("Tous les champs sont obligatoires", "danger")
+            return redirect(request.url)
+
+        consultation = Consultation(
+            patient_id=patient_id,
+            doctor_id=doctor_id,
+            date_consultation=datetime.utcnow(),
+            motif=motif,
+            etat='en_attente'
+        )
+        db.session.add(consultation)
+        db.session.commit()
+        flash("Consultation enregistrée avec succès", "success")
+        return redirect(url_for('liste_consultation_secretaire'))
+
+    return render_template('secretaire_medicales/gestion de consultation/consultation.html', patients=patients, doctors=doctors)
+
+# liste des consultations secretaire
+@app.route('/secretaire/consultation/liste')
+def liste_consultation_secretaire():
+    # On récupère toutes les consultations, éventuellement triées par date décroissante
+    consultations = Consultation.query.order_by(Consultation.date_consultation.desc()).all()
+
+    return render_template(
+        'secretaire_medicales/gestion de consultation/liste_consultations.html',
+        consultations=consultations
+    )
+
+# modifier consultation secretaire
+@app.route('/secretaire/consultation/<int:id>/modifier', methods=['GET', 'POST'])
+def modifier_consultation(id):
+    consultation = Consultation.query.get_or_404(id)
+    patients = Patient.query.all()
+    doctors = Doctor.query.all()
+
+    if request.method == 'POST':
+        consultation.patient_id = request.form['patient_id']
+        consultation.doctor_id = request.form['doctor_id']
+        consultation.motif = request.form.get('motif')
+        db.session.commit()
+        flash('Consultation modifiée avec succès.', 'success')
+        return redirect(url_for('liste_consultation_secretaire'))
+
+    return render_template('secretaire_medicales/gestion de consultation/modifier_consltation.html',
+                           consultation=consultation, patients=patients, doctors=doctors)
+
+# historique  consultation secretaire
+@app.route('/secretaire/historique_consultations')
+def historique_consultations():
+    consultations = Consultation.query.filter(Consultation.etat != None).order_by(Consultation.date_fin_consultation.desc()).all()
+    return render_template('secretaire_medicales/gestion de consultation/historique_consultations.html', consultations=consultations)
+
+# voir detail d'une consultation secretaire
+@app.route('/secretaire/consultation/<int:id>')
+def voir_consultation(id):
+    consultation = Consultation.query.get_or_404(id)
+    return render_template('secretaire_medicales/gestion de consultation/detail_consultation.html', consultation=consultation)
+
+# lisde des consultation medecin
+@app.route('/doctor/<int:doctor_id>/consultations')
+def liste_consultations_medecin(doctor_id):
+    consultations = Consultation.query.filter_by(doctor_id=doctor_id).order_by(Consultation.date_consultation.desc()).all()
+    doctor = Doctor.query.get_or_404(doctor_id)
+    return render_template('doctor/consultation/liste_consultation.html', consultations=consultations, doctor=doctor)
+
+# faire consultation medecin
+@app.route('/docteur/consultation/<int:consultation_id>/completer', methods=['GET', 'POST'])
+def completer_consultation(consultation_id):
+    consultation = Consultation.query.get_or_404(consultation_id)
+
+    if request.method == 'POST':
+        consultation.diagnostic = request.form.get('diagnostic')
+        consultation.traitement = request.form.get('traitement')
+        consultation.prescription = request.form.get('prescription')
+        consultation.date_fin_consultation = datetime.utcnow()
+        consultation.etat = "Terminée"# si tu as ce champ
+        db.session.commit()
+        flash("Consultation complétée avec succès.", "success")
+        return redirect(url_for('liste_consultations_medecin', doctor_id=consultation.doctor_id))
+
+    return render_template('doctor/consultation/consultation.html', consultation=consultation)
+
+# consulter consultation medecin
+@app.route('/doctor/consultation/historique')
+def historique_consultations_doctor():
+    doctor_id = session.get('doctor_id')
+    consultations = Consultation.query.filter_by(doctor_id=doctor_id).order_by(
+        Consultation.date_consultation.desc()
+    ).all()
+
+    now = datetime.utcnow()
+    consultations_info = []
+
+    for c in consultations:
+        modifiable = False
+        if c.date_consultation:
+            # Vérifie si c.date_consultation est un date (sans heure) mais pas datetime
+            if isinstance(c.date_consultation, date) and not isinstance(c.date_consultation, datetime):
+                date_consultation_dt = datetime.combine(c.date_consultation, time.min)
+            else:
+                date_consultation_dt = c.date_consultation
+
+            minutes_passed = (now - date_consultation_dt).total_seconds() / 60
+            if minutes_passed <= 5:
+                modifiable = True
+
+        consultations_info.append({
+            'consultation': c,
+            'modifiable': modifiable
+        })
+
+    return render_template('doctor/consultation/historique_consultations.html',
+                           consultations_info=consultations_info)
+
+#modifier la consultation docteur
+@app.route('/doctor/consultation/<int:id>/modifier', methods=['GET', 'POST'])
+def modifier_consultation_doctor(id):
+    consultation = Consultation.query.get_or_404(id)
+
+    if request.method == 'POST':
+        # Récupération des données du formulaire
+        consultation.motif = request.form.get('motif')
+        consultation.diagnostic = request.form.get('diagnostic')
+        consultation.traitement = request.form.get('traitement')
+        consultation.prescription = request.form.get('prescription')
+
+        db.session.commit()
+        flash('Consultation modifiée avec succès.', 'success')
+        return redirect(url_for('historique_consultations_doctor'))
+
+    return render_template('doctor/consultation/modifier_consultation.html', consultation=consultation)
+
+
+# voir consultation passer docteur
+@app.route('/doctor/consultation/voir/<int:id>')
+def voir_consultation_doctor(id):
+    consultation = Consultation.query.get_or_404(id)
+    return render_template("doctor/consultation/detail_donsultation.html", consultation=consultation)
+
+
+#telecharger uyne consltation en pdf
+@app.route('/doctor/consultation/<int:id>/telecharger')
+def telecharger_consultation(id):
+    consultation = Consultation.query.get_or_404(id)
+    html = render_template("doctor/consultation/pdf_consultation.html",
+                           consultation=consultation,
+                           now=datetime.now )
+
+    pdf = BytesIO()
+    pisa.CreatePDF(html, dest=pdf)
+    pdf.seek(0)
+
+    return make_response(
+        pdf.read(),
+        {
+            "Content-Type": "application/pdf",
+            "Content-Disposition": f"attachment; filename=consultation_{id}.pdf"
+        }
+    )
+
+
+"""fin consultation"""
 
 
 

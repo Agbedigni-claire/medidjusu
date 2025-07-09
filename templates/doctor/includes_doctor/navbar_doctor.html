@@ -52,11 +52,23 @@
           </li>
         </ul>
       </li>
-      <li>
-        <a href="{{url_for('consultation_doctor')}}">
+      <li class="treeview">
+        <a href="#!">
           <i class="ri-calendar-line"></i>
           <span class="menu-text">Consultation</span>
         </a>
+        <ul class="treeview-menu">
+          <li>
+            {% if session.get('doctor_id') %}
+            <a href="{{ url_for('liste_consultations_medecin', doctor_id=session['doctor_id']) }}">Consultation</a>
+            {% else %}
+            <a href="#">Consultation (invalide)</a>
+            {% endif %}
+
+          <li>
+            <a href="{{url_for('historique_consultations_doctor')}}">Historique</a>
+          </li>
+        </ul>
       </li>
       <li>
         <a href="{{url_for('hospitalisation_doctor')}}">

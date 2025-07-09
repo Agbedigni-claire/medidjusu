@@ -1,6 +1,41 @@
-{%extends 'doctor/base_doctor.html' %}
+{% extends "doctor/base_doctor.html" %}
 
-{% block content%}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Faire la consultation N°{{ consultation.id }}</h2>
 
+    <div class="card p-4 shadow">
+        <p><strong>Patient :</strong> {{ consultation.patient.nom_complet }}</p>
+        <p><strong>Date consultation :</strong> {{ consultation.date_consultation.strftime('%d/%m/%Y') }}</p>
 
-{%endblock%}
+        <form method="POST">
+            <div class="form-group mt-3">
+                <label for="motif"><strong>Motif</strong></label>
+                <textarea name="motif" id="motif" class="form-control" rows="2"
+                    required>{{ consultation.motif or '' }}</textarea>
+            </div>
+
+            <div class="form-group mt-3">
+                <label for="diagnostic"><strong>Diagnostic</strong></label>
+                <textarea name="diagnostic" id="diagnostic" class="form-control"
+                    rows="3">{{ consultation.diagnostic or '' }}</textarea>
+            </div>
+
+            <div class="form-group mt-3">
+                <label for="traitement"><strong>Traitement</strong></label>
+                <textarea name="traitement" id="traitement" class="form-control"
+                    rows="3">{{ consultation.traitement or '' }}</textarea>
+            </div>
+
+            <div class="form-group mt-3">
+                <label for="prescription"><strong>Prescription</strong></label>
+                <textarea name="prescription" id="prescription" class="form-control"
+                    rows="2">{{ consultation.prescription or '' }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success mt-4">Enregistrer</button>
+            <a href="{{ url_for('historique_consultations_doctor') }}" class="btn btn-secondary mt-4">Retour</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
