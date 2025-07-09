@@ -1,0 +1,653 @@
+{% extends "secretaire_medicales/base_secretaire_medicales.html" %}
+
+{% block content%}
+<div class="app-container">
+  <div class="app-hero-header d-flex align-items-center">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <i class="ri-home-8-line lh-1 pe-3 me-3 border-end"></i>
+        <a href="{{url_for('index_secretaire_medicales')}}">Secretaire medicale</a>
+      </li>
+      <li class="breadcrumb-item text-primary" aria-current="page">
+        Modifier profile secretaire
+      </li>
+    </ol>
+  </div>
+
+  <div class="app-body">
+    <div class="row gx-3">
+      <div class="col-xl-12">
+        <div class="card">
+          <div class="card-body">
+            <form action="{{url_for('modifier_profile_secretaire')}}" method="post">
+              <div class="custom-tabs-container">
+                <ul class="nav nav-tabs" id="customTab2" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="tab-oneA" data-bs-toggle="tab" href="#oneA" role="tab"><i
+                        class="ri-briefcase-4-line"></i>Détails
+                      Personnel</a>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="tab-twoA" data-bs-toggle="tab" href="#twoA" role="tab"><i
+                        class="ri-account-pin-circle-line"></i>Profile et
+                      biographie</a>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="tab-threeA" data-bs-toggle="tab" href="#threeA" role="tab"
+                      aria-controls="threeA" aria-selected="false"><i class="ri-calendar-check-line"></i>
+                      Disponibiliter</a>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="tab-fourA" data-bs-toggle="tab" href="#fourA" role="tab"><i
+                        class="ri-lock-password-line"></i>Détails du
+                      compte</a>
+                  </li>
+                </ul>
+
+                <div class="tab-content">
+                  <!-- Détails personnel -->
+                  <div class="tab-pane fade show active" id="oneA" role="tabpanel">
+                    <div class="row gx-3">
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label for="a1">Nom</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ri-account-circle-line"></i></span>
+                            <input type="text" class="form-control" id="a1" name="nom" placeholder="Nom"
+                              value="{{ secretaire.nom_complet.split(' ')[0] if secretaire.nom_complet else '' }}">
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label for="a2">Prénom</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ri-account-circle-line"></i></span>
+                            <input type="text" class="form-control" id="a2" name="prenom" placeholder="Prénom"
+                              value="{{ secretaire.nom_complet.split(' ')[1] if secretaire.nom_complet and (secretaire.nom_complet.split(' ')|length > 1) else '' }}">
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label for="dob">Date de naissance</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                            <input type="date" class="form-control" id="dob" name="date_naissance"
+                              value="{{ secretaire.date_naissance or '' }}">
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label class="form-label">Sexe</label>
+                        <div>
+                          <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="sexe" value="homme" id="selectGender1" {%
+                              if secretaire.sexe=='Homme' %}checked{% endif %}>
+                            <label class="form-check-label" for="selectGender1">Homme</label>
+                          </div>
+                          <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="sexe" value="femme" id="selectGender2" {%
+                              if secretaire.sexe=='Femme' %}checked{% endif %}>
+                            <label class="form-check-label" for="selectGender2">Femme</label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a6">Téléphone</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-phone-line"></i></span>
+                          <input type="text" class="form-control" id="a6" name="telephone"
+                            placeholder="Numéro de téléphone" value="{{ secretaire.numero_telephone or '' }}">
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a7">Situation Matrimoniale</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-vip-crown-2-line"></i></span>
+                          <select class="form-select" id="a7" name="situation_matrimoniale">
+                            <option value="" disabled {% if not secretaire.situation_matrimoniale %}selected{% endif %}>
+                              --
+                              Choisissez votre situation matrimoniale --</option>
+                            <option value="Célibataire" {% if secretaire.situation_matrimoniale=='Célibataire'
+                              %}selected{% endif %}>Célibataire</option>
+                            <option value="Marié(e)" {% if secretaire.situation_matrimoniale=='Marié(e)' %}selected{%
+                              endif %}>Marié(e)</option>
+                            <option value="Divorcé(e)" {% if secretaire.situation_matrimoniale=='Divorcé(e)'
+                              %}selected{% endif %}>Divorcé(e)</option>
+                            <option value="Veuf(ve)" {% if secretaire.situation_matrimoniale=='Veuf(ve)' %}selected{%
+                              endif %}>Veuf(ve)</option>
+                            <option value="Séparé(e)" {% if secretaire.situation_matrimoniale=='Séparé(e)' %}selected{%
+                              endif %}>Séparé(e)</option>
+                            <option value="En concubinage" {% if secretaire.situation_matrimoniale=='En concubinage'
+                              %}selected{% endif %}>En concubinage</option>
+                            <option value="Pacsé(e)" {% if secretaire.situation_matrimoniale=='Pacsé(e)' %}selected{%
+                              endif %}>Pacsé(e)</option>
+                            <option value="Union libre" {% if secretaire.situation_matrimoniale=='Union libre'
+                              %}selected{% endif %}>Union libre</option>
+                            <option value="Fiancé(e)" {% if secretaire.situation_matrimoniale=='Fiancé(e)' %}selected{%
+                              endif %}>Fiancé(e)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a11">Adresse</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-projector-line"></i></span>
+                          <input type="text" class="form-control" id="a11" name="adresse" placeholder="Adresse"
+                            value="{{ secretaire.adresse or '' }}">
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a12">Pays</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-flag-line"></i></span>
+                          <select class="form-select" id="a12" name="pays">
+                            <option value="" disabled {% if not secretaire.pays %}selected{% endif %}>-- Choisissez un
+                              pays
+                              --</option>
+                            {% for p in pays %}
+                            <option value="{{ p }}" {% if secretaire.pays==p %}selected{% endif %}>{{ p }}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a14">Ville</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-scan-line"></i></span>
+                          <input type="text" class="form-control" id="a14" name="ville" placeholder="Ville"
+                            value="{{ secretaire.ville or '' }}">
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="a15">Code Postal</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-qr-scan-line"></i></span>
+                          <input type="text" class="form-control" id="a15" name="code_postal" placeholder="Code Postal"
+                            value="{{ secretaire.code_postal or '' }}">
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <!-- Profile et biographie -->
+                  <div class="tab-pane fade" id="twoA" role="tabpanel">
+
+                    <div class="row gx-3">
+
+                      <!-- Photo actuelle -->
+                      <div class="col-sm-2">
+                        <div class="mb-3">
+                          <img src="{{ secretaire.photo_url or url_for('static', filename='images/user3.png') }}"
+                            class="img-fluid rounded-2" alt="Photo du médecin">
+                        </div>
+                      </div>
+
+                      <!-- Bouton de chargement -->
+                      <div class="col-sm-4">
+                        <div class="mb-3">
+                          <label for="photo" class="form-label">Changer la photo</label>
+                          <input type="file" name="photo" id="photo" accept="image/*" class="form-control">
+                        </div>
+                      </div>
+                      <div class="col-sm-12">
+                        <textarea name="biography" class="form-control" rows="10"
+                          placeholder="Écrivez votre biographie ici...">{{ secretaire.description or '' }}</textarea>
+                      </div>
+
+                    </div>
+
+                  </div>
+                  <div class="tab-pane fade" id="threeA" role="tabpanel">
+                    <!-- Row starts -->
+                    <div class="row gx-3">
+
+                      <!-- Lundi -->
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label class="form-label" for="d1">Lundi</label>
+                          <div class="input-group">
+                            <select class="form-select" id="d1" name="lundi_debut">
+                              <option disabled {% if not secretaire.heure_debut_lundi %}selected{% endif %}>-- Heure
+                                début
+                                --</option>
+                              <option value="6" {% if secretaire.heure_debut_lundi=='6' %}selected{% endif %}>06h
+                              </option>
+                              <option value="7" {% if secretaire.heure_debut_lundi=='7' %}selected{% endif %}>07h
+                              </option>
+                              <option value="8" {% if secretaire.heure_debut_lundi=='8' %}selected{% endif %}>08h
+                              </option>
+                              <option value="9" {% if secretaire.heure_debut_lundi=='9' %}selected{% endif %}>09h
+                              </option>
+                              <option value="10" {% if secretaire.heure_debut_lundi=='10' %}selected{% endif %}>10h
+                              </option>
+                              <option value="11" {% if secretaire.heure_debut_lundi=='11' %}selected{% endif %}>11h
+                              </option>
+                              <option value="12" {% if secretaire.heure_debut_lundi=='12' %}selected{% endif %}>12h
+                              </option>
+                            </select>
+                            <select class="form-select" id="d1X" name="lundi_fin">
+                              <option disabled {% if not secretaire.heure_fin_lundi %}selected{% endif %}>-- Heure fin
+                                --
+                              </option>
+                              <option value="13" {% if secretaire.heure_fin_lundi=='13' %}selected{% endif %}>13h
+                              </option>
+                              <option value="14" {% if secretaire.heure_fin_lundi=='14' %}selected{% endif %}>14h
+                              </option>
+                              <option value="15" {% if secretaire.heure_fin_lundi=='15' %}selected{% endif %}>15h
+                              </option>
+                              <option value="16" {% if secretaire.heure_fin_lundi=='16' %}selected{% endif %}>16h
+                              </option>
+                              <option value="17" {% if secretaire.heure_fin_lundi=='17' %}selected{% endif %}>17h
+                              </option>
+                              <option value="18" {% if secretaire.heure_fin_lundi=='18' %}selected{% endif %}>18h
+                              </option>
+                              <option value="19" {% if secretaire.heure_fin_lundi=='19' %}selected{% endif %}>19h
+                              </option>
+                              <option value="20" {% if secretaire.heure_fin_lundi=='20' %}selected{% endif %}>20h
+                              </option>
+                              <option value="21" {% if secretaire.heure_fin_lundi=='21' %}selected{% endif %}>21h
+                              </option>
+                              <option value="22" {% if secretaire.heure_fin_lundi=='22' %}selected{% endif %}>22h
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+
+                      <!-- Mardi -->
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label class="form-label" for="d2">Mardi</label>
+                          <div class="input-group">
+                            <select class="form-select" id="d2" name="mardi_debut">
+                              <option disabled {% if not secretaire.heure_debut_mardi %}selected{% endif %}>-- Heure
+                                début
+                                --</option>
+                              <option value="6" {% if secretaire.heure_debut_mardi=='6' %}selected{% endif %}>06h
+                              </option>
+                              <option value="7" {% if secretaire.heure_debut_mardi=='7' %}selected{% endif %}>07h
+                              </option>
+                              <option value="8" {% if secretaire.heure_debut_mardi=='8' %}selected{% endif %}>08h
+                              </option>
+                              <option value="9" {% if secretaire.heure_debut_mardi=='9' %}selected{% endif %}>09h
+                              </option>
+                              <option value="10" {% if secretaire.heure_debut_mardi=='10' %}selected{% endif %}>10h
+                              </option>
+                              <option value="11" {% if secretaire.heure_debut_mardi=='11' %}selected{% endif %}>11h
+                              </option>
+                              <option value="12" {% if secretaire.heure_debut_mardi=='12' %}selected{% endif %}>12h
+                              </option>
+                            </select>
+                            <select class="form-select" id="d2X" name="mardi_fin">
+                              <option disabled {% if not secretaire.heure_fin_mardi %}selected{% endif %}>-- Heure fin
+                                --
+                              </option>
+                              <option value="13" {% if secretaire.heure_fin_mardi=='13' %}selected{% endif %}>13h
+                              </option>
+                              <option value="14" {% if secretaire.heure_fin_mardi=='14' %}selected{% endif %}>14h
+                              </option>
+                              <option value="15" {% if secretaire.heure_fin_mardi=='15' %}selected{% endif %}>15h
+                              </option>
+                              <option value="16" {% if secretaire.heure_fin_mardi=='16' %}selected{% endif %}>16h
+                              </option>
+                              <option value="17" {% if secretaire.heure_fin_mardi=='17' %}selected{% endif %}>17h
+                              </option>
+                              <option value="18" {% if secretaire.heure_fin_mardi=='18' %}selected{% endif %}>18h
+                              </option>
+                              <option value="19" {% if secretaire.heure_fin_mardi=='19' %}selected{% endif %}>19h
+                              </option>
+                              <option value="20" {% if secretaire.heure_fin_mardi=='20' %}selected{% endif %}>20h
+                              </option>
+                              <option value="21" {% if secretaire.heure_fin_mardi=='21' %}selected{% endif %}>21h
+                              </option>
+                              <option value="22" {% if secretaire.heure_fin_mardi=='22' %}selected{% endif %}>22h
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+
+                      <!-- Mercredi -->
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label class="form-label" for="d3">Mercredi</label>
+                          <div class="input-group">
+                            <select class="form-select" id="d3" name="mercredi_debut">
+                              <option disabled {% if not secretaire.heure_debut_mercredi %}selected{% endif %}>-- Heure
+                                début --</option>
+                              <option value="6" {% if secretaire.heure_debut_mercredi=='6' %}selected{% endif %}>06h
+                              </option>
+                              <option value="7" {% if secretaire.heure_debut_mercredi=='7' %}selected{% endif %}>07h
+                              </option>
+                              <option value="8" {% if secretaire.heure_debut_mercredi=='8' %}selected{% endif %}>08h
+                              </option>
+                              <option value="9" {% if secretaire.heure_debut_mercredi=='9' %}selected{% endif %}>09h
+                              </option>
+                              <option value="10" {% if secretaire.heure_debut_mercredi=='10' %}selected{% endif %}>10h
+                              </option>
+                              <option value="11" {% if secretaire.heure_debut_mercredi=='11' %}selected{% endif %}>11h
+                              </option>
+                              <option value="12" {% if secretaire.heure_debut_mercredi=='12' %}selected{% endif %}>12h
+                              </option>
+                            </select>
+                            <select class="form-select" id="d3X" name="mercredi_fin">
+                              <option disabled {% if not secretaire.heure_fin_mercredi %}selected{% endif %}>-- Heure
+                                fin --
+                              </option>
+                              <option value="13" {% if secretaire.heure_fin_mercredi=='13' %}selected{% endif %}>13h
+                              </option>
+                              <option value="14" {% if secretaire.heure_fin_mercredi=='14' %}selected{% endif %}>14h
+                              </option>
+                              <option value="15" {% if secretaire.heure_fin_mercredi=='15' %}selected{% endif %}>15h
+                              </option>
+                              <option value="16" {% if secretaire.heure_fin_mercredi=='16' %}selected{% endif %}>16h
+                              </option>
+                              <option value="17" {% if secretaire.heure_fin_mercredi=='17' %}selected{% endif %}>17h
+                              </option>
+                              <option value="18" {% if secretaire.heure_fin_mercredi=='18' %}selected{% endif %}>18h
+                              </option>
+                              <option value="19" {% if secretaire.heure_fin_mercredi=='19' %}selected{% endif %}>19h
+                              </option>
+                              <option value="20" {% if secretaire.heure_fin_mercredi=='20' %}selected{% endif %}>20h
+                              </option>
+                              <option value="21" {% if secretaire.heure_fin_mercredi=='21' %}selected{% endif %}>21h
+                              </option>
+                              <option value="22" {% if secretaire.heure_fin_mercredi=='22' %}selected{% endif %}>22h
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+
+                      <!-- Jeudi -->
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label class="form-label" for="d4">Jeudi</label>
+                          <div class="input-group">
+                            <select class="form-select" id="d4" name="jeudi_debut">
+                              <option disabled {% if not secretaire.heure_debut_jeudi %}selected{% endif %}>-- Heure
+                                début
+                                --</option>
+                              <option value="6" {% if secretaire.heure_debut_jeudi=='6' %}selected{% endif %}>06h
+                              </option>
+                              <option value="7" {% if secretaire.heure_debut_jeudi=='7' %}selected{% endif %}>07h
+                              </option>
+                              <option value="8" {% if secretaire.heure_debut_jeudi=='8' %}selected{% endif %}>08h
+                              </option>
+                              <option value="9" {% if secretaire.heure_debut_jeudi=='9' %}selected{% endif %}>09h
+                              </option>
+                              <option value="10" {% if secretaire.heure_debut_jeudi=='10' %}selected{% endif %}>10h
+                              </option>
+                              <option value="11" {% if secretaire.heure_debut_jeudi=='11' %}selected{% endif %}>11h
+                              </option>
+                              <option value="12" {% if secretaire.heure_debut_jeudi=='12' %}selected{% endif %}>12h
+                              </option>
+                            </select>
+                            <select class="form-select" id="d4X" name="jeudi_fin">
+                              <option disabled {% if not secretaire.heure_fin_jeudi %}selected{% endif %}>-- Heure fin
+                                --
+                              </option>
+                              <option value="13" {% if secretaire.heure_fin_jeudi=='13' %}selected{% endif %}>13h
+                              </option>
+                              <option value="14" {% if secretaire.heure_fin_jeudi=='14' %}selected{% endif %}>14h
+                              </option>
+                              <option value="15" {% if secretaire.heure_fin_jeudi=='15' %}selected{% endif %}>15h
+                              </option>
+                              <option value="16" {% if secretaire.heure_fin_jeudi=='16' %}selected{% endif %}>16h
+                              </option>
+                              <option value="17" {% if secretaire.heure_fin_jeudi=='17' %}selected{% endif %}>17h
+                              </option>
+                              <option value="18" {% if secretaire.heure_fin_jeudi=='18' %}selected{% endif %}>18h
+                              </option>
+                              <option value="19" {% if secretaire.heure_fin_jeudi=='19' %}selected{% endif %}>19h
+                              </option>
+                              <option value="20" {% if secretaire.heure_fin_jeudi=='20' %}selected{% endif %}>20h
+                              </option>
+                              <option value="21" {% if secretaire.heure_fin_jeudi=='21' %}selected{% endif %}>21h
+                              </option>
+                              <option value="22" {% if secretaire.heure_fin_jeudi=='22' %}selected{% endif %}>22h
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+
+                      <!-- Vendredi -->
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label class="form-label" for="d5">Vendredi</label>
+                          <div class="input-group">
+                            <select class="form-select" id="d5" name="vendredi_debut">
+                              <option disabled {% if not secretaire.heure_debut_vendredi %}selected{% endif %}>-- Heure
+                                début --</option>
+                              <option value="6" {% if secretaire.heure_debut_vendredi=='6' %}selected{% endif %}>06h
+                              </option>
+                              <option value="7" {% if secretaire.heure_debut_vendredi=='7' %}selected{% endif %}>07h
+                              </option>
+                              <option value="8" {% if secretaire.heure_debut_vendredi=='8' %}selected{% endif %}>08h
+                              </option>
+                              <option value="9" {% if secretaire.heure_debut_vendredi=='9' %}selected{% endif %}>09h
+                              </option>
+                              <option value="10" {% if secretaire.heure_debut_vendredi=='10' %}selected{% endif %}>10h
+                              </option>
+                              <option value="11" {% if secretaire.heure_debut_vendredi=='11' %}selected{% endif %}>11h
+                              </option>
+                              <option value="12" {% if secretaire.heure_debut_vendredi=='12' %}selected{% endif %}>12h
+                              </option>
+                            </select>
+
+                            <select class="form-select" id="d5X" name="vendredi_fin">
+                              <option disabled {% if not secretaire.heure_fin_vendredi %}selected{% endif %}>-- Heure
+                                fin --
+                              </option>
+                              <option value="13" {% if secretaire.heure_fin_vendredi=='13' %}selected{% endif %}>13h
+                              </option>
+                              <option value="14" {% if secretaire.heure_fin_vendredi=='14' %}selected{% endif %}>14h
+                              </option>
+                              <option value="15" {% if secretaire.heure_fin_vendredi=='15' %}selected{% endif %}>15h
+                              </option>
+                              <option value="16" {% if secretaire.heure_fin_vendredi=='16' %}selected{% endif %}>16h
+                              </option>
+                              <option value="17" {% if secretaire.heure_fin_vendredi=='17' %}selected{% endif %}>17h
+                              </option>
+                              <option value="18" {% if secretaire.heure_fin_vendredi=='18' %}selected{% endif %}>18h
+                              </option>
+                              <option value="19" {% if secretaire.heure_fin_vendredi=='19' %}selected{% endif %}>19h
+                              </option>
+                              <option value="20" {% if secretaire.heure_fin_vendredi=='20' %}selected{% endif %}>20h
+                              </option>
+                              <option value="21" {% if secretaire.heure_fin_vendredi=='21' %}selected{% endif %}>21h
+                              </option>
+                              <option value="22" {% if secretaire.heure_fin_vendredi=='22' %}selected{% endif %}>22h
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+
+                      <!-- Samedi -->
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label class="form-label" for="d6">Samedi</label>
+                          <div class="input-group">
+                            <select class="form-select" id="d6" name="samedi_debut">
+                              <option disabled {% if not secretaire.heure_debut_samedi %}selected{% endif %}>-- Heure
+                                début
+                                --</option>
+                              <option value="6" {% if secretaire.heure_debut_samedi=='6' %}selected{% endif %}>06h
+                              </option>
+                              <option value="7" {% if secretaire.heure_debut_samedi=='7' %}selected{% endif %}>07h
+                              </option>
+                              <option value="8" {% if secretaire.heure_debut_samedi=='8' %}selected{% endif %}>08h
+                              </option>
+                              <option value="9" {% if secretaire.heure_debut_samedi=='9' %}selected{% endif %}>09h
+                              </option>
+                              <option value="10" {% if secretaire.heure_debut_samedi=='10' %}selected{% endif %}>10h
+                              </option>
+                              <option value="11" {% if secretaire.heure_debut_samedi=='11' %}selected{% endif %}>11h
+                              </option>
+                              <option value="12" {% if secretaire.heure_debut_samedi=='12' %}selected{% endif %}>12h
+                              </option>
+                            </select>
+
+                            <select class="form-select" id="d6X" name="samedi_fin">
+                              <option disabled {% if not secretaire.heure_fin_samedi %}selected{% endif %}>-- Heure fin
+                                --
+                              </option>
+                              <option value="13" {% if secretaire.heure_fin_samedi=='13' %}selected{% endif %}>13h
+                              </option>
+                              <option value="14" {% if secretaire.heure_fin_samedi=='14' %}selected{% endif %}>14h
+                              </option>
+                              <option value="15" {% if secretaire.heure_fin_samedi=='15' %}selected{% endif %}>15h
+                              </option>
+                              <option value="16" {% if secretaire.heure_fin_samedi=='16' %}selected{% endif %}>16h
+                              </option>
+                              <option value="17" {% if secretaire.heure_fin_samedi=='17' %}selected{% endif %}>17h
+                              </option>
+                              <option value="18" {% if secretaire.heure_fin_samedi=='18' %}selected{% endif %}>18h
+                              </option>
+                              <option value="19" {% if secretaire.heure_fin_samedi=='19' %}selected{% endif %}>19h
+                              </option>
+                              <option value="20" {% if secretaire.heure_fin_samedi=='20' %}selected{% endif %}>20h
+                              </option>
+                              <option value="21" {% if secretaire.heure_fin_samedi=='21' %}selected{% endif %}>21h
+                              </option>
+                              <option value="22" {% if secretaire.heure_fin_samedi=='22' %}selected{% endif %}>22h
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+
+                      <!-- Dimanche -->
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <div class="mb-3">
+                          <label class="form-label" for="d7">Dimanche</label>
+                          <div class="input-group">
+                            <select class="form-select" id="d7" name="dimanche_debut">
+                              <option disabled {% if not secretaire.heure_debut_dimanche %}selected{% endif %}>-- Heure
+                                début --</option>
+                              <option value="6" {% if secretaire.heure_debut_dimanche=='6' %}selected{% endif %}>06h
+                              </option>
+                              <option value="7" {% if secretaire.heure_debut_dimanche=='7' %}selected{% endif %}>07h
+                              </option>
+                              <option value="8" {% if secretaire.heure_debut_dimanche=='8' %}selected{% endif %}>08h
+                              </option>
+                              <option value="9" {% if secretaire.heure_debut_dimanche=='9' %}selected{% endif %}>09h
+                              </option>
+                              <option value="10" {% if secretaire.heure_debut_dimanche=='10' %}selected{% endif %}>10h
+                              </option>
+                              <option value="11" {% if secretaire.heure_debut_dimanche=='11' %}selected{% endif %}>11h
+                              </option>
+                              <option value="12" {% if secretaire.heure_debut_dimanche=='12' %}selected{% endif %}>12h
+                              </option>
+                            </select>
+
+                            <select class="form-select" id="d7X" name="dimanche_fin">
+                              <option disabled {% if not secretaire.heure_fin_dimanche %}selected{% endif %}>-- Heure
+                                fin --
+                              </option>
+                              <option value="13" {% if secretaire.heure_fin_dimanche=='13' %}selected{% endif %}>13h
+                              </option>
+                              <option value="14" {% if secretaire.heure_fin_dimanche=='14' %}selected{% endif %}>14h
+                              </option>
+                              <option value="15" {% if secretaire.heure_fin_dimanche=='15' %}selected{% endif %}>15h
+                              </option>
+                              <option value="16" {% if secretaire.heure_fin_dimanche=='16' %}selected{% endif %}>16h
+                              </option>
+                              <option value="17" {% if secretaire.heure_fin_dimanche=='17' %}selected{% endif %}>17h
+                              </option>
+                              <option value="18" {% if secretaire.heure_fin_dimanche=='18' %}selected{% endif %}>18h
+                              </option>
+                              <option value="19" {% if secretaire.heure_fin_dimanche=='19' %}selected{% endif %}>19h
+                              </option>
+                              <option value="20" {% if secretaire.heure_fin_dimanche=='20' %}selected{% endif %}>20h
+                              </option>
+                              <option value="21" {% if secretaire.heure_fin_dimanche=='21' %}selected{% endif %}>21h
+                              </option>
+                              <option value="22" {% if secretaire.heure_fin_dimanche=='22' %}selected{% endif %}>22h
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+
+                    </div>
+                    <!-- Row ends -->
+                  </div>
+
+                  <!-- Détails du compte -->
+                  <div class="tab-pane fade" id="fourA" role="tabpanel">
+
+                    <div class="row gx-3">
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="u1">Nom d'utilisateur</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-account-pin-circle-line"></i></span>
+                          <input type="text" id="u1" name="username" class="form-control"
+                            placeholder="Nom d'utilisateur" value="{{ secretaire.nom_utilisateur }}">
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="u2">Nouveau mot de passe</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-lock-password-line"></i></span>
+                          <input type="password" id="u2" name="new_password" class="form-control"
+                            placeholder="Mot de passe">
+                          <button class="btn btn-outline-secondary" type="button">
+                            <i class="ri-eye-line"></i>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="col-xxl-3 col-lg-4 col-sm-6">
+                        <label for="u3">Confirmer mot de passe</label>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="ri-lock-password-line"></i></span>
+                          <input type="password" id="u3" name="confirm_new_password" class="form-control"
+                            placeholder="Confirmer mot de passe">
+                          <button class="btn btn-outline-secondary" type="button">
+                            <i class="ri-eye-off-line"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end mt-4">
+                  <a href="{{url_for('profile_secretaire_medicale')}}" class="btn btn-outline-secondary">Annuler</a>
+                  <button type="submit" class="btn btn-primary">Mettre à jour le profile</button>
+                </div>
+
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

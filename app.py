@@ -722,10 +722,193 @@ def liste_admissions():
     return render_template("secretaire_medicales/gestion_patients/liste_admissions.html")
 
 # modifier profile secretaire
-@app.route('/secretaire/profile/modifier')
+@app.route('/secretaire/profile/modifier', methods=['GET', 'POST'])
 def modifier_profile_secretaire():
-    return render_template("secretaire_medicales/gestion _secretaire_medical/modifier_profile.html")
+    if 'email_secretaire' not in session:
+        flash("Veuillez vous connecter.", "warning")
+        return redirect(url_for('login'))
 
+    email = session['email_secretaire']
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
+    if request.method == 'POST':
+        donnes = request.form
+        nom_utilisateur = donnes.get('username')
+        nom = donnes.get('nom')
+        prenom = donnes.get('prenom')
+        nom_complet = (nom + ' ' + prenom) if nom and prenom else None
+        date_naissance = donnes.get('date_naissance')
+        sexe = donnes.get('sexe')
+        situation_matrimoniale = donnes.get('situation_matrimoniale')
+        photo = donnes.get('photo')
+        description = donnes.get('description')
+        adresse = donnes.get('adresse')
+        pays = donnes.get('pays')
+        ville = donnes.get('ville')
+        code_postal = donnes.get('code_postal')
+        numero_telephone = donnes.get('telephone')
+        password = donnes.get('new_password')
+        confirm_password = donnes.get('confirm_new_password')
+
+        # Horaires semaine
+        heure_debut_dimanche = donnes.get('dimanche_debut')
+        heure_fin_dimanche = donnes.get('dimanche_fin')
+        heure_debut_lundi = donnes.get('lundi_debut')
+        heure_fin_lundi = donnes.get('lundi_fin')
+        heure_debut_mardi = donnes.get('mardi_debut')
+        heure_fin_mardi = donnes.get('mardi_fin')
+        heure_debut_mercredi = donnes.get('mercredi_debut')
+        heure_fin_mercredi = donnes.get('mercredi_fin')
+        heure_debut_jeudi = donnes.get('jeudi_debut')
+        heure_fin_jeudi = donnes.get('jeudi_fin')
+        heure_debut_vendredi = donnes.get('vendredi_debut')
+        heure_fin_vendredi = donnes.get('vendredi_fin')
+        heure_debut_samedi = donnes.get('samedi_debut')
+        heure_fin_samedi = donnes.get('samedi_fin')
+
+        # Récupérer l'ancien profil
+        cursor.execute("SELECT * FROM secretaire_medicale WHERE email_secretaire = %s", (email,))
+        ancien_profil = cursor.fetchone()
+
+        if not ancien_profil:
+            flash("Profil non trouvé.", "danger")
+            cursor.close()
+            return redirect(url_for('index_secretaire'))
+
+        # Vérification nom_utilisateur déjà utilisé par un autre compte
+        if nom_utilisateur and nom_utilisateur != ancien_profil['nom_utilisateur']:
+            cursor.execute("SELECT * FROM secretaire_medicale WHERE nom_utilisateur = %s AND email_secretaire != %s",
+                           (nom_utilisateur, email))
+            existing_user = cursor.fetchone()
+            if existing_user:
+                flash("Ce nom d'utilisateur est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                cursor.close()
+                return redirect(request.url)
+
+        # Gestion du mot de passe
+        if password:
+            if password != confirm_password:
+                flash("Les mots de passe ne correspondent pas. Veuillez réessayer.", "danger")
+                cursor.close()
+                return redirect(request.url)
+            hashed_password = hashlib.md5(password.encode()).hexdigest()
+        else:
+            hashed_password = ancien_profil['password']
+
+        # Préparer les valeurs en gardant les anciennes si champs vides
+        nom_utilisateur = nom_utilisateur or ancien_profil['nom_utilisateur']
+        nom_complet = nom_complet or ancien_profil['nom_complet']
+        date_naissance = date_naissance or ancien_profil['date_naissance']
+        sexe = sexe or ancien_profil['sexe']
+        situation_matrimoniale = situation_matrimoniale or ancien_profil['situation_matrimoniale']
+        photo = photo or ancien_profil['photo']
+        description = description or ancien_profil['description']
+        adresse = adresse or ancien_profil['adresse']
+        pays = pays or ancien_profil['pays']
+        ville = ville or ancien_profil['ville']
+        code_postal = code_postal or ancien_profil['code_postal']
+        numero_telephone = numero_telephone or ancien_profil['numero_telephone']
+
+        heure_debut_dimanche = heure_debut_dimanche or ancien_profil.get('heure_debut_dimanche')
+        heure_fin_dimanche = heure_fin_dimanche or ancien_profil.get('heure_fin_dimanche')
+        heure_debut_lundi = heure_debut_lundi or ancien_profil.get('heure_debut_lundi')
+        heure_fin_lundi = heure_fin_lundi or ancien_profil.get('heure_fin_lundi')
+        heure_debut_mardi = heure_debut_mardi or ancien_profil.get('heure_debut_mardi')
+        heure_fin_mardi = heure_fin_mardi or ancien_profil.get('heure_fin_mardi')
+        heure_debut_mercredi = heure_debut_mercredi or ancien_profil.get('heure_debut_mercredi')
+        heure_fin_mercredi = heure_fin_mercredi or ancien_profil.get('heure_fin_mercredi')
+        heure_debut_jeudi = heure_debut_jeudi or ancien_profil.get('heure_debut_jeudi')
+        heure_fin_jeudi = heure_fin_jeudi or ancien_profil.get('heure_fin_jeudi')
+        heure_debut_vendredi = heure_debut_vendredi or ancien_profil.get('heure_debut_vendredi')
+        heure_fin_vendredi = heure_fin_vendredi or ancien_profil.get('heure_fin_vendredi')
+        heure_debut_samedi = heure_debut_samedi or ancien_profil.get('heure_debut_samedi')
+        heure_fin_samedi = heure_fin_samedi or ancien_profil.get('heure_fin_samedi')
+
+        # Vérification numéro de téléphone
+        if numero_telephone == ancien_profil['numero_telephone']:
+            pass
+        elif numero_telephone and re.match(pattern_phone, numero_telephone):
+            pass
+        else:
+            flash("Numéro de téléphone invalide.", "danger")
+            cursor.close()
+            return redirect(request.url)
+
+        try:
+            cursor.execute("""
+                UPDATE secretaire_medicale SET
+                    nom_utilisateur=%s,
+                    nom_complet=%s,
+                    date_naissance=%s,
+                    sexe=%s,
+                    situation_matrimoniale=%s,
+                    photo=%s,
+                    description=%s,
+                    adresse=%s,
+                    pays=%s,
+                    ville=%s,
+                    code_postal=%s,
+                    numero_telephone=%s,
+                    password=%s,
+                    heure_debut_dimanche=%s,
+                    heure_fin_dimanche=%s,
+                    heure_debut_lundi=%s,
+                    heure_fin_lundi=%s,
+                    heure_debut_mardi=%s,
+                    heure_fin_mardi=%s,
+                    heure_debut_mercredi=%s,
+                    heure_fin_mercredi=%s,
+                    heure_debut_jeudi=%s,
+                    heure_fin_jeudi=%s,
+                    heure_debut_vendredi=%s,
+                    heure_fin_vendredi=%s,
+                    heure_debut_samedi=%s,
+                    heure_fin_samedi=%s
+                WHERE email_secretaire=%s
+            """, (
+                nom_utilisateur, nom_complet, date_naissance, sexe,
+                situation_matrimoniale, photo, description, adresse,
+                pays, ville, code_postal, numero_telephone,
+                hashed_password,
+                heure_debut_dimanche, heure_fin_dimanche,
+                heure_debut_lundi, heure_fin_lundi,
+                heure_debut_mardi, heure_fin_mardi,
+                heure_debut_mercredi, heure_fin_mercredi,
+                heure_debut_jeudi, heure_fin_jeudi,
+                heure_debut_vendredi, heure_fin_vendredi,
+                heure_debut_samedi, heure_fin_samedi,
+                email
+            ))
+            mysql.connection.commit()
+            cursor.close()
+            flash("Profil mis à jour avec succès.", "success")
+            return redirect(url_for('index_secretaire_medicales'))
+
+        except Exception as e:
+            print("Erreur lors de la modification du profil :", e)
+            flash("Erreur lors de la modification du profil.", "danger")
+            cursor.close()
+            return redirect(request.url)
+
+    # GET : Pré-remplir le formulaire
+    cursor.execute("SELECT * FROM secretaire_medicale WHERE email_secretaire = %s", (email,))
+    secretaire = cursor.fetchone()
+    cursor.close()
+
+    # Liste des pays (exemple, adapte si besoin)
+    pays = [
+        "Afghanistan", "Afrique du Sud", "Albanie", "Algérie", "Allemagne", "Andorre", "Angola", "Antigua-et-Barbuda",
+        "Arabie Saoudite", "Argentine", "Arménie", "Australie", "Autriche", "Azerbaïdjan", "Bahamas", "Bahreïn",
+        # ... etc
+        "France", "Togo", "États-Unis", "Royaume-Uni"
+    ]
+
+    return render_template("secretaire_medicales/gestion _secretaire_medical/modifier_profile.html", secretaire=secretaire, pays=pays)
+
+#voir profile secretaire medicale
+@app.route("/secretaire_medicales/voir profile")
+def profile_secretaire_medicale():
+    return render_template("secretaire_medicales/gestion _secretaire_medical/profile53.html")
 
 """fin secretaire medical"""
 
@@ -1845,7 +2028,7 @@ def historique_consultations_doctor():
                 date_consultation_dt = c.date_consultation
 
             minutes_passed = (now - date_consultation_dt).total_seconds() / 60
-            if minutes_passed <= 5:
+            if minutes_passed <= 50000:
                 modifiable = True
 
         consultations_info.append({

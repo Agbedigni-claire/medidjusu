@@ -94,5 +94,3 @@ class Consultation(db.Model):
 
     patient_id = db.Column(db.Integer, db.ForeignKey('patient.ident'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.ident'), nullable=False)
-
-

@@ -53,38 +53,45 @@
                           <label for="a1">Nom</label>
                           <div class="input-group">
                             <span class="input-group-text"><i class="ri-account-circle-line"></i></span>
-                            <input type="text" class="form-control" id="a1" name="nom" placeholder="Nom">
+                            <input type="text" class="form-control" id="a1" name="nom" placeholder="Nom"
+                              value="{{ doctor.nom_complet.split(' ')[0] if doctor.nom_complet else '' }}">
                           </div>
                         </div>
                       </div>
+
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
                         <div class="mb-3">
                           <label for="a2">Prénom</label>
                           <div class="input-group">
                             <span class="input-group-text"><i class="ri-account-circle-line"></i></span>
-                            <input type="text" class="form-control" id="a2" name="prenom" placeholder="Prénom">
+                            <input type="text" class="form-control" id="a2" name="prenom" placeholder="Prénom"
+                              value="{{ doctor.nom_complet.split(' ')[1] if doctor.nom_complet and (doctor.nom_complet.split(' ')|length > 1) else '' }}">
                           </div>
                         </div>
                       </div>
+
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
                         <div class="mb-3">
                           <label for="dob">Date de naissance</label>
                           <div class="input-group">
                             <span class="input-group-text"><i class="ri-calendar-line"></i></span>
-                            <input type="date" class="form-control" id="dob" name="date_naissance">
+                            <input type="date" class="form-control" id="dob" name="date_naissance"
+                              value="{{ doctor.date_naissance or '' }}">
                           </div>
                         </div>
                       </div>
+
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
                         <label class="form-label">Sexe</label>
                         <div>
                           <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="sexe" value="homme" id="selectGender1"
-                              checked>
+                            <input class="form-check-input" type="radio" name="sexe" value="homme" id="selectGender1" {%
+                              if doctor.sexe=='Homme' %}checked{% endif %}>
                             <label class="form-check-label" for="selectGender1">Homme</label>
                           </div>
                           <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="sexe" value="femme" id="selectGender2">
+                            <input class="form-check-input" type="radio" name="sexe" value="femme" id="selectGender2" {%
+                              if doctor.sexe=='Femme' %}checked{% endif %}>
                             <label class="form-check-label" for="selectGender2">Femme</label>
                           </div>
                         </div>
@@ -95,7 +102,7 @@
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-phone-line"></i></span>
                           <input type="text" class="form-control" id="a6" name="telephone"
-                            placeholder="Numéro de téléphone">
+                            placeholder="Numéro de téléphone" value="{{ doctor.numero_telephone or '' }}">
                         </div>
                       </div>
 
@@ -104,18 +111,27 @@
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-vip-crown-2-line"></i></span>
                           <select class="form-select" id="a7" name="situation_matrimoniale">
-                            <option value="" selected disabled>-- Choisissez votre situation matrimoniale --</option>
-                            <option value="Célibataire">Célibataire</option>
-                            <option value="Marié(e)">Marié(e)</option>
-                            <option value="Divorcé(e)">Divorcé(e)</option>
-                            <option value="Veuf(ve)">Veuf(ve)</option>
-                            <option value="Séparé(e)">Séparé(e)</option>
-                            <option value="En concubinage">En concubinage</option>
-                            <option value="Pacsé(e)">Pacsé(e)</option>
-                            <option value="Union libre">Union libre</option>
-                            <option value="Fiancé(e)">Fiancé(e)</option>
+                            <option value="" disabled {% if not doctor.situation_matrimoniale %}selected{% endif %}>--
+                              Choisissez votre situation matrimoniale --</option>
+                            <option value="Célibataire" {% if doctor.situation_matrimoniale=='Célibataire' %}selected{%
+                              endif %}>Célibataire</option>
+                            <option value="Marié(e)" {% if doctor.situation_matrimoniale=='Marié(e)' %}selected{% endif
+                              %}>Marié(e)</option>
+                            <option value="Divorcé(e)" {% if doctor.situation_matrimoniale=='Divorcé(e)' %}selected{%
+                              endif %}>Divorcé(e)</option>
+                            <option value="Veuf(ve)" {% if doctor.situation_matrimoniale=='Veuf(ve)' %}selected{% endif
+                              %}>Veuf(ve)</option>
+                            <option value="Séparé(e)" {% if doctor.situation_matrimoniale=='Séparé(e)' %}selected{%
+                              endif %}>Séparé(e)</option>
+                            <option value="En concubinage" {% if doctor.situation_matrimoniale=='En concubinage'
+                              %}selected{% endif %}>En concubinage</option>
+                            <option value="Pacsé(e)" {% if doctor.situation_matrimoniale=='Pacsé(e)' %}selected{% endif
+                              %}>Pacsé(e)</option>
+                            <option value="Union libre" {% if doctor.situation_matrimoniale=='Union libre' %}selected{%
+                              endif %}>Union libre</option>
+                            <option value="Fiancé(e)" {% if doctor.situation_matrimoniale=='Fiancé(e)' %}selected{%
+                              endif %}>Fiancé(e)</option>
                           </select>
-
                         </div>
                       </div>
 
@@ -124,106 +140,164 @@
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-copper-diamond-line"></i></span>
                           <select class="form-select" id="a8" name="qualification">
-                            <option value="" selected disabled>-- Choisissez une qualification --</option>
+                            <option value="" disabled {% if not doctor.qualification %}selected{% endif %}>-- Choisissez
+                              une qualification --</option>
+
                             <!-- Diplômes médicaux -->
-                            <option value="MBBS">MBBS</option>
-                            <option value="MBBS, MS">MBBS, MS</option>
-                            <option value="MBBS, MD">MBBS, MD</option>
-                            <option value="MD">MD</option>
-                            <option value="DO (Doctor of Osteopathic Medicine)">DO (Doctor of Osteopathic Medicine)
-                            </option>
-                            <option value="Diplôme d'État de docteur en médecine">Diplôme d'État de docteur en médecine
-                            </option>
-                            <option value="DES (Diplôme d'Études Spécialisées)">DES (Diplôme d'Études Spécialisées)
-                            </option>
-                            <option value="PhD en Médecine">PhD en Médecine</option>
+                            <option value="MBBS" {% if doctor.qualification=='MBBS' %}selected{% endif %}>MBBS</option>
+                            <option value="MBBS, MS" {% if doctor.qualification=='MBBS, MS' %}selected{% endif %}>MBBS,
+                              MS</option>
+                            <option value="MBBS, MD" {% if doctor.qualification=='MBBS, MD' %}selected{% endif %}>MBBS,
+                              MD</option>
+                            <option value="MD" {% if doctor.qualification=='MD' %}selected{% endif %}>MD</option>
+                            <option value="DO (Doctor of Osteopathic Medicine)" {% if
+                              doctor.qualification=='DO (Doctor of Osteopathic Medicine)' %}selected{% endif %}>DO
+                              (Doctor of Osteopathic Medicine)</option>
+                            <option value="Diplôme d'État de docteur en médecine" {% if
+                              doctor.qualification=="Diplôme d'État de docteur en médecine" %}selected{% endif %}>
+                              Diplôme d'État de docteur en médecine</option>
+                            <option value="DES (Diplôme d'Études Spécialisées)" {% if
+                              doctor.qualification=="DES (Diplôme d'Études Spécialisées)" %}selected{% endif %}>DES
+                              (Diplôme d'Études Spécialisées)</option>
+                            <option value="PhD en Médecine" {% if doctor.qualification=='PhD en Médecine' %}selected{%
+                              endif %}>PhD en Médecine</option>
 
                             <!-- Diplômes paramédicaux -->
-                            <option value="Diplôme d'État d'infirmier">Diplôme d'État d'infirmier</option>
-                            <option value="Diplôme de technicien de laboratoire">Diplôme de technicien de laboratoire
-                            </option>
-                            <option value="Diplôme de sage-femme">Diplôme de sage-femme</option>
-                            <option value="BTS en Imagerie Médicale">BTS en Imagerie Médicale</option>
-                            <option value="Licence en Kinésithérapie">Licence en Kinésithérapie</option>
-                            <option value="Diplôme d'État de manipulateur radio">Diplôme d'État de manipulateur radio
-                            </option>
+                            <option value="Diplôme d'État d'infirmier" {% if
+                              doctor.qualification=="Diplôme d'État d'infirmier" %}selected{% endif %}>Diplôme d'État
+                              d'infirmier</option>
+                            <option value="Diplôme de technicien de laboratoire" {% if
+                              doctor.qualification=="Diplôme de technicien de laboratoire" %}selected{% endif %}>Diplôme
+                              de technicien de laboratoire</option>
+                            <option value="Diplôme de sage-femme" {% if doctor.qualification=="Diplôme de sage-femme"
+                              %}selected{% endif %}>Diplôme de sage-femme</option>
+                            <option value="BTS en Imagerie Médicale" {% if
+                              doctor.qualification=="BTS en Imagerie Médicale" %}selected{% endif %}>BTS en Imagerie
+                              Médicale</option>
+                            <option value="Licence en Kinésithérapie" {% if
+                              doctor.qualification=="Licence en Kinésithérapie" %}selected{% endif %}>Licence en
+                              Kinésithérapie</option>
+                            <option value="Diplôme d'État de manipulateur radio" {% if
+                              doctor.qualification=="Diplôme d'État de manipulateur radio" %}selected{% endif %}>Diplôme
+                              d'État de manipulateur radio</option>
 
                             <!-- Diplômes pharmaceutiques et autres -->
-                            <option value="Doctorat en Pharmacie">Doctorat en Pharmacie</option>
-                            <option value="Diplôme de préparateur en pharmacie">Diplôme de préparateur en pharmacie
-                            </option>
-                            <option value="Licence en Psychologie">Licence en Psychologie</option>
-                            <option value="Master en Psychologie Clinique">Master en Psychologie Clinique</option>
+                            <option value="Doctorat en Pharmacie" {% if doctor.qualification=="Doctorat en Pharmacie"
+                              %}selected{% endif %}>Doctorat en Pharmacie</option>
+                            <option value="Diplôme de préparateur en pharmacie" {% if
+                              doctor.qualification=="Diplôme de préparateur en pharmacie" %}selected{% endif %}>Diplôme
+                              de préparateur en pharmacie</option>
+                            <option value="Licence en Psychologie" {% if doctor.qualification=="Licence en Psychologie"
+                              %}selected{% endif %}>Licence en Psychologie</option>
+                            <option value="Master en Psychologie Clinique" {% if
+                              doctor.qualification=="Master en Psychologie Clinique" %}selected{% endif %}>Master en
+                              Psychologie Clinique</option>
 
                             <!-- Qualifications administratives/logistiques -->
-                            <option value="Licence en gestion hospitalière">Licence en gestion hospitalière</option>
-                            <option value="BTS en logistique">BTS en logistique</option>
-                            <option value="Licence en Administration des Services de Santé">Licence en Administration
-                              des Services de Santé</option>
-                            <option value="BTS Secrétariat Médical">BTS Secrétariat Médical</option>
+                            <option value="Licence en gestion hospitalière" {% if
+                              doctor.qualification=="Licence en gestion hospitalière" %}selected{% endif %}>Licence en
+                              gestion hospitalière</option>
+                            <option value="BTS en logistique" {% if doctor.qualification=="BTS en logistique"
+                              %}selected{% endif %}>BTS en logistique</option>
+                            <option value="Licence en Administration des Services de Santé" {% if
+                              doctor.qualification=="Licence en Administration des Services de Santé" %}selected{% endif
+                              %}>Licence en Administration des Services de Santé</option>
+                            <option value="BTS Secrétariat Médical" {% if
+                              doctor.qualification=="BTS Secrétariat Médical" %}selected{% endif %}>BTS Secrétariat
+                              Médical</option>
                           </select>
-
                         </div>
                       </div>
+
 
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
                         <label for="a9">Désignation</label>
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-nft-line"></i></span>
                           <select class="form-select" id="a9" name="designation">
-                            <option value="" selected disabled>-- Choisissez --</option>
-                            <option value="Médecin">Médecin</option>
-                            <option value="Interne en médecine">Interne en médecine</option>
-                            <option value="Chef du département">Chef du département</option>
-                            <option value="Infirmier / Infirmière">Infirmier / Infirmière</option>
-                            <option value="Chirurgien">Chirurgien</option>
-                            <option value="Anesthésiste">Anesthésiste</option>
-                            <option value="Radiologue">Radiologue</option>
-                            <option value="Pédiatre">Pédiatre</option>
-                            <option value="Gynécologue">Gynécologue</option>
-                            <option value="Cardiologue">Cardiologue</option>
-                            <option value="Urgentiste">Urgentiste</option>
-                            <option value="Sage-femme">Sage-femme</option>
-                            <option value="Pharmacien">Pharmacien</option>
-                            <option value="Technicien de laboratoire">Technicien de laboratoire</option>
-                            <option value="Kinésithérapeute">Kinésithérapeute</option>
-                            <option value="Psychologue">Psychologue</option>
-                            <option value="Dentiste">Dentiste</option>
-                            <option value="Gestionnaire logistique">Gestionnaire logistique</option>
-                            <option value="Gestionnaire de stock">Gestionnaire de stock</option>
-                            <option value="Caissier">Caissier</option>
-                            <option value="Secrétaire médicale">Secrétaire médicale</option>
-                            <option value="Administrateur médical">Administrateur médical</option>
-                            <option value="Agent de santé communautaire">Agent de santé communautaire</option>
-                            <option value="Personnel de nettoyage">Personnel de nettoyage</option>
+                            <option value="" disabled {% if not doctor.designation %}selected{% endif %}>-- Choisissez
+                              --</option>
+                            <option value="Médecin" {% if doctor.designation=="Médecin" %}selected{% endif %}>Médecin
+                            </option>
+                            <option value="Interne en médecine" {% if doctor.designation=="Interne en médecine"
+                              %}selected{% endif %}>Interne en médecine</option>
+                            <option value="Chef du département" {% if doctor.designation=="Chef du département"
+                              %}selected{% endif %}>Chef du département</option>
+                            <option value="Infirmier / Infirmière" {% if doctor.designation=="Infirmier / Infirmière"
+                              %}selected{% endif %}>Infirmier / Infirmière</option>
+                            <option value="Chirurgien" {% if doctor.designation=="Chirurgien" %}selected{% endif %}>
+                              Chirurgien</option>
+                            <option value="Anesthésiste" {% if doctor.designation=="Anesthésiste" %}selected{% endif %}>
+                              Anesthésiste</option>
+                            <option value="Radiologue" {% if doctor.designation=="Radiologue" %}selected{% endif %}>
+                              Radiologue</option>
+                            <option value="Pédiatre" {% if doctor.designation=="Pédiatre" %}selected{% endif %}>Pédiatre
+                            </option>
+                            <option value="Gynécologue" {% if doctor.designation=="Gynécologue" %}selected{% endif %}>
+                              Gynécologue</option>
+                            <option value="Cardiologue" {% if doctor.designation=="Cardiologue" %}selected{% endif %}>
+                              Cardiologue</option>
+                            <option value="Urgentiste" {% if doctor.designation=="Urgentiste" %}selected{% endif %}>
+                              Urgentiste</option>
+                            <option value="Sage-femme" {% if doctor.designation=="Sage-femme" %}selected{% endif %}>
+                              Sage-femme</option>
+                            <option value="Pharmacien" {% if doctor.designation=="Pharmacien" %}selected{% endif %}>
+                              Pharmacien</option>
+                            <option value="Technicien de laboratoire" {% if
+                              doctor.designation=="Technicien de laboratoire" %}selected{% endif %}>Technicien de
+                              laboratoire</option>
+                            <option value="Kinésithérapeute" {% if doctor.designation=="Kinésithérapeute" %}selected{%
+                              endif %}>Kinésithérapeute</option>
+                            <option value="Psychologue" {% if doctor.designation=="Psychologue" %}selected{% endif %}>
+                              Psychologue</option>
+                            <option value="Dentiste" {% if doctor.designation=="Dentiste" %}selected{% endif %}>Dentiste
+                            </option>
+                            <option value="Gestionnaire logistique" {% if doctor.designation=="Gestionnaire logistique"
+                              %}selected{% endif %}>Gestionnaire logistique</option>
+                            <option value="Gestionnaire de stock" {% if doctor.designation=="Gestionnaire de stock"
+                              %}selected{% endif %}>Gestionnaire de stock</option>
+                            <option value="Caissier" {% if doctor.designation=="Caissier" %}selected{% endif %}>Caissier
+                            </option>
+                            <option value="Secrétaire médicale" {% if doctor.designation=="Secrétaire médicale"
+                              %}selected{% endif %}>Secrétaire médicale</option>
+                            <option value="Administrateur médical" {% if doctor.designation=="Administrateur médical"
+                              %}selected{% endif %}>Administrateur médical</option>
+                            <option value="Agent de santé communautaire" {% if
+                              doctor.designation=="Agent de santé communautaire" %}selected{% endif %}>Agent de santé
+                              communautaire</option>
+                            <option value="Personnel de nettoyage" {% if doctor.designation=="Personnel de nettoyage"
+                              %}selected{% endif %}>Personnel de nettoyage</option>
                           </select>
-
                         </div>
                       </div>
+
 
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
                         <label for="a10">Groupe sanguin</label>
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-drop-line"></i></span>
                           <select class="form-select" id="a10" name="groupe_sanguin">
-                            <option value="" selected disabled>-- Choisissez un groupe_sanguin --</option>
-                            <option value="O+">O+</option>
-                            <option value="A+">A+</option>
-                            <option value="A-">A-</option>
-                            <option value="B+">B+</option>
-                            <option value="B-">B-</option>
-                            <option value="O-">O-</option>
-                            <option value="AB+">AB+</option>
-                            <option value="AB-">AB-</option>
+                            <option value="" disabled {% if not doctor.groupe_sanguin %}selected{% endif %}>--
+                              Choisissez un groupe_sanguin --</option>
+                            <option value="O+" {% if doctor.groupe_sanguin=="O+" %}selected{% endif %}>O+</option>
+                            <option value="A+" {% if doctor.groupe_sanguin=="A+" %}selected{% endif %}>A+</option>
+                            <option value="A-" {% if doctor.groupe_sanguin=="A-" %}selected{% endif %}>A-</option>
+                            <option value="B+" {% if doctor.groupe_sanguin=="B+" %}selected{% endif %}>B+</option>
+                            <option value="B-" {% if doctor.groupe_sanguin=="B-" %}selected{% endif %}>B-</option>
+                            <option value="O-" {% if doctor.groupe_sanguin=="O-" %}selected{% endif %}>O-</option>
+                            <option value="AB+" {% if doctor.groupe_sanguin=="AB+" %}selected{% endif %}>AB+</option>
+                            <option value="AB-" {% if doctor.groupe_sanguin=="AB-" %}selected{% endif %}>AB-</option>
                           </select>
                         </div>
                       </div>
+
 
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
                         <label for="a11">Adresse</label>
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-projector-line"></i></span>
-                          <input type="text" class="form-control" id="a11" name="adresse" placeholder="Adresse">
+                          <input type="text" class="form-control" id="a11" name="adresse" placeholder="Adresse"
+                            value="{{ doctor.adresse or '' }}">
                         </div>
                       </div>
 
@@ -232,9 +306,10 @@
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-flag-line"></i></span>
                           <select class="form-select" id="a12" name="pays">
-                            <option value="" selected disabled>-- Choisissez un pays --</option>
+                            <option value="" disabled {% if not doctor.pays %}selected{% endif %}>-- Choisissez un pays
+                              --</option>
                             {% for p in pays %}
-                            <option value="{{ p }}">{{ p }}</option>
+                            <option value="{{ p }}" {% if doctor.pays==p %}selected{% endif %}>{{ p }}</option>
                             {% endfor %}
                           </select>
                         </div>
@@ -244,7 +319,8 @@
                         <label for="a14">Ville</label>
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-scan-line"></i></span>
-                          <input type="text" class="form-control" id="a14" name="ville" placeholder="Ville">
+                          <input type="text" class="form-control" id="a14" name="ville" placeholder="Ville"
+                            value="{{ doctor.ville or '' }}">
                         </div>
                       </div>
 
@@ -252,9 +328,11 @@
                         <label for="a15">Code Postal</label>
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-qr-scan-line"></i></span>
-                          <input type="text" class="form-control" id="a15" name="code_postal" placeholder="Code Postal">
+                          <input type="text" class="form-control" id="a15" name="code_postal" placeholder="Code Postal"
+                            value="{{ doctor.code_postal or '' }}">
                         </div>
                       </div>
+
                     </div>
 
                   </div>
@@ -263,24 +341,27 @@
                   <div class="tab-pane fade" id="twoA" role="tabpanel">
 
                     <div class="row gx-3">
+
+                      <!-- Photo actuelle -->
                       <div class="col-sm-2">
                         <div class="mb-3">
-                          <img src="{{ url_for('static', filename='images/user3.png') }}" class="img-fluid rounded-2"
-                            alt="Doctor">
+                          <img src="{{ doctor.photo_url or url_for('static', filename='images/user3.png') }}"
+                            class="img-fluid rounded-2" alt="Photo du médecin">
                         </div>
                       </div>
-                      <div class="col-sm-2">
-                        <div id="dropzone" class="mb-3">
-                          <div class="dz-message">
-                            <button type="button" class="dz-button">Mettre une nouvelle photo</button>
-                          </div>
 
+                      <!-- Bouton de chargement -->
+                      <div class="col-sm-4">
+                        <div class="mb-3">
+                          <label for="photo" class="form-label">Changer la photo</label>
+                          <input type="file" name="photo" id="photo" accept="image/*" class="form-control">
                         </div>
                       </div>
                       <div class="col-sm-12">
                         <textarea name="biography" class="form-control" rows="10"
-                          placeholder="Écrivez votre biographie ici..."></textarea>
+                          placeholder="Écrivez votre biographie ici...">{{ doctor.description or '' }}</textarea>
                       </div>
+
                     </div>
 
                   </div>
@@ -294,31 +375,34 @@
                           <label class="form-label" for="d1">Lundi</label>
                           <div class="input-group">
                             <select class="form-select" id="d1" name="lundi_debut">
-                              <option disabled selected>-- Heure début --</option>
-                              <option value="6">06h</option>
-                              <option value="7">07h</option>
-                              <option value="8">08h</option>
-                              <option value="9">09h</option>
-                              <option value="10">10h</option>
-                              <option value="11">11h</option>
-                              <option value="12">12h</option>
+                              <option disabled {% if not doctor.heure_debut_lundi %}selected{% endif %}>-- Heure début
+                                --</option>
+                              <option value="6" {% if doctor.heure_debut_lundi=='6' %}selected{% endif %}>06h</option>
+                              <option value="7" {% if doctor.heure_debut_lundi=='7' %}selected{% endif %}>07h</option>
+                              <option value="8" {% if doctor.heure_debut_lundi=='8' %}selected{% endif %}>08h</option>
+                              <option value="9" {% if doctor.heure_debut_lundi=='9' %}selected{% endif %}>09h</option>
+                              <option value="10" {% if doctor.heure_debut_lundi=='10' %}selected{% endif %}>10h</option>
+                              <option value="11" {% if doctor.heure_debut_lundi=='11' %}selected{% endif %}>11h</option>
+                              <option value="12" {% if doctor.heure_debut_lundi=='12' %}selected{% endif %}>12h</option>
                             </select>
                             <select class="form-select" id="d1X" name="lundi_fin">
-                              <option disabled selected>-- Heure fin --</option>
-                              <option value="13">13h</option>
-                              <option value="14">14h</option>
-                              <option value="15">15h</option>
-                              <option value="16">16h</option>
-                              <option value="17">17h</option>
-                              <option value="18">18h</option>
-                              <option value="19">19h</option>
-                              <option value="20">20h</option>
-                              <option value="21">21h</option>
-                              <option value="22">22h</option>
+                              <option disabled {% if not doctor.heure_fin_lundi %}selected{% endif %}>-- Heure fin --
+                              </option>
+                              <option value="13" {% if doctor.heure_fin_lundi=='13' %}selected{% endif %}>13h</option>
+                              <option value="14" {% if doctor.heure_fin_lundi=='14' %}selected{% endif %}>14h</option>
+                              <option value="15" {% if doctor.heure_fin_lundi=='15' %}selected{% endif %}>15h</option>
+                              <option value="16" {% if doctor.heure_fin_lundi=='16' %}selected{% endif %}>16h</option>
+                              <option value="17" {% if doctor.heure_fin_lundi=='17' %}selected{% endif %}>17h</option>
+                              <option value="18" {% if doctor.heure_fin_lundi=='18' %}selected{% endif %}>18h</option>
+                              <option value="19" {% if doctor.heure_fin_lundi=='19' %}selected{% endif %}>19h</option>
+                              <option value="20" {% if doctor.heure_fin_lundi=='20' %}selected{% endif %}>20h</option>
+                              <option value="21" {% if doctor.heure_fin_lundi=='21' %}selected{% endif %}>21h</option>
+                              <option value="22" {% if doctor.heure_fin_lundi=='22' %}selected{% endif %}>22h</option>
                             </select>
                           </div>
                         </div>
                       </div>
+
 
                       <!-- Mardi -->
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
@@ -326,31 +410,34 @@
                           <label class="form-label" for="d2">Mardi</label>
                           <div class="input-group">
                             <select class="form-select" id="d2" name="mardi_debut">
-                              <option disabled selected>-- Heure début --</option>
-                              <option value="6">06h</option>
-                              <option value="7">07h</option>
-                              <option value="8">08h</option>
-                              <option value="9">09h</option>
-                              <option value="10">10h</option>
-                              <option value="11">11h</option>
-                              <option value="12">12h</option>
+                              <option disabled {% if not doctor.heure_debut_mardi %}selected{% endif %}>-- Heure début
+                                --</option>
+                              <option value="6" {% if doctor.heure_debut_mardi=='6' %}selected{% endif %}>06h</option>
+                              <option value="7" {% if doctor.heure_debut_mardi=='7' %}selected{% endif %}>07h</option>
+                              <option value="8" {% if doctor.heure_debut_mardi=='8' %}selected{% endif %}>08h</option>
+                              <option value="9" {% if doctor.heure_debut_mardi=='9' %}selected{% endif %}>09h</option>
+                              <option value="10" {% if doctor.heure_debut_mardi=='10' %}selected{% endif %}>10h</option>
+                              <option value="11" {% if doctor.heure_debut_mardi=='11' %}selected{% endif %}>11h</option>
+                              <option value="12" {% if doctor.heure_debut_mardi=='12' %}selected{% endif %}>12h</option>
                             </select>
                             <select class="form-select" id="d2X" name="mardi_fin">
-                              <option disabled selected>-- Heure fin --</option>
-                              <option value="13">13h</option>
-                              <option value="14">14h</option>
-                              <option value="15">15h</option>
-                              <option value="16">16h</option>
-                              <option value="17">17h</option>
-                              <option value="18">18h</option>
-                              <option value="19">19h</option>
-                              <option value="20">20h</option>
-                              <option value="21">21h</option>
-                              <option value="22">22h</option>
+                              <option disabled {% if not doctor.heure_fin_mardi %}selected{% endif %}>-- Heure fin --
+                              </option>
+                              <option value="13" {% if doctor.heure_fin_mardi=='13' %}selected{% endif %}>13h</option>
+                              <option value="14" {% if doctor.heure_fin_mardi=='14' %}selected{% endif %}>14h</option>
+                              <option value="15" {% if doctor.heure_fin_mardi=='15' %}selected{% endif %}>15h</option>
+                              <option value="16" {% if doctor.heure_fin_mardi=='16' %}selected{% endif %}>16h</option>
+                              <option value="17" {% if doctor.heure_fin_mardi=='17' %}selected{% endif %}>17h</option>
+                              <option value="18" {% if doctor.heure_fin_mardi=='18' %}selected{% endif %}>18h</option>
+                              <option value="19" {% if doctor.heure_fin_mardi=='19' %}selected{% endif %}>19h</option>
+                              <option value="20" {% if doctor.heure_fin_mardi=='20' %}selected{% endif %}>20h</option>
+                              <option value="21" {% if doctor.heure_fin_mardi=='21' %}selected{% endif %}>21h</option>
+                              <option value="22" {% if doctor.heure_fin_mardi=='22' %}selected{% endif %}>22h</option>
                             </select>
                           </div>
                         </div>
                       </div>
+
 
                       <!-- Mercredi -->
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
@@ -358,31 +445,51 @@
                           <label class="form-label" for="d3">Mercredi</label>
                           <div class="input-group">
                             <select class="form-select" id="d3" name="mercredi_debut">
-                              <option disabled selected>-- Heure début --</option>
-                              <option value="6">06h</option>
-                              <option value="7">07h</option>
-                              <option value="8">08h</option>
-                              <option value="9">09h</option>
-                              <option value="10">10h</option>
-                              <option value="11">11h</option>
-                              <option value="12">12h</option>
+                              <option disabled {% if not doctor.heure_debut_mercredi %}selected{% endif %}>-- Heure
+                                début --</option>
+                              <option value="6" {% if doctor.heure_debut_mercredi=='6' %}selected{% endif %}>06h
+                              </option>
+                              <option value="7" {% if doctor.heure_debut_mercredi=='7' %}selected{% endif %}>07h
+                              </option>
+                              <option value="8" {% if doctor.heure_debut_mercredi=='8' %}selected{% endif %}>08h
+                              </option>
+                              <option value="9" {% if doctor.heure_debut_mercredi=='9' %}selected{% endif %}>09h
+                              </option>
+                              <option value="10" {% if doctor.heure_debut_mercredi=='10' %}selected{% endif %}>10h
+                              </option>
+                              <option value="11" {% if doctor.heure_debut_mercredi=='11' %}selected{% endif %}>11h
+                              </option>
+                              <option value="12" {% if doctor.heure_debut_mercredi=='12' %}selected{% endif %}>12h
+                              </option>
                             </select>
                             <select class="form-select" id="d3X" name="mercredi_fin">
-                              <option disabled selected>-- Heure fin --</option>
-                              <option value="13">13h</option>
-                              <option value="14">14h</option>
-                              <option value="15">15h</option>
-                              <option value="16">16h</option>
-                              <option value="17">17h</option>
-                              <option value="18">18h</option>
-                              <option value="19">19h</option>
-                              <option value="20">20h</option>
-                              <option value="21">21h</option>
-                              <option value="22">22h</option>
+                              <option disabled {% if not doctor.heure_fin_mercredi %}selected{% endif %}>-- Heure fin --
+                              </option>
+                              <option value="13" {% if doctor.heure_fin_mercredi=='13' %}selected{% endif %}>13h
+                              </option>
+                              <option value="14" {% if doctor.heure_fin_mercredi=='14' %}selected{% endif %}>14h
+                              </option>
+                              <option value="15" {% if doctor.heure_fin_mercredi=='15' %}selected{% endif %}>15h
+                              </option>
+                              <option value="16" {% if doctor.heure_fin_mercredi=='16' %}selected{% endif %}>16h
+                              </option>
+                              <option value="17" {% if doctor.heure_fin_mercredi=='17' %}selected{% endif %}>17h
+                              </option>
+                              <option value="18" {% if doctor.heure_fin_mercredi=='18' %}selected{% endif %}>18h
+                              </option>
+                              <option value="19" {% if doctor.heure_fin_mercredi=='19' %}selected{% endif %}>19h
+                              </option>
+                              <option value="20" {% if doctor.heure_fin_mercredi=='20' %}selected{% endif %}>20h
+                              </option>
+                              <option value="21" {% if doctor.heure_fin_mercredi=='21' %}selected{% endif %}>21h
+                              </option>
+                              <option value="22" {% if doctor.heure_fin_mercredi=='22' %}selected{% endif %}>22h
+                              </option>
                             </select>
                           </div>
                         </div>
                       </div>
+
 
                       <!-- Jeudi -->
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
@@ -390,31 +497,34 @@
                           <label class="form-label" for="d4">Jeudi</label>
                           <div class="input-group">
                             <select class="form-select" id="d4" name="jeudi_debut">
-                              <option disabled selected>-- Heure début --</option>
-                              <option value="6">06h</option>
-                              <option value="7">07h</option>
-                              <option value="8">08h</option>
-                              <option value="9">09h</option>
-                              <option value="10">10h</option>
-                              <option value="11">11h</option>
-                              <option value="12">12h</option>
+                              <option disabled {% if not doctor.heure_debut_jeudi %}selected{% endif %}>-- Heure début
+                                --</option>
+                              <option value="6" {% if doctor.heure_debut_jeudi=='6' %}selected{% endif %}>06h</option>
+                              <option value="7" {% if doctor.heure_debut_jeudi=='7' %}selected{% endif %}>07h</option>
+                              <option value="8" {% if doctor.heure_debut_jeudi=='8' %}selected{% endif %}>08h</option>
+                              <option value="9" {% if doctor.heure_debut_jeudi=='9' %}selected{% endif %}>09h</option>
+                              <option value="10" {% if doctor.heure_debut_jeudi=='10' %}selected{% endif %}>10h</option>
+                              <option value="11" {% if doctor.heure_debut_jeudi=='11' %}selected{% endif %}>11h</option>
+                              <option value="12" {% if doctor.heure_debut_jeudi=='12' %}selected{% endif %}>12h</option>
                             </select>
                             <select class="form-select" id="d4X" name="jeudi_fin">
-                              <option disabled selected>-- Heure fin --</option>
-                              <option value="13">13h</option>
-                              <option value="14">14h</option>
-                              <option value="15">15h</option>
-                              <option value="16">16h</option>
-                              <option value="17">17h</option>
-                              <option value="18">18h</option>
-                              <option value="19">19h</option>
-                              <option value="20">20h</option>
-                              <option value="21">21h</option>
-                              <option value="22">22h</option>
+                              <option disabled {% if not doctor.heure_fin_jeudi %}selected{% endif %}>-- Heure fin --
+                              </option>
+                              <option value="13" {% if doctor.heure_fin_jeudi=='13' %}selected{% endif %}>13h</option>
+                              <option value="14" {% if doctor.heure_fin_jeudi=='14' %}selected{% endif %}>14h</option>
+                              <option value="15" {% if doctor.heure_fin_jeudi=='15' %}selected{% endif %}>15h</option>
+                              <option value="16" {% if doctor.heure_fin_jeudi=='16' %}selected{% endif %}>16h</option>
+                              <option value="17" {% if doctor.heure_fin_jeudi=='17' %}selected{% endif %}>17h</option>
+                              <option value="18" {% if doctor.heure_fin_jeudi=='18' %}selected{% endif %}>18h</option>
+                              <option value="19" {% if doctor.heure_fin_jeudi=='19' %}selected{% endif %}>19h</option>
+                              <option value="20" {% if doctor.heure_fin_jeudi=='20' %}selected{% endif %}>20h</option>
+                              <option value="21" {% if doctor.heure_fin_jeudi=='21' %}selected{% endif %}>21h</option>
+                              <option value="22" {% if doctor.heure_fin_jeudi=='22' %}selected{% endif %}>22h</option>
                             </select>
                           </div>
                         </div>
                       </div>
+
 
                       <!-- Vendredi -->
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
@@ -422,31 +532,52 @@
                           <label class="form-label" for="d5">Vendredi</label>
                           <div class="input-group">
                             <select class="form-select" id="d5" name="vendredi_debut">
-                              <option disabled selected>-- Heure début --</option>
-                              <option value="6">06h</option>
-                              <option value="7">07h</option>
-                              <option value="8">08h</option>
-                              <option value="9">09h</option>
-                              <option value="10">10h</option>
-                              <option value="11">11h</option>
-                              <option value="12">12h</option>
+                              <option disabled {% if not doctor.heure_debut_vendredi %}selected{% endif %}>-- Heure
+                                début --</option>
+                              <option value="6" {% if doctor.heure_debut_vendredi=='6' %}selected{% endif %}>06h
+                              </option>
+                              <option value="7" {% if doctor.heure_debut_vendredi=='7' %}selected{% endif %}>07h
+                              </option>
+                              <option value="8" {% if doctor.heure_debut_vendredi=='8' %}selected{% endif %}>08h
+                              </option>
+                              <option value="9" {% if doctor.heure_debut_vendredi=='9' %}selected{% endif %}>09h
+                              </option>
+                              <option value="10" {% if doctor.heure_debut_vendredi=='10' %}selected{% endif %}>10h
+                              </option>
+                              <option value="11" {% if doctor.heure_debut_vendredi=='11' %}selected{% endif %}>11h
+                              </option>
+                              <option value="12" {% if doctor.heure_debut_vendredi=='12' %}selected{% endif %}>12h
+                              </option>
                             </select>
+
                             <select class="form-select" id="d5X" name="vendredi_fin">
-                              <option disabled selected>-- Heure fin --</option>
-                              <option value="13">13h</option>
-                              <option value="14">14h</option>
-                              <option value="15">15h</option>
-                              <option value="16">16h</option>
-                              <option value="17">17h</option>
-                              <option value="18">18h</option>
-                              <option value="19">19h</option>
-                              <option value="20">20h</option>
-                              <option value="21">21h</option>
-                              <option value="22">22h</option>
+                              <option disabled {% if not doctor.heure_fin_vendredi %}selected{% endif %}>-- Heure fin --
+                              </option>
+                              <option value="13" {% if doctor.heure_fin_vendredi=='13' %}selected{% endif %}>13h
+                              </option>
+                              <option value="14" {% if doctor.heure_fin_vendredi=='14' %}selected{% endif %}>14h
+                              </option>
+                              <option value="15" {% if doctor.heure_fin_vendredi=='15' %}selected{% endif %}>15h
+                              </option>
+                              <option value="16" {% if doctor.heure_fin_vendredi=='16' %}selected{% endif %}>16h
+                              </option>
+                              <option value="17" {% if doctor.heure_fin_vendredi=='17' %}selected{% endif %}>17h
+                              </option>
+                              <option value="18" {% if doctor.heure_fin_vendredi=='18' %}selected{% endif %}>18h
+                              </option>
+                              <option value="19" {% if doctor.heure_fin_vendredi=='19' %}selected{% endif %}>19h
+                              </option>
+                              <option value="20" {% if doctor.heure_fin_vendredi=='20' %}selected{% endif %}>20h
+                              </option>
+                              <option value="21" {% if doctor.heure_fin_vendredi=='21' %}selected{% endif %}>21h
+                              </option>
+                              <option value="22" {% if doctor.heure_fin_vendredi=='22' %}selected{% endif %}>22h
+                              </option>
                             </select>
                           </div>
                         </div>
                       </div>
+
 
                       <!-- Samedi -->
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
@@ -454,31 +585,38 @@
                           <label class="form-label" for="d6">Samedi</label>
                           <div class="input-group">
                             <select class="form-select" id="d6" name="samedi_debut">
-                              <option disabled selected>-- Heure début --</option>
-                              <option value="6">06h</option>
-                              <option value="7">07h</option>
-                              <option value="8">08h</option>
-                              <option value="9">09h</option>
-                              <option value="10">10h</option>
-                              <option value="11">11h</option>
-                              <option value="12">12h</option>
+                              <option disabled {% if not doctor.heure_debut_samedi %}selected{% endif %}>-- Heure début
+                                --</option>
+                              <option value="6" {% if doctor.heure_debut_samedi=='6' %}selected{% endif %}>06h</option>
+                              <option value="7" {% if doctor.heure_debut_samedi=='7' %}selected{% endif %}>07h</option>
+                              <option value="8" {% if doctor.heure_debut_samedi=='8' %}selected{% endif %}>08h</option>
+                              <option value="9" {% if doctor.heure_debut_samedi=='9' %}selected{% endif %}>09h</option>
+                              <option value="10" {% if doctor.heure_debut_samedi=='10' %}selected{% endif %}>10h
+                              </option>
+                              <option value="11" {% if doctor.heure_debut_samedi=='11' %}selected{% endif %}>11h
+                              </option>
+                              <option value="12" {% if doctor.heure_debut_samedi=='12' %}selected{% endif %}>12h
+                              </option>
                             </select>
+
                             <select class="form-select" id="d6X" name="samedi_fin">
-                              <option disabled selected>-- Heure fin --</option>
-                              <option value="13">13h</option>
-                              <option value="14">14h</option>
-                              <option value="15">15h</option>
-                              <option value="16">16h</option>
-                              <option value="17">17h</option>
-                              <option value="18">18h</option>
-                              <option value="19">19h</option>
-                              <option value="20">20h</option>
-                              <option value="21">21h</option>
-                              <option value="22">22h</option>
+                              <option disabled {% if not doctor.heure_fin_samedi %}selected{% endif %}>-- Heure fin --
+                              </option>
+                              <option value="13" {% if doctor.heure_fin_samedi=='13' %}selected{% endif %}>13h</option>
+                              <option value="14" {% if doctor.heure_fin_samedi=='14' %}selected{% endif %}>14h</option>
+                              <option value="15" {% if doctor.heure_fin_samedi=='15' %}selected{% endif %}>15h</option>
+                              <option value="16" {% if doctor.heure_fin_samedi=='16' %}selected{% endif %}>16h</option>
+                              <option value="17" {% if doctor.heure_fin_samedi=='17' %}selected{% endif %}>17h</option>
+                              <option value="18" {% if doctor.heure_fin_samedi=='18' %}selected{% endif %}>18h</option>
+                              <option value="19" {% if doctor.heure_fin_samedi=='19' %}selected{% endif %}>19h</option>
+                              <option value="20" {% if doctor.heure_fin_samedi=='20' %}selected{% endif %}>20h</option>
+                              <option value="21" {% if doctor.heure_fin_samedi=='21' %}selected{% endif %}>21h</option>
+                              <option value="22" {% if doctor.heure_fin_samedi=='22' %}selected{% endif %}>22h</option>
                             </select>
                           </div>
                         </div>
                       </div>
+
 
                       <!-- Dimanche -->
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
@@ -486,31 +624,52 @@
                           <label class="form-label" for="d7">Dimanche</label>
                           <div class="input-group">
                             <select class="form-select" id="d7" name="dimanche_debut">
-                              <option disabled selected>-- Heure début --</option>
-                              <option value="6">06h</option>
-                              <option value="7">07h</option>
-                              <option value="8">08h</option>
-                              <option value="9">09h</option>
-                              <option value="10">10h</option>
-                              <option value="11">11h</option>
-                              <option value="12">12h</option>
+                              <option disabled {% if not doctor.heure_debut_dimanche %}selected{% endif %}>-- Heure
+                                début --</option>
+                              <option value="6" {% if doctor.heure_debut_dimanche=='6' %}selected{% endif %}>06h
+                              </option>
+                              <option value="7" {% if doctor.heure_debut_dimanche=='7' %}selected{% endif %}>07h
+                              </option>
+                              <option value="8" {% if doctor.heure_debut_dimanche=='8' %}selected{% endif %}>08h
+                              </option>
+                              <option value="9" {% if doctor.heure_debut_dimanche=='9' %}selected{% endif %}>09h
+                              </option>
+                              <option value="10" {% if doctor.heure_debut_dimanche=='10' %}selected{% endif %}>10h
+                              </option>
+                              <option value="11" {% if doctor.heure_debut_dimanche=='11' %}selected{% endif %}>11h
+                              </option>
+                              <option value="12" {% if doctor.heure_debut_dimanche=='12' %}selected{% endif %}>12h
+                              </option>
                             </select>
+
                             <select class="form-select" id="d7X" name="dimanche_fin">
-                              <option disabled selected>-- Heure fin --</option>
-                              <option value="13">13h</option>
-                              <option value="14">14h</option>
-                              <option value="15">15h</option>
-                              <option value="16">16h</option>
-                              <option value="17">17h</option>
-                              <option value="18">18h</option>
-                              <option value="19">19h</option>
-                              <option value="20">20h</option>
-                              <option value="21">21h</option>
-                              <option value="22">22h</option>
+                              <option disabled {% if not doctor.heure_fin_dimanche %}selected{% endif %}>-- Heure fin --
+                              </option>
+                              <option value="13" {% if doctor.heure_fin_dimanche=='13' %}selected{% endif %}>13h
+                              </option>
+                              <option value="14" {% if doctor.heure_fin_dimanche=='14' %}selected{% endif %}>14h
+                              </option>
+                              <option value="15" {% if doctor.heure_fin_dimanche=='15' %}selected{% endif %}>15h
+                              </option>
+                              <option value="16" {% if doctor.heure_fin_dimanche=='16' %}selected{% endif %}>16h
+                              </option>
+                              <option value="17" {% if doctor.heure_fin_dimanche=='17' %}selected{% endif %}>17h
+                              </option>
+                              <option value="18" {% if doctor.heure_fin_dimanche=='18' %}selected{% endif %}>18h
+                              </option>
+                              <option value="19" {% if doctor.heure_fin_dimanche=='19' %}selected{% endif %}>19h
+                              </option>
+                              <option value="20" {% if doctor.heure_fin_dimanche=='20' %}selected{% endif %}>20h
+                              </option>
+                              <option value="21" {% if doctor.heure_fin_dimanche=='21' %}selected{% endif %}>21h
+                              </option>
+                              <option value="22" {% if doctor.heure_fin_dimanche=='22' %}selected{% endif %}>22h
+                              </option>
                             </select>
                           </div>
                         </div>
                       </div>
+
 
                     </div>
                     <!-- Row ends -->
@@ -525,7 +684,7 @@
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-account-pin-circle-line"></i></span>
                           <input type="text" id="u1" name="username" class="form-control"
-                            placeholder="Nom d'utilisateur">
+                            placeholder="Nom d'utilisateur" value="{{ doctor.nom_utilisateur }}">
                         </div>
                       </div>
 
@@ -558,7 +717,7 @@
                 </div>
 
                 <div class="d-flex gap-2 justify-content-end mt-4">
-                  <a href="{{url_for('liste_doctor')}}" class="btn btn-outline-secondary">Annuler</a>
+                  <a href="{{url_for('profile_doctor')}}" class="btn btn-outline-secondary">Annuler</a>
                   <button type="submit" class="btn btn-primary">Mettre à jour le profile</button>
                 </div>
 
