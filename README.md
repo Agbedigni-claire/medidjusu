@@ -12,3 +12,5 @@ Pour accéder aux informations de connexion, veuillez suivre les étapes suivant
     Remarque importante : Assurez-vous que le fichier credentials.py est bien ajouté au .gitignore pour ne pas l’envoyer sur GitHub
 
 Merci !
+
+k2
