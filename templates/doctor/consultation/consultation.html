@@ -1,41 +1,238 @@
 {% extends "doctor/base_doctor.html" %}
 
+
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-3">Faire la consultation N°{{ consultation.id }}</h2>
+<div class="container mt-5 mb-5">
+    <h2 class="mb-4 text-primary fw-bold">Compléter la consultation N°{{ consultation.id }}</h2>
 
-    <div class="card p-4 shadow">
-        <p><strong>Patient :</strong> {{ consultation.patient.nom_complet }}</p>
-        <p><strong>Date consultation :</strong> {{ consultation.date_consultation.strftime('%d/%m/%Y') }}</p>
+    <form method="POST" novalidate>
+        <ul class="nav nav-tabs nav-fill mb-4 shadow-sm rounded" id="consultationTabs" role="tablist"
+            style="background-color: #f8f9fa;">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-semibold" id="general-tab" data-bs-toggle="tab"
+                    data-bs-target="#general" type="button" role="tab" aria-controls="general"
+                    aria-selected="true">Général</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-semibold" id="clinique-tab" data-bs-toggle="tab" data-bs-target="#clinique"
+                    type="button" role="tab" aria-controls="clinique" aria-selected="false">Examen clinique</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-semibold" id="diagnostic-tab" data-bs-toggle="tab"
+                    data-bs-target="#diagnostic" type="button" role="tab" aria-controls="diagnostic"
+                    aria-selected="false">Diagnostic</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-semibold" id="suivi-tab" data-bs-toggle="tab" data-bs-target="#suivi"
+                    type="button" role="tab" aria-controls="suivi" aria-selected="false">Suivi</button>
+            </li>
+        </ul>
 
-        <form method="POST">
-            <div class="form-group mt-3">
-                <label for="motif"><strong>Motif</strong></label>
-                <textarea name="motif" id="motif" class="form-control" rows="2"
-                    required>{{ consultation.motif or '' }}</textarea>
+        <div class="tab-content" id="consultationTabsContent">
+            <!-- Onglet Général -->
+            <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="motif" class="form-label fw-semibold">Motif <span
+                                    class="text-danger">*</span></label>
+                            <textarea id="motif" name="motif" class="form-control" rows="3"
+                                required>{{ consultation.motif or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="plaintes" class="form-label fw-semibold">Plaintes</label>
+                            <textarea id="plaintes" name="plaintes" class="form-control"
+                                rows="3">{{ consultation.plaintes or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="antecedents_personnels" class="form-label fw-semibold">Antécédents
+                                personnels</label>
+                            <textarea id="antecedents_personnels" name="antecedents_personnels" class="form-control"
+                                rows="3">{{ consultation.antecedents_personnels or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="antecedents_familiaux" class="form-label fw-semibold">Antécédents
+                                familiaux</label>
+                            <textarea id="antecedents_familiaux" name="antecedents_familiaux" class="form-control"
+                                rows="3">{{ consultation.antecedents_familiaux or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="allergies" class="form-label fw-semibold">Allergies</label>
+                            <textarea id="allergies" name="allergies" class="form-control"
+                                rows="2">{{ consultation.allergies or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="traitements_en_cours" class="form-label fw-semibold">Traitements en
+                                cours</label>
+                            <textarea id="traitements_en_cours" name="traitements_en_cours" class="form-control"
+                                rows="2">{{ consultation.traitements_en_cours or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group mt-3">
-                <label for="diagnostic"><strong>Diagnostic</strong></label>
-                <textarea name="diagnostic" id="diagnostic" class="form-control"
-                    rows="3">{{ consultation.diagnostic or '' }}</textarea>
+            <!-- Onglet Examen clinique -->
+            <div class="tab-pane fade" id="clinique" role="tabpanel" aria-labelledby="clinique-tab">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="poids" class="form-label fw-semibold">Poids (kg)</label>
+                                <input type="number" id="poids" name="poids" step="0.1" class="form-control"
+                                    value="{{ consultation.poids or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="taille" class="form-label fw-semibold">Taille (cm)</label>
+                                <input type="number" id="taille" name="taille" step="0.1" class="form-control"
+                                    value="{{ consultation.taille or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="temperature" class="form-label fw-semibold">Température (°C)</label>
+                                <input type="number" id="temperature" name="temperature" step="0.1" class="form-control"
+                                    value="{{ consultation.temperature or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-3">
+                                <label for="tension_arterielle" class="form-label fw-semibold">Tension
+                                    artérielle</label>
+                                <input type="text" id="tension_arterielle" name="tension_arterielle"
+                                    class="form-control" value="{{ consultation.tension_arterielle or '' }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="frequence_cardiaque" class="form-label fw-semibold">Fréquence
+                                    cardiaque</label>
+                                <input type="number" id="frequence_cardiaque" name="frequence_cardiaque"
+                                    class="form-control" value="{{ consultation.frequence_cardiaque or '' }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="frequence_respiratoire" class="form-label fw-semibold">Fréquence
+                                    respiratoire</label>
+                                <input type="number" id="frequence_respiratoire" name="frequence_respiratoire"
+                                    class="form-control" value="{{ consultation.frequence_respiratoire or '' }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="saturation_oxygene" class="form-label fw-semibold">Saturation O₂ (%)</label>
+                                <input type="number" step="0.1" id="saturation_oxygene" name="saturation_oxygene"
+                                    class="form-control" value="{{ consultation.saturation_oxygene or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label for="observations_cliniques" class="form-label fw-semibold">Observations
+                                cliniques</label>
+                            <textarea id="observations_cliniques" name="observations_cliniques" class="form-control"
+                                rows="4">{{ consultation.observations_cliniques or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group mt-3">
-                <label for="traitement"><strong>Traitement</strong></label>
-                <textarea name="traitement" id="traitement" class="form-control"
-                    rows="3">{{ consultation.traitement or '' }}</textarea>
+            <!-- Onglet Diagnostic -->
+            <!-- Onglet Diagnostic -->
+            <div class="tab-pane fade" id="diagnostic" role="tabpanel" aria-labelledby="diagnostic-tab">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="examens_biologiques" class="form-label fw-semibold">Examens biologiques</label>
+                            <textarea id="examens_biologiques" name="examens_biologiques" class="form-control"
+                                rows="3">{{ consultation.examens_biologiques or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="examens_radiologiques" class="form-label fw-semibold">Examens
+                                radiologiques</label>
+                            <textarea id="examens_radiologiques" name="examens_radiologiques" class="form-control"
+                                rows="3">{{ consultation.examens_radiologiques or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="autres_examens" class="form-label fw-semibold">Autres examens</label>
+                            <textarea id="autres_examens" name="autres_examens" class="form-control"
+                                rows="3">{{ consultation.autres_examens or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="resultats_examens" class="form-label fw-semibold">Résultats des examens</label>
+                            <textarea id="resultats_examens" name="resultats_examens" class="form-control"
+                                rows="3">{{ consultation.resultats_examens or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="diagnostic" class="form-label fw-semibold">Diagnostic principal</label>
+                            <textarea id="diagnostic" name="diagnostic" class="form-control"
+                                rows="3">{{ consultation.diagnostic or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="diagnostic_secondaire" class="form-label fw-semibold">Diagnostic
+                                secondaire</label>
+                            <textarea id="diagnostic_secondaire" name="diagnostic_secondaire" class="form-control"
+                                rows="3">{{ consultation.diagnostic_secondaire or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="traitement" class="form-label fw-semibold">Traitement médicamenteux</label>
+                            <textarea id="traitement" name="traitement" class="form-control"
+                                rows="3">{{ consultation.traitement or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="traitement_non_medic" class="form-label fw-semibold">Traitement non
+                                médical</label>
+                            <textarea id="traitement_non_medic" name="traitement_non_medic" class="form-control"
+                                rows="3">{{ consultation.traitement_non_medic or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="prescription" class="form-label fw-semibold">Prescription</label>
+                            <textarea id="prescription" name="prescription" class="form-control"
+                                rows="3">{{ consultation.prescription or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group mt-3">
-                <label for="prescription"><strong>Prescription</strong></label>
-                <textarea name="prescription" id="prescription" class="form-control"
-                    rows="2">{{ consultation.prescription or '' }}</textarea>
-            </div>
 
-            <button type="submit" class="btn btn-success mt-4">Enregistrer</button>
-            <a href="{{ url_for('historique_consultations_doctor') }}" class="btn btn-secondary mt-4">Retour</a>
-        </form>
-    </div>
+            <!-- Onglet Suivi -->
+            <div class="tab-pane fade" id="suivi" role="tabpanel" aria-labelledby="suivi-tab">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="conseils" class="form-label fw-semibold">Conseils</label>
+                            <textarea id="conseils" name="conseils" class="form-control"
+                                rows="3">{{ consultation.conseils or '' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="prochain_rdv" class="form-label fw-semibold">Prochain RDV</label>
+                            <input type="date" id="prochain_rdv" name="prochain_rdv" class="form-control"
+                                value="{{ consultation.prochain_rdv.strftime('%Y-%m-%d') if consultation.prochain_rdv else '' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="note_suivi" class="form-label fw-semibold">Note de suivi</label>
+                            <textarea id="note_suivi" name="note_suivi" class="form-control"
+                                rows="3">{{ consultation.note_suivi or '' }}</textarea>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="ordonnance_jointe" class="form-label fw-semibold">Ordonnance jointe</label>
+                                <input type="text" id="ordonnance_jointe" name="ordonnance_jointe" class="form-control"
+                                    value="{{ consultation.ordonnance_jointe or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="lettre_orientation" class="form-label fw-semibold">Lettre
+                                    d'orientation</label>
+                                <input type="text" id="lettre_orientation" name="lettre_orientation"
+                                    class="form-control" value="{{ consultation.lettre_orientation or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="documents_scannes" class="form-label fw-semibold">Documents scannés</label>
+                                <input type="text" id="documents_scannes" name="documents_scannes" class="form-control"
+                                    value="{{ consultation.documents_scannes or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-3 mt-4">
+            <a href="{{ url_for('historique_consultations_doctor') }}" class="btn btn-outline-secondary">Retour</a>
+            <button type="submit" class="btn btn-success">Enregistrer</button>
+        </div>
+    </form>
 </div>
 {% endblock %}

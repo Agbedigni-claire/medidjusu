@@ -8,91 +8,91 @@
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
         body {
-            font-family: 'Roboto', Arial, sans-serif;
-            margin: 40px 60px;
-            color: #2c3e50;
+            font-family: 'Roboto', sans-serif;
+            margin: 30px 40px;
             background-color: #f9fafb;
+            color: #2c3e50;
         }
 
         .header {
             display: flex;
             align-items: center;
-            border-bottom: 4px solid #2980b9;
-            padding-bottom: 15px;
-            margin-bottom: 30px;
+            border-bottom: 3px solid #2980b9;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         .logo {
-            width: 110px;
-            height: auto;
+            width: 90px;
         }
 
         .title {
-            margin-left: 25px;
+            margin-left: 20px;
             color: #2980b9;
         }
 
         .title h1 {
-            font-weight: 700;
-            margin: 0 0 5px 0;
-            font-size: 28px;
-            letter-spacing: 1.2px;
+            font-size: 24px;
+            margin: 0;
         }
 
         .title p {
-            font-weight: 500;
-            font-size: 14px;
+            font-size: 13px;
+            margin: 2px 0 0 0;
             color: #7f8c8d;
-            margin: 0;
-            letter-spacing: 0.5px;
         }
 
         .photo {
             float: right;
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             object-fit: cover;
             border-radius: 10px;
-            border: 3px solid #2980b9;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-            margin-top: -100px;
+            border: 2px solid #2980b9;
+            margin-top: -80px;
         }
 
         .section {
-            background: white;
-            padding: 20px 30px;
-            margin-bottom: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+            background: #f4f6f8;
+            padding: 14px 20px;
+            margin-bottom: 20px;
+            border-radius: 6px;
         }
 
         .section h3 {
-            border-bottom: 3px solid #2980b9;
+            font-size: 16px;
             color: #2980b9;
-            padding-bottom: 8px;
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-weight: 700;
-            font-size: 20px;
+            margin: 0 0 10px 0;
+            border-bottom: 2px solid #2980b9;
+            padding-bottom: 4px;
         }
 
         .section p {
-            font-size: 15px;
-            line-height: 1.5em;
-            margin: 8px 0;
+            font-size: 14px;
+            margin: 5px 0;
+            line-height: 1.4;
         }
 
         .section p strong {
             color: #34495e;
         }
 
+        a.download-link {
+            color: #2980b9;
+            text-decoration: none;
+        }
+
+        a.download-link:hover {
+            text-decoration: underline;
+        }
+
         .footer {
             text-align: center;
-            font-size: 12px;
+            font-size: 11px;
             color: #95a5a6;
+            margin-top: 25px;
             border-top: 1px solid #dcdde1;
-            padding-top: 12px;
-            letter-spacing: 0.4px;
+            padding-top: 10px;
         }
     </style>
 </head>
@@ -100,44 +100,107 @@
 <body>
 
     <div class="header">
-        <img src="{{ url_for('static', filename='images/logo/logo_header1.png') }}" class="logo"
-            alt="Logo MediJustus" />
+        <img src="{{ url_for('static', filename='images/logo/logo_header1.png') }}" class="logo" />
         <div class="title">
-            <h1>Fiche de Consultation Médicale</h1>
-            <p>Consultation N° {{ consultation.id }}</p>
+            <h1>Fiche de Consultation</h1>
+            <p>Consultation N°{{ consultation.id }}</p>
         </div>
     </div>
 
     {% if consultation.patient.photo %}
-    <img src="{{ url_for('static', filename='photos/' ~ consultation.patient.photo) }}" class="photo"
-        alt="Photo Patient" />
+    <img src="{{ url_for('static', filename='photos/' ~ consultation.patient.photo) }}" class="photo" />
     {% endif %}
 
     <div class="section">
         <h3>Informations Générales</h3>
-        <p><strong>Nom du patient :</strong> {{ consultation.patient.nom_complet }}</p>
+        <p><strong>Patient :</strong> {{ consultation.patient.nom_complet }}</p>
         <p><strong>Médecin :</strong> Dr {{ consultation.doctor.nom_complet }}</p>
-        <p><strong>Date de consultation :</strong> {{ consultation.date_consultation.strftime('%d/%m/%Y') }}</p>
-        <p><strong>Date de fin :</strong>
+        <p><strong>Date consultation :</strong> {{ consultation.date_consultation.strftime('%d/%m/%Y %H:%M') }}</p>
+        <p><strong>Fin consultation :</strong>
             {% if consultation.date_fin_consultation %}
-            {{ consultation.date_fin_consultation.strftime('%d/%m/%Y') }}
-            {% else %}
-            En cours
-            {% endif %}
+            {{ consultation.date_fin_consultation.strftime('%d/%m/%Y %H:%M') }}
+            {% else %} En cours {% endif %}
         </p>
-        <p><strong>Statut :</strong> {{ consultation.etat or "Non défini" }}</p>
+        <p><strong>État :</strong> {{ consultation.etat or "Non défini" }}</p>
     </div>
 
     <div class="section">
-        <h3>Détails Médicaux</h3>
-        <p><strong>Motif :</strong><br> {{ consultation.motif or "Non précisé" }}</p>
-        <p><strong>Diagnostic :</strong><br> {{ consultation.diagnostic or "Non défini" }}</p>
-        <p><strong>Traitement :</strong><br> {{ consultation.traitement or "Non défini" }}</p>
-        <p><strong>Prescription :</strong><br> {{ consultation.prescription or "Aucune" }}</p>
+        <h3>Motif et Antécédents</h3>
+        <p><strong>Motif :</strong> {{ consultation.motif or "Non précisé" }}</p>
+        <p><strong>Plaintes :</strong> {{ consultation.plaintes or "Non précisé" }}</p>
+        <p><strong>Antécédents perso :</strong> {{ consultation.antecedents_personnels or "Non précisé" }}</p>
+        <p><strong>Antécédents familiaux :</strong> {{ consultation.antecedents_familiaux or "Non précisé" }}</p>
+        <p><strong>Allergies :</strong> {{ consultation.allergies or "Non précisé" }}</p>
+        <p><strong>Traitements en cours :</strong> {{ consultation.traitements_en_cours or "Non précisé" }}</p>
+    </div>
+
+    <div class="section">
+        <h3>Examen Clinique</h3>
+        <p><strong>Poids :</strong> {{ consultation.poids or "N/A" }} kg</p>
+        <p><strong>Taille :</strong> {{ consultation.taille or "N/A" }} cm</p>
+        <p><strong>Température :</strong> {{ consultation.temperature or "N/A" }} °C</p>
+        <p><strong>Tension :</strong> {{ consultation.tension_arterielle or "N/A" }}</p>
+        <p><strong>Fréquence cardiaque :</strong> {{ consultation.frequence_cardiaque or "N/A" }} bpm</p>
+        <p><strong>Fréquence respiratoire :</strong> {{ consultation.frequence_respiratoire or "N/A" }} /min</p>
+        <p><strong>Saturation O₂ :</strong> {{ consultation.saturation_oxygene or "N/A" }} %</p>
+        <p><strong>Observations :</strong> {{ consultation.observations_cliniques or "Non précisé" }}</p>
+    </div>
+
+    <div class="section">
+        <h3>Examens Complémentaires</h3>
+        <p><strong>Biologiques :</strong> {{ consultation.examens_biologiques or "Non précisé" }}</p>
+        <p><strong>Radiologiques :</strong> {{ consultation.examens_radiologiques or "Non précisé" }}</p>
+        <p><strong>Autres examens :</strong> {{ consultation.autres_examens or "Non précisé" }}</p>
+        <p><strong>Résultats :</strong> {{ consultation.resultats_examens or "Non précisé" }}</p>
+    </div>
+
+    <div class="section">
+        <h3>Diagnostic & Traitement</h3>
+        <p><strong>Diagnostic :</strong> {{ consultation.diagnostic or "Non défini" }}</p>
+        <p><strong>Secondaire :</strong> {{ consultation.diagnostic_secondaire or "Non défini" }}</p>
+        <p><strong>Traitement médicamenteux :</strong> {{ consultation.traitement or "Non défini" }}</p>
+        <p><strong>Traitement non médical :</strong> {{ consultation.traitement_non_medic or "Non défini" }}</p>
+        <p><strong>Prescription :</strong> {{ consultation.prescription or "Aucune" }}</p>
+    </div>
+
+    <div class="section">
+        <h3>Suivi</h3>
+        <p><strong>Conseils :</strong> {{ consultation.conseils or "Non précisé" }}</p>
+        <p><strong>Prochain RDV :</strong>
+            {{ consultation.prochain_rdv.strftime('%d/%m/%Y') if consultation.prochain_rdv else 'Non défini' }}
+        </p>
+        <p><strong>Note de suivi :</strong> {{ consultation.note_suivi or "Aucune" }}</p>
+    </div>
+
+    <div class="section">
+        <h3>Documents</h3>
+        <p><strong>Ordonnance :</strong>
+            {% if consultation.ordonnance_jointe %}
+            <a class="download-link"
+                href="{{ url_for('static', filename='uploads/ordonnances/' ~ consultation.ordonnance_jointe) }}">{{
+                consultation.ordonnance_jointe }}</a>
+            {% else %} Aucun {% endif %}
+        </p>
+
+        <p><strong>Lettre d’orientation :</strong>
+            {% if consultation.lettre_orientation %}
+            <a class="download-link"
+                href="{{ url_for('static', filename='uploads/lettres/' ~ consultation.lettre_orientation) }}">{{
+                consultation.lettre_orientation }}</a>
+            {% else %} Aucune {% endif %}
+        </p>
+
+        <p><strong>Documents scannés :</strong>
+            {% if consultation.documents_scannes %}
+            <a class="download-link"
+                href="{{ url_for('static', filename='uploads/documents/' ~ consultation.documents_scannes) }}">{{
+                consultation.documents_scannes }}</a>
+            {% else %} Aucun {% endif %}
+        </p>
     </div>
 
     <div class="footer">
-        Ce document a été généré automatiquement par MediJustsu | {{ now().strftime('%d/%m/%Y') }}
+        Ce document a été généré automatiquement par MediJustus | {{ now().strftime('%d/%m/%Y %H:%M') }}
     </div>
 
 </body>

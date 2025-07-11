@@ -65,8 +65,8 @@
             <label class="form-label" for="pwd">Votre mot de passe <span class="text-danger">*</span></label>
             <div class="input-group">
               <input type="password" id="pwd" name="pwd" class="form-control" placeholder="Enter password" required>
-              <button class="btn btn-outline-secondary" type="button">
-                <i class="ri-eye-line text-primary"></i>
+              <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('pwd', this)">
+                <i class="ri-eye-off-line"></i>
               </button>
             </div>
 
@@ -75,8 +75,8 @@
             <div class="input-group">
               <input type="password" id="conf_pwd" name="conf_pwd" class="form-control" placeholder="Confirm password"
                 required>
-              <button class="btn btn-outline-secondary" type="button">
-                <i class="ri-eye-line text-primary"></i>
+              <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('conf_pwd', this)">
+                <i class="ri-eye-off-line"></i>
               </button>
             </div>
             <div class="form-text">
@@ -99,6 +99,7 @@
 
   </div>
   <!-- Container ends -->
+  <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
 
 </body>
 

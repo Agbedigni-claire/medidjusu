@@ -608,15 +608,15 @@
                             placeholder="Nom d'utilisateur" value="{{ secretaire.nom_utilisateur }}">
                         </div>
                       </div>
-
+                      {%if not secretaire.nom_utilisateur%}
                       <div class="col-xxl-3 col-lg-4 col-sm-6">
                         <label for="u2">Nouveau mot de passe</label>
                         <div class="input-group">
                           <span class="input-group-text"><i class="ri-lock-password-line"></i></span>
                           <input type="password" id="u2" name="new_password" class="form-control"
                             placeholder="Mot de passe">
-                          <button class="btn btn-outline-secondary" type="button">
-                            <i class="ri-eye-line"></i>
+                          <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('u2', this)">
+                            <i class="ri-eye-off-line"></i>
                           </button>
                         </div>
                       </div>
@@ -627,11 +627,12 @@
                           <span class="input-group-text"><i class="ri-lock-password-line"></i></span>
                           <input type="password" id="u3" name="confirm_new_password" class="form-control"
                             placeholder="Confirmer mot de passe">
-                          <button class="btn btn-outline-secondary" type="button">
+                          <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('u3', this)">
                             <i class="ri-eye-off-line"></i>
                           </button>
                         </div>
                       </div>
+                      {%endif%}
                     </div>
 
                   </div>

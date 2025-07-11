@@ -48,7 +48,7 @@
                                 </a>
 
                                 {% if info.modifiable %}
-                                <a href="{{ url_for('modifier_consultation_doctor', id=c.id) }}"
+                                <a href="{{ url_for('completer_consultation', consultation_id=c.id) }}"
                                     class="btn btn-outline-success btn-sm" title="Modifier la consultation">
                                     <i class="ri-edit-box-line"></i>
                                 </a>

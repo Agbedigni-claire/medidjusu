@@ -1,0 +1,219 @@
+{% extends "patient/base_patient.html" %}
+
+{% block content %}
+<div class="app-container">
+    <div class="app-hero-header d-flex align-items-center mb-4">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <i class="ri-home-8-line lh-1 pe-3 me-3 border-end"></i>
+                <a href="{{ url_for('index_patient') }}">Patient</a>
+            </li>
+            <li class="breadcrumb-item text-primary" aria-current="page">
+                Modifier les informations du patient
+            </li>
+        </ol>
+    </div>
+
+    <div class="app-body">
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('modifier_profile_patient') }}">
+            <div class="row gx-4">
+
+                <!-- Colonne de la photo -->
+                <div class="col-lg-3 d-flex flex-column align-items-center">
+                    <label class="form-label mb-3">Photo du patient</label>
+                    <img src="{{ url_for('static', filename='images/user3.png') }}" alt="Photo du patient"
+                        class="img-thumbnail mb-3"
+                        style="width:150px; height:150px; object-fit: cover; border-radius: 10px;">
+                    <input type="file" name="photo" class="form-control" accept="image/*">
+                </div>
+
+                <!-- Champs de formulaire -->
+                <div class="col-lg-9">
+                    <div class="row gx-3 gy-3">
+
+                        <!-- Nom -->
+                        <div class="col-md-6 col-lg-4">
+                            <label for="nom">Nom</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ri-account-circle-line"></i></span>
+                                <input type="text" class="form-control" id="nom" name="nom" placeholder="Nom"
+                                    value="{{ patient.nom_complet.split(' ')[1] if patient.nom_complet and (patient.nom_complet.split(' ')|length > 1) else '' }}">
+                            </div>
+                        </div>
+
+                        <!-- Prénom -->
+                        <div class="col-md-6 col-lg-4">
+                            <label for="prenom">Prénom</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ri-account-circle-line"></i></span>
+                                <input type="text" class="form-control" id="prenom" name="prenom" placeholder="Prénom"
+                                    value="{{ patient.nom_complet.split(' ')[0] if patient.nom_complet else '' }}">
+                            </div>
+                        </div>
+
+                        <!-- Date de naissance -->
+                        <div class="col-md-6 col-lg-4">
+                            <label for="date_naissance">Date de naissance</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                                <input type="date" class="form-control" id="date_naissance" name="date_naissance"
+                                    value="{{ patient.date_naissance }}">
+                            </div>
+                        </div>
+
+                        <!-- Sexe -->
+                        <div class="col-md-6 col-lg-4">
+                            <label class="form-label d-block">Sexe</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="sexe" value="Homme" {% if
+                                    patient.sexe=='Homme' %}checked{% endif %}>
+                                <label class="form-check-label">Homme</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="sexe" value="Femme" {% if
+                                    patient.sexe=='Femme' %}checked{% endif %}>
+                                <label class="form-check-label">Femme</label>
+                            </div>
+                        </div>
+
+                        <!-- Téléphone -->
+                        <div class="col-md-6 col-lg-4">
+                            <label for="numero_telephone">Numéro de téléphone</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ri-phone-line"></i></span>
+                                <input type="text" class="form-control" id="numero_telephone" name="numero_telephone"
+                                    value="{{ patient.numero_telephone }}">
+                            </div>
+                        </div>
+
+                        <!-- État civil -->
+                        <div class="col-md-6 col-lg-4">
+                            <label for="etat_civil">État civil</label>
+                            <select class="form-select" name="etat_civil" id="etat_civil">
+                                <option value="" disabled {% if not patient.etat_civil %}selected{% endif %}>-- Veuillez
+                                    choisir --</option>
+                                <option {% if patient.etat_civil=='Marié(e)' %}selected{% endif %}>Marié(e)</option>
+                                <option {% if patient.etat_civil=='Célibataire' %}selected{% endif %}>Célibataire
+                                </option>
+                                <option {% if patient.etat_civil=='Divorcé(e)' %}selected{% endif %}>Divorcé(e)</option>
+                            </select>
+                        </div>
+
+                        <!-- Profession -->
+                        <div class="col-md-6 col-lg-4">
+                            <label for="profession">Profession</label>
+                            <input type="text" class="form-control" id="profession" name="profession"
+                                value="{{ patient.profession }}">
+                        </div>
+
+                        <!-- Groupe sanguin -->
+                        <div class="col-md-6 col-lg-4">
+                            <label for="groupe_sanguin">Groupe sanguin</label>
+                            <select class="form-select" id="groupe_sanguin" name="groupe_sanguin">
+                                <option value="" disabled {% if not patient.groupe_sanguin %}selected{% endif %}>--
+                                    Veuillez choisir --</option>
+                                {% for groupe in ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] %}
+                                <option value="{{ groupe }}" {% if patient.groupe_sanguin==groupe %}selected{% endif %}>
+                                    {{ groupe }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Tension artérielle -->
+                        <div class="col-md-6 col-lg-4">
+                            <label for="tension_arterielle">Tension artérielle</label>
+                            <input type="text" class="form-control" id="tension_arterielle" name="tension_arterielle"
+                                value="{{ patient.tension_arterielle }}">
+                        </div>
+
+                        <!-- Taux de sucre -->
+                        <div class="col-md-6 col-lg-4">
+                            <label for="taux_sucre">Taux de sucre</label>
+                            <input type="text" class="form-control" id="taux_sucre" name="taux_sucre"
+                                value="{{ patient.taux_sucre }}">
+                        </div>
+
+                        <!-- Adresse -->
+                        <div class="col-md-6">
+                            <label for="adresse">Adresse</label>
+                            <input type="text" class="form-control" id="adresse" name="adresse"
+                                value="{{ patient.adresse }}">
+                        </div>
+
+                        <!-- Ville -->
+                        <div class="col-md-4">
+                            <label for="ville">Ville</label>
+                            <input type="text" class="form-control" id="ville" name="ville" value="{{ patient.ville }}">
+                        </div>
+
+                        <!-- Pays -->
+                        <div class="col-md-4">
+                            <label for="pays">Pays</label>
+                            <select class="form-select" id="pays" name="pays">
+                                <option value="" disabled {% if not patient.pays %}selected{% endif %}>-- Veuillez
+                                    choisir --</option>
+                                {% for p in pays %}
+                                <option value="{{ p }}" {% if patient.pays==p %}selected{% endif %}>{{ p }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Code postal -->
+                        <div class="col-md-4">
+                            <label for="code_postal">Code postal</label>
+                            <input type="text" class="form-control" id="code_postal" name="code_postal"
+                                value="{{ patient.code_postal }}">
+                        </div>
+
+                        <!-- Nom d'utilisateur -->
+                        <div class="col-md-6">
+                            <label for="nom_utilisateur">Nom d'utilisateur</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ri-account-pin-circle-line"></i></span>
+                                <input type="text" id="nom_utilisateur" name="nom_utilisateur" class="form-control"
+                                    value="{{ patient.nom_utilisateur }}">
+                            </div>
+                        </div>
+                        {%if not patient.nom_utilisateur}
+                        <!-- Nouveau mot de passe -->
+                        <div class="col-md-3">
+                            <label for="new_password">Nouveau mot de passe</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ri-lock-password-line"></i></span>
+                                <input type="password" id="new_password" name="new_password" class="form-control">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword('new_password', this)">
+                                    <i class="ri-eye-off-line"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Confirmer mot de passe -->
+                        <div class="col-md-3">
+                            <label for="confirm_new_password">Confirmer mot de passe</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="ri-lock-password-line"></i></span>
+                                <input type="password" id="confirm_new_password" name="confirm_new_password"
+                                    class="form-control">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    onclick="togglePassword('confirm_new_password', this)">
+                                    <i class="ri-eye-off-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {%endif%}
+
+                    </div>
+
+                    <!-- Boutons -->
+                    <div class="mt-4 d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('profile_patient') }}" class="btn btn-outline-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-primary">Mettre à jour</button>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,16 +1,18 @@
-from flask import Flask, render_template, redirect, url_for, session, request, flash, send_file,make_response
+from flask import Flask, render_template, redirect, url_for, session, request, flash,make_response
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import hashlib
 from credentials import *
-from flask import Flask
 from flask_mail import Mail, Message
 import re
-from  models import db, Consultation, Patient, Doctor
+from models import db, Consultation, Patient, Doctor
 from datetime import  datetime, date, time
 from flask_migrate import Migrate
 from xhtml2pdf import pisa
 from io import BytesIO
+from functools import wraps
+
+
 
 app = Flask(__name__)
 
@@ -614,7 +616,153 @@ def index_patient():
 # modifier profile patient
 @app.route('/patient/profile/modifier', methods=['GET', 'POST'])
 def modifier_profile_patient():
-    return render_template("patient/gestion_patient/modifier_profile..html")
+    if 'email_patient' not in session:
+        flash("Veuillez vous connecter pour accéder à cette page.", "warning")
+        return redirect(url_for('login'))
+
+    email = session['email_patient']
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    # pour tout les pays
+    pays = [
+        "Afghanistan", "Afrique du Sud", "Albanie", "Algérie", "Allemagne", "Andorre", "Angola",
+        "Antigua-et-Barbuda",
+        "Arabie Saoudite", "Argentine", "Arménie", "Australie", "Autriche", "Azerbaïdjan", "Bahamas", "Bahreïn",
+        "Bangladesh", "Barbade", "Belgique", "Belize", "Bénin", "Bhoutan", "Biélorussie", "Birmanie", "Bolivie",
+        "Bosnie-Herzégovine", "Botswana", "Brésil", "Brunei", "Bulgarie", "Burkina Faso", "Burundi", "Cambodge",
+        "Cameroun", "Canada", "Cap-Vert", "République centrafricaine", "Chili", "Chine", "Chypre", "Colombie",
+        "Comores",
+        "Congo (Brazzaville)", "Congo (RDC)", "Corée du Nord", "Corée du Sud", "Costa Rica", "Côte d'Ivoire",
+        "Croatie",
+        "Cuba", "Danemark", "Djibouti", "Dominique", "Égypte", "Émirats arabes unis", "Équateur", "Érythrée",
+        "Espagne",
+        "Estonie", "Eswatini", "États-Unis", "Éthiopie", "Fidji", "Finlande", "France", "Gabon", "Gambie",
+        "Géorgie",
+        "Ghana", "Grèce", "Grenade", "Guatemala", "Guinée", "Guinée-Bissau", "Guinée équatoriale", "Guyana",
+        "Haïti",
+        "Honduras", "Hongrie", "Inde", "Indonésie", "Irak", "Iran", "Irlande", "Islande", "Israël", "Italie",
+        "Jamaïque",
+        "Japon", "Jordanie", "Kazakhstan", "Kenya", "Kirghizistan", "Kiribati", "Koweït", "Laos", "Lesotho",
+        "Lettonie",
+        "Liban", "Libéria", "Libye", "Liechtenstein", "Lituanie", "Luxembourg", "Macédoine du Nord", "Madagascar",
+        "Malaisie", "Malawi", "Maldives", "Mali", "Malte", "Maroc", "Îles Marshall", "Maurice", "Mauritanie",
+        "Mexique",
+        "Micronésie", "Moldavie", "Monaco", "Mongolie", "Monténégro", "Mozambique", "Namibie", "Nauru", "Népal",
+        "Nicaragua", "Niger", "Nigeria", "Norvège", "Nouvelle-Zélande", "Oman", "Ouganda", "Ouzbékistan",
+        "Pakistan",
+        "Palaos", "Palestine", "Panama", "Papouasie-Nouvelle-Guinée", "Paraguay", "Pays-Bas", "Pérou",
+        "Philippines",
+        "Pologne", "Portugal", "Qatar", "Roumanie", "Royaume-Uni", "Russie", "Rwanda", "Saint-Kitts-et-Nevis",
+        "Sainte-Lucie", "Saint-Marin", "Saint-Vincent-et-les-Grenadines", "Salomon", "Salvador", "Samoa",
+        "São Tomé-et-Príncipe",
+        "Sénégal", "Serbie", "Seychelles", "Sierra Leone", "Singapour", "Slovaquie", "Slovénie", "Somalie",
+        "Soudan",
+        "Soudan du Sud", "Sri Lanka", "Suède", "Suisse", "Suriname", "Syrie", "Tadjikistan", "Tanzanie", "Tchad",
+        "République tchèque", "Thaïlande", "Timor oriental", "Togo", "Tonga", "Trinité-et-Tobago", "Tunisie",
+        "Turkménistan",
+        "Turquie", "Tuvalu", "Ukraine", "Uruguay", "Vanuatu", "Vatican", "Venezuela", "Viêt Nam", "Yémen", "Zambie",
+        "Zimbabwe"
+    ]
+    # Récupération des données existantes
+    cursor.execute("SELECT * FROM patient WHERE email_patient = %s", (email,))
+    patient = cursor.fetchone()
+
+    if not patient:
+        flash("Profil non trouvé.", "danger")
+        cursor.close()
+        return redirect(url_for('index_patient'))
+
+    if request.method == 'POST':
+        data = request.form
+
+        nom_utilisateur = data.get('nom_utilisateur') or patient['nom_utilisateur']
+        nom = data.get('nom')
+        prenom = data.get('prenom')
+        nom_complet = (nom + ' ' + prenom) if nom and prenom else None
+        date_naissance = data.get('date_naissance') or patient['date_naissance']
+        sexe = data.get('sexe') or patient['sexe']
+        etat_civil = data.get('etat_civil') or patient['etat_civil']
+        profession = data.get('profession') or patient['profession']
+        groupe_sanguin = data.get('groupe_sanguin') or patient['groupe_sanguin']
+        tension_arterielle = data.get('tension_arterielle') or patient['tension_arterielle']
+        taux_sucre = data.get('taux_sucre') or patient['taux_sucre']
+        adresse = data.get('adresse') or patient['adresse']
+        ville = data.get('ville') or patient['ville']
+        pays = data.get('pays') or patient['pays']
+        code_postal = data.get('code_postal') or patient['code_postal']
+        numero_telephone = data.get('numero_telephone') or patient['numero_telephone']
+
+        # Vérification du nom d'utilisateur déjà utilisé par un autre compte
+        if nom_utilisateur and nom_utilisateur != patient['nom_utilisateur']:
+            cursor.execute("SELECT * FROM patient WHERE nom_utilisateur = %s AND email_patient != %s",
+                           (nom_utilisateur, email))
+            existing_user = cursor.fetchone()
+            if existing_user:
+                flash("Ce nom d'utilisateur est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                return redirect(request.url)
+
+        # Nouveau mot de passe
+        password = data.get('new_password')
+        confirm_password = data.get('confirm_new_password')
+
+        if password:
+            if password != confirm_password:
+                flash("Les mots de passe ne correspondent pas.", "danger")
+                cursor.close()
+                return redirect(request.url)
+            password_hash = hashlib.md5(password.encode()).hexdigest()
+        else:
+            password_hash = patient['password']
+
+        # Vérif téléphone (si changé)
+        if numero_telephone != patient['numero_telephone']:
+            if not re.match(pattern_phone, numero_telephone):
+                flash("Numéro de téléphone invalide.", "danger")
+                cursor.close()
+                return redirect(request.url)
+
+        try:
+            cursor.execute("""
+                UPDATE patient SET
+                    nom_utilisateur=%s,
+                    nom_complet=%s,
+                    date_naissance=%s,
+                    sexe=%s,
+                    etat_civil=%s,
+                    profession=%s,
+                    groupe_sanguin=%s,
+                    tension_arterielle=%s,
+                    taux_sucre=%s,
+                    adresse=%s,
+                    ville=%s,
+                    pays=%s,
+                    code_postal=%s,
+                    numero_telephone=%s,
+                    password=%s
+                WHERE email_patient=%s
+            """, (
+                nom_utilisateur, nom_complet, date_naissance, sexe,
+                etat_civil, profession, groupe_sanguin, tension_arterielle,
+                taux_sucre, adresse, ville, pays, code_postal,
+                numero_telephone, password_hash, email
+            ))
+
+            mysql.connection.commit()
+            cursor.close()
+            flash("Profil mis à jour avec succès.", "success")
+            return redirect(url_for('index_patient'))
+
+        except Exception as e:
+            print("Erreur :", e)
+            flash("Erreur lors de la mise à jour du profil.", "danger")
+            cursor.close()
+            return redirect(request.url)
+
+
+    return render_template("patient/gestion_patient/modifier_profile.html", patient=patient, pays=pays)
+
+@app.route('/patient/profile')
+def profile_patient():
+    return render_template('patient/gestion_patient/profile_patient.html')
 
 
 
@@ -998,6 +1146,7 @@ def is_valid(email, email_field, password, table):
 
     return result is not None
 
+"""debut login"""
 #fonction login
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -1010,6 +1159,7 @@ def login():
         # Vérification des informations
         if is_valid(email, 'email_admin', password, 'admin'):
             session['email_admin'] = email
+            session['role'] = "admin"
             return redirect(url_for('index'))
 
         elif is_valid(email, "email_doctor", password, "doctor"):
@@ -1035,7 +1185,7 @@ def login():
                 return redirect(url_for('index_doctor'))
 
             else:  # Si vide ou NULL
-
+                session['role'] = "docteur"
                 return redirect(url_for('modifier_profile_doctor'))
 
 
@@ -1058,7 +1208,7 @@ def login():
                 return redirect(url_for('index_patient'))
 
             else:  # Si vide ou NULL
-
+                session['role'] = "patient"
                 return redirect(url_for('modifier_profile_patient'))
 
 
@@ -1081,7 +1231,7 @@ def login():
                 return redirect(url_for('index_secretaire_medicales'))
 
             else:
-
+                session['role'] = "secretaire"
                 return redirect(url_for('modifier_profile_secretaire'))
 
 
@@ -1105,7 +1255,7 @@ def login():
                 return redirect(url_for('index_ambulancier'))
 
             else:  # Si vide ou NULL
-
+                session['role'] = "ambulance"
                 return redirect(url_for('modifier_profile_ambulancier'))
 
 
@@ -1129,7 +1279,7 @@ def login():
                 return redirect(url_for('index_caissier'))
 
             else:  # Si vide ou NULL
-
+                session['role'] = "caissier"
                 return redirect(url_for('modifier_profile_caissier'))
 
 
@@ -1153,7 +1303,7 @@ def login():
                 return redirect(url_for('index_logistique'))
 
             else:  # Si vide ou NULL
-
+                session['role'] = "logistique"
                 return redirect(url_for('modifier_profile_logistique'))
 
 
@@ -1177,7 +1327,7 @@ def login():
                 return redirect(url_for('index_stock'))
 
             else:  # Si vide ou NULL
-
+                session['role'] = "stock"
                 return redirect(url_for('modifier_profile_stock'))
 
 
@@ -1201,7 +1351,7 @@ def login():
                 return redirect(url_for('index_infirmier'))
 
             else:  # Si vide ou NULL
-
+                session['role'] = "infirmier"
                 return redirect(url_for('modifier_profile_infirmier'))
 
 
@@ -1225,17 +1375,59 @@ def login():
                 return redirect(url_for('index_interne'))
 
             else:  # Si vide ou NULL
-
+                session['role'] = "interne"
                 return redirect(url_for('modifier_profile_interne'))
 
         else:
             flash('Email ou mot de passe incorrect.', 'danger')
             return redirect(url_for('login'))
     return render_template('admin/connexion/login.html')
+"""fin login"""
+
+"""debut decorateur autentification"""
+# autentificaton
+def login_required(role=None):
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            user_role = session.get('role')
+            email_keys = {
+                'admin': 'email_admin',
+                'doctor': 'email_doctor',
+                'patient': 'email_patient',
+                'secretaire': 'email_secretaire',
+                'ambulance': 'email_ambulancier',
+                'caissier': 'email_caissier',
+                'logistique': 'email_logistique',
+                'stock': 'email_stock',
+                'infirmier': 'email_infirmier',
+                'interne': 'email_interne',
+            }
+
+            if not user_role or not session.get(email_keys.get(user_role)):
+                flash("Vous devez être connecté", "warning")
+                return redirect(url_for('login'))
+
+            if role:
+                # Gère liste ou string
+                if isinstance(role, (list, tuple)):
+                    if user_role not in role:
+                        flash("Accès refusé", "danger")
+                        return redirect(url_for('index'))
+                else:
+                    if user_role != role:
+                        flash("Accès refusé", "danger")
+                        return redirect(url_for('index'))
+
+            return f(*args, **kwargs)
+        return wrapped
+    return decorator
+
+"""fin decorateur authentifiation"""
 
 
 
-
+"""debut logout"""
 # les deconnection
 @app.route('/logout')
 def logout():
@@ -1279,7 +1471,7 @@ def logout():
 
     flash(f"Déconnexion de {role or 'utilisateur inconnu'} {nom}", 'success')
     return redirect(url_for('login'))
-
+"""fin logout"""
 
 
 
@@ -1910,9 +2102,6 @@ def signup_interne():
 
 """debut consultation"""
 # gestion de conssutation
-from flask import render_template, request, redirect, url_for, flash
-from models import db, Consultation, Patient, Doctor
-
 # ajouter une consultation secretaire medical
 @app.route('/consultations/nouvelle', methods=['GET', 'POST'])
 def nouvelle_consultation():
@@ -1978,10 +2167,12 @@ def historique_consultations():
     return render_template('secretaire_medicales/gestion de consultation/historique_consultations.html', consultations=consultations)
 
 # voir detail d'une consultation secretaire
-@app.route('/secretaire/consultation/<int:id>')
-def voir_consultation(id):
+@app.route('/secretaire/voir/consultation/<int:id>')
+def voir_consultation_secretaire(id):
     consultation = Consultation.query.get_or_404(id)
-    return render_template('secretaire_medicales/gestion de consultation/detail_consultation.html', consultation=consultation)
+    return render_template("doctor/consultation/detail_donsultation.html",
+                           consultation=consultation,
+                           layout="secretaire_medicales/base_secretaire_medicales.html")
 
 # lisde des consultation medecin
 @app.route('/doctor/<int:doctor_id>/consultations')
@@ -1991,16 +2182,61 @@ def liste_consultations_medecin(doctor_id):
     return render_template('doctor/consultation/liste_consultation.html', consultations=consultations, doctor=doctor)
 
 # faire consultation medecin
-@app.route('/docteur/consultation/<int:consultation_id>/completer', methods=['GET', 'POST'])
+@app.route('/docteur/consultations/<int:consultation_id>/completer', methods=['GET', 'POST'])
 def completer_consultation(consultation_id):
     consultation = Consultation.query.get_or_404(consultation_id)
 
     if request.method == 'POST':
-        consultation.diagnostic = request.form.get('diagnostic')
-        consultation.traitement = request.form.get('traitement')
-        consultation.prescription = request.form.get('prescription')
+        # Informations générales
         consultation.date_fin_consultation = datetime.utcnow()
-        consultation.etat = "Terminée"# si tu as ce champ
+        consultation.etat = "terminee"
+
+        # Motif et plaintes
+        consultation.motif = request.form.get('motif')
+        consultation.plaintes = request.form.get('plaintes')
+
+        # Antécédents
+        consultation.antecedents_personnels = request.form.get('antecedents_personnels')
+        consultation.antecedents_familiaux = request.form.get('antecedents_familiaux')
+        consultation.allergies = request.form.get('allergies')
+        consultation.traitements_en_cours = request.form.get('traitements_en_cours')
+
+        # Examen clinique
+        consultation.poids = request.form.get('poids') or None
+        consultation.taille = request.form.get('taille') or None
+        consultation.temperature = request.form.get('temperature') or None
+        consultation.tension_arterielle = request.form.get('tension_arterielle')
+        consultation.frequence_cardiaque = request.form.get('frequence_cardiaque') or None
+        consultation.frequence_respiratoire = request.form.get('frequence_respiratoire') or None
+        consultation.saturation_oxygene = request.form.get('saturation_oxygene') or None
+        consultation.observations_cliniques = request.form.get('observations_cliniques')
+
+        # Examens
+        consultation.examens_biologiques = request.form.get('examens_biologiques')
+        consultation.examens_radiologiques = request.form.get('examens_radiologiques')
+        consultation.autres_examens = request.form.get('autres_examens')
+        consultation.resultats_examens = request.form.get('resultats_examens')
+
+        # Diagnostic et traitement
+        consultation.diagnostic = request.form.get('diagnostic')
+        consultation.diagnostic_secondaire = request.form.get('diagnostic_secondaire')
+        consultation.traitement = request.form.get('traitement')
+        consultation.traitement_non_medic = request.form.get('traitement_non_medic')
+        consultation.prescription = request.form.get('prescription')
+
+        # Suivi
+        consultation.conseils = request.form.get('conseils')
+        prochain_rdv = request.form.get('prochain_rdv')
+        consultation.prochain_rdv = datetime.strptime(prochain_rdv, "%Y-%m-%d") if prochain_rdv else None
+        consultation.note_suivi = request.form.get('note_suivi')
+
+        # Documents joints (si tu gères des fichiers à part, à adapter)
+        consultation.ordonnance_jointe = request.form.get('ordonnance_jointe')  # ou nom de fichier uploadé
+        consultation.lettre_orientation = request.form.get('lettre_orientation')
+        consultation.documents_scannes = request.form.get('documents_scannes')
+
+        # etat pour la verification
+        consultation.etat = "Terminée"
         db.session.commit()
         flash("Consultation complétée avec succès.", "success")
         return redirect(url_for('liste_consultations_medecin', doctor_id=consultation.doctor_id))
@@ -2039,30 +2275,13 @@ def historique_consultations_doctor():
     return render_template('doctor/consultation/historique_consultations.html',
                            consultations_info=consultations_info)
 
-#modifier la consultation docteur
-@app.route('/doctor/consultation/<int:id>/modifier', methods=['GET', 'POST'])
-def modifier_consultation_doctor(id):
-    consultation = Consultation.query.get_or_404(id)
-
-    if request.method == 'POST':
-        # Récupération des données du formulaire
-        consultation.motif = request.form.get('motif')
-        consultation.diagnostic = request.form.get('diagnostic')
-        consultation.traitement = request.form.get('traitement')
-        consultation.prescription = request.form.get('prescription')
-
-        db.session.commit()
-        flash('Consultation modifiée avec succès.', 'success')
-        return redirect(url_for('historique_consultations_doctor'))
-
-    return render_template('doctor/consultation/modifier_consultation.html', consultation=consultation)
-
-
 # voir consultation passer docteur
 @app.route('/doctor/consultation/voir/<int:id>')
 def voir_consultation_doctor(id):
     consultation = Consultation.query.get_or_404(id)
-    return render_template("doctor/consultation/detail_donsultation.html", consultation=consultation)
+    return render_template("doctor/consultation/detail_donsultation.html",
+                           consultation=consultation,
+                           layout="doctor/base_doctor.html")
 
 
 #telecharger uyne consltation en pdf

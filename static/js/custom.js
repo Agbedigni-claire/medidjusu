@@ -121,7 +121,6 @@ $(function () {
   });
 });
 
-
 /***********
 ***********
 ***********
@@ -145,3 +144,20 @@ var popoverTriggerList = [].slice.call(
 var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
   return new bootstrap.Popover(popoverTriggerEl);
 });
+
+// voir les mot de pass
+
+function togglePassword(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const icon = btn.querySelector("i");
+
+  if (input.type === "password") {
+    input.type = "text";
+    icon.classList.remove("ri-eye-off-line");
+    icon.classList.add("ri-eye-line", "text-primary"); // 👁️ bleu
+  } else {
+    input.type = "password";
+    icon.classList.remove("ri-eye-line", "text-primary");
+    icon.classList.add("ri-eye-off-line"); // 👁️‍🗨️ normal
+  }
+}

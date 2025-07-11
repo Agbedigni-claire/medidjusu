@@ -13,15 +13,13 @@
 
     <!-- App brand starts -->
     <div class="app-brand ms-3">
-        <a href="{{url_for('index_doctor')}}" class="d-lg-block d-none">
+        <a href="{{ url_for('index_doctor') }}" class="d-lg-block d-none">
             <img src="{{ url_for('static', filename='images/logo/logo_header1.png') }}" class="logo"
                 alt="logo MediJutsu">
-
         </a>
-        <a href="{{url_for('index_doctor')}}" class="d-lg-block d-none">
+        <a href="{{ url_for('index_doctor') }}" class="d-lg-none d-md-block">
             <img src="{{ url_for('static', filename='images/logo/logo_header1.png') }}" class="logo"
                 alt="logo MediJutsu">
-
         </a>
     </div>
     <!-- App brand ends -->
