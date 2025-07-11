@@ -1,152 +1,98 @@
 <nav id="sidebar" class="sidebar-wrapper">
 
-    <!-- Sidebar profile starts -->
-    <div class="sidebar-profile">
-        <img src="{{url_for('static', filename='images/user6.png')}}" class="img-shadow img-3x me-3 rounded-5"
-            alt="Hospital Admin Templates">
-        <div class="m-0">
-            <h5 class="mb-1 profile-name text-nowrap text-truncate">Nick Gonzalez</h5>
-            <p class="m-0 small profile-name text-nowrap text-truncate">Dept Admin</p>
+    <!-- Profil utilisateur -->
+    <div class="sidebar-profile d-flex align-items-center p-3 border-bottom">
+        <img src="{{ url_for('static', filename='images/user6.png') }}" alt="Photo utilisateur"
+            class="img-shadow rounded-circle" style="width:50px; height:50px; object-fit:cover;">
+        <div class="ms-3">
+            <h5 class="mb-0 text-truncate">Nick Gonzalez</h5>
+            <small class="text-muted">Caissier</small>
         </div>
     </div>
-    <!-- Sidebar profile ends -->
 
-    <!-- Sidebar menu starts -->
+    <!-- Menu latéral -->
     <div class="sidebarMenuScroll">
-        <ul class="sidebar-menu">
+        <ul class="sidebar-menu list-unstyled m-0 p-0">
+
             <li class="active current-page">
-                <a href="dashboard2.html">
-                    <i class="ri-home-smile-2-line"></i>
+                <a href="#" class="d-flex align-items-center px-3 py-2 text-decoration-none">
+                    <i class="ri-home-smile-2-line me-2"></i>
                     <span class="menu-text">Tableau de bord</span>
                 </a>
             </li>
-            <li class="treeview">
-                <a href="#!">
-                    <i class="ri-secure-payment-line"></i>
-                    <span class="menu-text">Caisse</span>
-                </a>
-                <ul class="treeview-menu">
-                    <li>
-                        <a href="income.html">Revenue</a>
-                    </li>
-                    <li>
-                        <a href="payments.html">Payements</a>
-                    </li>
-                    <li>
-                        <a href="invoices.html">Facture</a>
-                    </li>
-                    <li>
-                        <a href="invoice-details.html">detaile de facture</a>
-                    </li>
-                    <li>
-                        <a href="create-invoice.html">creer facture</a>
-                    </li>
-                    <li>
-                        <a href="expenses.html">Dépenses</a>
-                    </li>
-                </ul>
-            </li>
-            <li class="treeview">
-                <a href="#!">
-                    <i class="ri-money-dollar-circle-line"></i>
-                    <span class="menu-text">Salaire</span>
-                </a>
-                <ul class="treeview-menu">
-                    <li>
-                        <a href="salaries.html">Liste Salaire</a>
-                    </li>
-                    <li>
-                        <a href="payslip.html">Fiche de Paie</a>
-                    </li>
-                </ul>
-            </li>
-            <li class="treeview">
-                <a href="#!">
-                    <i class="ri-group-2-line"></i>
-                    <span class="menu-text">Congé & presence</span>
-                </a>
-                <ul class="treeview-menu">
-                    <li>
-                        <a href="staff-attendance.html">Présence assiduité</a>
-                    </li>
-                    <li>
-                        <a href="staff-leaves.html">Congé personnel</a>
-                    </li>
-                </ul>
-            </li>
-            <li class="treeview">
-                <a href="#!">
-                    <i class="ri-hotel-bed-line"></i>
-                    <span class="menu-text">Chambre</span>
-                </a>
-                <ul class="treeview-menu">
-                    <li>
-                        <a href="room-statistics.html">Reserver Chambre</a>
-                    </li>
-                </ul>
-            </li>
+
+            <!-- Menu Caisse sans treeview -->
             <li>
-                <a href="gallery.html">
-                    <i class="ri-tent-line"></i>
-                    <span class="menu-text">Galerie</span>
+                <a href="#" class="d-flex align-items-center px-3 py-2 text-decoration-none">
+                    <i class="ri-money-dollar-box-line me-2"></i>
+                    <span class="menu-text">Revenus</span>
                 </a>
             </li>
             <li>
-                <a href="news.html">
-                    <i class="ri-news-line"></i>
-                    <span class="menu-text">Actualités et mises à jour</span>
+                <a href="#" class="d-flex align-items-center px-3 py-2 text-decoration-none">
+                    <i class="ri-wallet-line me-2"></i>
+                    <span class="menu-text">Paiements</span>
                 </a>
             </li>
             <li>
-                <a href="settings.html">
-                    <i class="ri-settings-5-line"></i>
-                    <span class="menu-text">Parametre</span>
+                <a href="#" class="d-flex align-items-center px-3 py-2 text-decoration-none">
+                    <i class="ri-file-list-3-line me-2"></i>
+                    <span class="menu-text">Factures</span>
                 </a>
             </li>
-            <li class="treeview">
-                <a href="#!">
-                    <i class="ri-login-circle-line"></i>
-                    <span class="menu-text">Comptes</span>
+            <li>
+                <a href="#" class="d-flex align-items-center px-3 py-2 text-decoration-none">
+                    <i class="ri-file-text-line me-2"></i>
+                    <span class="menu-text">Détails facture</span>
                 </a>
-                <ul class="treeview-menu">
-                    <li>
-                        <a href="login.html">Connection</a>
-                    </li>
-                    <li>
-                        <a href="signup.html">Déconnection</a>
-                    </li>
-                    <li>
-                        <a href="forgot-password.html">Mot de passe oublié </a>
-                    </li>
-                    <li>
-                        <a href="reset-password.html">Rénistaliser mot de passe</a>
-                    </li>
+            </li>
+            <li>
+                <a href="#" class="d-flex align-items-center px-3 py-2 text-decoration-none">
+                    <i class="ri-file-add-line me-2"></i>
+                    <span class="menu-text">Créer facture</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="d-flex align-items-center px-3 py-2 text-decoration-none">
+                    <i class="ri-expense-line me-2"></i>
+                    <span class="menu-text">Dépenses</span>
+                </a>
+            </li>
+
+            <!-- Bouton Paramètres -->
+            <li>
+                <a href="#" class="d-flex align-items-center px-3 py-2 text-decoration-none">
+                    <i class="ri-settings-5-line me-2"></i>
+                    <span class="menu-text">Paramètres</span>
+                </a>
+            </li>
+
+            <!-- Menu Compte (dropdown) -->
+            <li class="treeview">
+                <a href="#compteSubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                    class="dropdown-toggle d-flex align-items-center px-3 py-2 text-decoration-none">
+                    <i class="ri-login-circle-line me-2"></i>
+                    <span class="menu-text">Compte</span>
+                    <i class="ri-arrow-down-s-line ms-auto"></i>
+                </a>
+                <ul class="collapse list-unstyled ps-4" id="compteSubmenu">
+                    <li><a href="{{ url_for('login') }}" class="d-block py-1 text-decoration-none">Connexion</a></li>
+                    <li><a href="{{ url_for('logout') }}" class="d-block py-1 text-decoration-none">Déconnexion</a></li>
+                    <li><a href="{{ url_for('forgot_password') }}" class="d-block py-1 text-decoration-none">Mot de
+                            passe oublié</a></li>
+                    <li><a href="{{ url_for('reset_password') }}"
+                            class="d-block py-1 text-decoration-none">Réinitialiser mot de passe</a></li>
                 </ul>
             </li>
-            <li>
-                <a href="#!">
-                    <i class="ri-exchange-line"></i>
-                    <span class="menu-text">Chip</span>
-                    <span class="badge bg-primary ms-auto">6</span>
-                </a>
-            </li>
-            <li>
-                <a href="#!">
-                    <i class="ri-ticket-line"></i>
-                    <span class="menu-text">Badge</span>
-                    <span class="badge border border-primary text-primary ms-auto">Chip</span>
-                </a>
-            </li>
+
         </ul>
     </div>
-    <!-- Sidebar menu ends -->
 
-    <!-- Sidebar contact starts -->
-    <div class="sidebar-contact">
-        <p class="fw-light mb-1 text-nowrap text-truncate">Emergency Contact</p>
-        <h5 class="m-0 lh-1 text-nowrap text-truncate">0987654321</h5>
-        <i class="ri-phone-line"></i>
+    <!-- Contact d'urgence -->
+    <div class="sidebar-contact p-3 border-top text-center">
+        <p class="fw-light mb-1 text-nowrap text-truncate">Contact d'urgence</p>
+        <h5 class="m-0 lh-1 text-nowrap text-truncate">+228 98 76 54 32</h5>
+        <i class="ri-phone-line fs-4 mt-2"></i>
     </div>
-    <!-- Sidebar contact ends -->
 
 </nav>
