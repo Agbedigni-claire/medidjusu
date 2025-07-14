@@ -2381,8 +2381,12 @@ def forgot_password():
 
 
 
+#boutton addmissin
 
-
+@app.route("/dossier_medical")
+def Dossier_medical():
+     return render_template("secretaire_medicales/admission/Dossier_medical.html")
+    
 
 
 
