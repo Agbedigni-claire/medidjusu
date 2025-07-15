@@ -82,4 +82,3 @@ class Doctor(db.Model):
     consultations = db.relationship('Consultation', backref='doctor', lazy=True)
 
 # Modele Consultation
-wWw
