@@ -87,6 +87,7 @@ class Consultation(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     date_consultation = db.Column(db.DateTime, default=datetime.utcnow)
+    date_confirmation = db.Column(db.DateTime, default=datetime.utcnow)
     date_fin_consultation = db.Column(db.DateTime, nullable=True)
 
     # Informations générales

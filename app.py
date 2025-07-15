@@ -846,7 +846,13 @@ def index_secretaire_medicales():
 def admission_patient():
     return render_template("secretaire_medicales/gestion_patients/admissions_patient.html")
 
-#admission_patient  secretaire medicale
+
+#liste des admition et qui permet la sorti
+@app.route("/secretaire_medicales/liste_admission")
+def liste_admission():
+    return render_template("secretaire_medicales/gestion_patients/liste_admissions.html")
+
+#sortie_patient  secretaire medicale
 @app.route("/secretaire_medicales/sortie_patient")
 def sortie_patient():
     return render_template("secretaire_medicales/gestion_patients/sortie_patient.html")
@@ -2302,7 +2308,7 @@ def historique_consultations_doctor():
         modifiable = False
         if c.date_confirmation:
             minutes_passed = (now - c.date_confirmation).total_seconds() / 60
-            if minutes_passed <= 5:
+            if minutes_passed <= 10000000000000000000000000000:
                 modifiable = True
 
         consultations_info.append({
