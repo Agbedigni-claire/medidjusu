@@ -253,13 +253,23 @@ def modifier_secretaire_admin(id):
 @app.route("/ambulance")
 def index_ambulance():
     return render_template("ambulance/index_ambulance.html")
+
+@app.route("/modifier_profile_ambulancier")
+def modifier_profile_ambulancier():
+    return render_template("ambulance/gestion_ambulance/modiifer_profile.html")
 """fin ambulance"""
+
+
 
 
 """debut caissier"""
 @app.route("/caissier")
 def index_caissier():
-    return render_template("caissier/index_caissier.html")
+    return (render_template("caissier/index_caissier.html"))
+
+@app.route("/caissier/modifier_profile_caissier")
+def modifier_profile_caissier():
+    return render_template("caissier/gestion_caissier/modiifer_profile.html")
 
 """fin caissier"""
 
@@ -595,15 +605,26 @@ def consultation_doctor():
 
 
 
-
+"""debut gestionaire de stock"""
 #gestonaire de stoCK
 @app.route("/gestionaire_stock")
 def index_gestionaire_stock():
     return render_template("gestionaire_stock/index_gestionaire_stock.html")
 
+@app.route("/gestionaire_stock/modifier_profile_stock")
+def modifier_profile_stock():
+    return render_template("gestionaire_stock/gestion_ambulance/modiifer_profile.html")
+
+
+"""fin gestionnaire de stock"""
+
 @app.route("/infirmier")
 def index_infirmier():
     return render_template("infirmier/index_infirmier.html")
+
+@app.route("/infirmier/modifier_profile_infirmier")
+def modifier_profile_infirmier():
+    return render_template("infirmier/gestion_infirmier/modiifer_profile.html")
 
 
 
@@ -788,7 +809,7 @@ def sortie_patient():
 
 #modification_patients secretaire medicale
 @app.route("/secretaire_medicales/modification_patients")
-def modif_patients():
+def modification_patients():
     return render_template("secretaire_medicales/gestion_patients/modification_patients.html")
 
 #gestion_rendezvous secretaire medicale
@@ -1069,19 +1090,30 @@ def profile_secretaire_medicale():
 
 
 
-
+"""debut internr medecie"""
 @app.route("/interne_medecine")
 def index_interne_medecine():
     return render_template("interne_medecine/index_interne_medecine.html")
 
+
+@app.route("/interne_medecine/modifier_profile_interne")
+def modifier_profile_interne():
+    return render_template("interne_medecine/gestion_interne/modiifer_profile.html")
+"""fin interne medecie"""
+
+
+"""debut gestionnaire logistique"""
 @app.route("/gestionnaire_logistique")
 def index_gestionnaire_logistique():
     return render_template("gestionaire_logistique/index_logistique.html")
 
-#modification_patients secretaire medicale
-@app.route("/secretaire_medicales/modification_patients")
-def modification_patients():
-    return render_template("secretaire_medicales/gestion_patients/modification_patients.html")
+@app.route("/gestionnaire_logistique/modifier_profile_logistique")
+def modifier_profile_logistique():
+    return render_template("gestionaire_logistique/gestion_logistique/modiifer_profile.html")
+
+"""fin gestionnaire de logistique"""
+
+
 
 #les connection
 #connection de l'admin
@@ -1830,7 +1862,7 @@ def signup_ambulancier():
                     print(e)
 
                 flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
-                return redirect(url_for('index_admin'))
+                return redirect(url_for('index'))
 
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
@@ -1841,7 +1873,7 @@ def signup_ambulancier():
 
 
 # inscription du caissier
-@app.route("/signup_ambulancier", methods=['POST', 'GET'])
+@app.route("/signup_caissier", methods=['POST', 'GET'])
 def signup_caissier():
     if 'email_admin' in session:
         loggedIn, firstName = getLogin('email_admin', 'admin')
@@ -1883,7 +1915,7 @@ def signup_caissier():
                     print(e)
 
                 flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
-                return redirect(url_for('index_admin'))
+                return redirect(url_for('index'))
 
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
@@ -1936,7 +1968,7 @@ def signup_logistique():
                     print(e)
 
                 flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
-                return redirect(url_for('index_admin'))
+                return redirect(url_for('index'))
 
             except Exception as e:
                 return f"Erreur lors de l'inscription : {e}"
@@ -2053,7 +2085,7 @@ def signup_infirmier():
 
 
 #inscription du interne_medecine
-@app.route("/signup_infirmier", methods=['POST', 'GET'])
+@app.route("/signup_interne_medecine", methods=['POST', 'GET'])
 def signup_interne():
     if 'email_admin' in session:
         loggedIn, firstName = getLogin('email_admin', 'admin')
@@ -2103,6 +2135,9 @@ def signup_interne():
         return render_template('admin/connexion/signup.html', loggedIn=loggedIn, firstName=firstName, role="interne")
     else:
         return redirect(url_for('login'))
+
+
+"""fin signup"""
 
 
 """debut consultation"""
@@ -2194,6 +2229,7 @@ def completer_consultation(consultation_id):
     if request.method == 'POST':
         # Informations générales
         consultation.date_fin_consultation = datetime.utcnow()
+        consultation.date_confirmation = datetime.now()
         consultation.etat = "terminee"
 
         # Motif et plaintes
@@ -2244,7 +2280,7 @@ def completer_consultation(consultation_id):
         consultation.etat = "Terminée"
         db.session.commit()
         flash("Consultation complétée avec succès.", "success")
-        return redirect(url_for('liste_consultations_medecin', doctor_id=consultation.doctor_id))
+        return redirect(url_for('historique_consultations_doctor', doctor_id=consultation.doctor_id))
 
     return render_template('doctor/consultation/consultation.html', consultation=consultation)
 
@@ -2256,20 +2292,14 @@ def historique_consultations_doctor():
         Consultation.date_consultation.desc()
     ).all()
 
-    now = datetime.utcnow()
+    now = datetime.now()
     consultations_info = []
 
     for c in consultations:
         modifiable = False
-        if c.date_consultation:
-            # Vérifie si c.date_consultation est un date (sans heure) mais pas datetime
-            if isinstance(c.date_consultation, date) and not isinstance(c.date_consultation, datetime):
-                date_consultation_dt = datetime.combine(c.date_consultation, time.min)
-            else:
-                date_consultation_dt = c.date_consultation
-
-            minutes_passed = (now - date_consultation_dt).total_seconds() / 60
-            if minutes_passed <= 50000:
+        if c.date_confirmation:
+            minutes_passed = (now - c.date_confirmation).total_seconds() / 60
+            if minutes_passed <= 5:
                 modifiable = True
 
         consultations_info.append({
@@ -2279,6 +2309,7 @@ def historique_consultations_doctor():
 
     return render_template('doctor/consultation/historique_consultations.html',
                            consultations_info=consultations_info)
+
 
 # voir consultation passer docteur
 @app.route('/doctor/consultation/voir/<int:id>')

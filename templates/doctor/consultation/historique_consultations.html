@@ -47,17 +47,27 @@
                                     <i class="ri-eye-line"></i>
                                 </a>
 
+                                {% if c.date_confirmation %}
                                 {% if info.modifiable %}
+                                <!-- Bouton modifier actif -->
                                 <a href="{{ url_for('completer_consultation', consultation_id=c.id) }}"
                                     class="btn btn-outline-success btn-sm" title="Modifier la consultation">
                                     <i class="ri-edit-box-line"></i>
                                 </a>
                                 {% else %}
+                                <!-- Bouton modifier désactivé -->
                                 <button class="btn btn-outline-secondary btn-sm" disabled title="Délai dépassé">
                                     <i class="ri-edit-box-line"></i>
                                 </button>
                                 {% endif %}
+                                {% else %}
+                                <!-- Pas encore confirmé donc pas modifiable -->
+                                <button class="btn btn-outline-secondary btn-sm" disabled title="Non modifiable">
+                                    <i class="ri-edit-box-line"></i>
+                                </button>
+                                {% endif %}
                             </td>
+
                         </tr>
                         {% endif %}
                         {% endfor %}

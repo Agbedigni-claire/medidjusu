@@ -87,10 +87,11 @@ class Consultation(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     date_consultation = db.Column(db.DateTime, default=datetime.utcnow)
+    date_confirmation = db.Column(db.DateTime)
     date_fin_consultation = db.Column(db.DateTime, nullable=True)
 
     # Informations générales
-    etat = db.Column(db.String(20), default='en_attente')  # en_attente, en_cours, terminee
+    etat = db.Column(db.String(20), default='en_attente')
 
     # Motif de la consultation
     motif = db.Column(db.String(255), nullable=True)
