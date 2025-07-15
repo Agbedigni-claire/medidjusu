@@ -5,54 +5,59 @@
     <div class="card shadow rounded-4">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <h4 class="mb-0">Admission du Patient</h4>
-            <a href="{{ url_for('liste_admissions') }}" class="btn btn-light btn-sm">↩ Retour à la liste</a>
+            <a href="/liste_admissions" class="btn btn-light btn-sm">↩ Retour à la liste</a>
         </div>
         <div class="card-body">
-            <form method="POST" action="{{ url_for('ajouter_admission') }}">
-                {{ form.hidden_tag() }}
+            <form method="POST" action="/ajouter_admission">
 
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="patient_id" class="form-label">Patient</label>
-                        <select class="form-select" name="patient_id" required>
+                        <select class="form-select" name="patient_id" id="patient_id" required>
                             <option value="">-- Sélectionner un patient --</option>
-                            {% for patient in patients %}
-                                <option value="{{ patient.id }}">{{ patient.nom }} {{ patient.prenom }} ({{ patient.email }})</option>
-                            {% endfor %}
+                            <!-- Exemple de valeurs statiques -->
+                            <option value="1">Jean Dupont (jean@example.com)</option>
+                            <option value="2">Claire Martin (claire@example.com)</option>
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label for="motif" class="form-label">Motif de l’admission</label>
-                        <input type="text" name="motif" class="form-control" placeholder="Ex: Fièvre, douleur thoracique..." required>
+                        <input type="text" name="motif" id="motif" class="form-control"
+                            placeholder="Ex: Fièvre, douleur thoracique..." required>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label for="temperature" class="form-label">Température (°C)</label>
-                        <input type="number" name="temperature" step="0.1" class="form-control" required>
+                        <input type="number" name="temperature" id="temperature" step="0.1" class="form-control"
+                            required>
                     </div>
                     <div class="col-md-4">
                         <label for="tension" class="form-label">Tension artérielle (mmHg)</label>
-                        <input type="text" name="tension" class="form-control" placeholder="Ex: 120/80" required>
+                        <input type="text" name="tension" id="tension" class="form-control" placeholder="Ex: 120/80"
+                            required>
                     </div>
                     <div class="col-md-4">
                         <label for="poids" class="form-label">Poids (kg)</label>
-                        <input type="number" name="poids" step="0.1" class="form-control" required>
+                        <input type="number" name="poids" id="poids" step="0.1" class="form-control" required>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="observations" class="form-label">Observations supplémentaires</label>
-                    <textarea name="observations" class="form-control" rows="3" placeholder="Notes additionnelles..."></textarea>
+                    <textarea name="observations" id="observations" class="form-control" rows="3"
+                        placeholder="Notes additionnelles..."></textarea>
                 </div>
 
                 <div class="d-flex justify-content-end">
                     <button type="submit" class="btn btn-success px-4">Enregistrer</button>
                 </div>
+
             </form>
         </div>
     </div>
 </div>
+
 
 {%endblock%}
