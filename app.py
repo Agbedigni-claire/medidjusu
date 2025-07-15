@@ -57,9 +57,53 @@ app.secret_key = my_secret_key
 #les pattern
 pattern_email = r'(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))'
 pattern_phone = r'^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$'
+
+"""debut decorateur autentification"""
+# autentificaton
+def login_required(role=None):
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            user_role = session.get('role')
+            email_keys = {
+                'admin': 'email_admin',
+                'doctor': 'email_doctor',
+                'patient': 'email_patient',
+                'secretaire': 'email_secretaire',
+                'ambulance': 'email_ambulancier',
+                'caissier': 'email_caissier',
+                'logistique': 'email_logistique',
+                'stock': 'email_stock',
+                'infirmier': 'email_infirmier',
+                'interne': 'email_interne',
+            }
+
+            if not user_role or not session.get(email_keys.get(user_role)):
+                flash("Vous devez être connecté", "warning")
+                return redirect(url_for('login'))
+
+            if role:
+                # Gère liste ou string
+                if isinstance(role, (list, tuple)):
+                    if user_role not in role:
+                        flash("Accès refusé", "danger")
+                        return redirect(url_for('index'))
+                else:
+                    if user_role != role:
+                        flash("Accès refusé", "danger")
+                        return redirect(url_for('index'))
+
+            return f(*args, **kwargs)
+        return wrapped
+    return decorator
+
+
+"""fin decorateur authentifiation"""
+
 """debut admin"""
 #admin
 @app.route("/admin")
+@login_required(role='admin')
 def index():
     return render_template("admin/index_admin.html")
 
@@ -1420,47 +1464,6 @@ def login():
             return redirect(url_for('login'))
     return render_template('admin/connexion/login.html')
 """fin login"""
-
-"""debut decorateur autentification"""
-# autentificaton
-def login_required(role=None):
-    def decorator(f):
-        @wraps(f)
-        def wrapped(*args, **kwargs):
-            user_role = session.get('role')
-            email_keys = {
-                'admin': 'email_admin',
-                'doctor': 'email_doctor',
-                'patient': 'email_patient',
-                'secretaire': 'email_secretaire',
-                'ambulance': 'email_ambulancier',
-                'caissier': 'email_caissier',
-                'logistique': 'email_logistique',
-                'stock': 'email_stock',
-                'infirmier': 'email_infirmier',
-                'interne': 'email_interne',
-            }
-
-            if not user_role or not session.get(email_keys.get(user_role)):
-                flash("Vous devez être connecté", "warning")
-                return redirect(url_for('login'))
-
-            if role:
-                # Gère liste ou string
-                if isinstance(role, (list, tuple)):
-                    if user_role not in role:
-                        flash("Accès refusé", "danger")
-                        return redirect(url_for('index'))
-                else:
-                    if user_role != role:
-                        flash("Accès refusé", "danger")
-                        return redirect(url_for('index'))
-
-            return f(*args, **kwargs)
-        return wrapped
-    return decorator
-
-"""fin decorateur authentifiation"""
 
 
 
