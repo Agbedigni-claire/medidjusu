@@ -2,7 +2,7 @@
 {% block content %}
 <div class="container mt-5 mb-5">
     <h2 class="mb-4 text-primary fw-bold">
-        <i class="ri-user-add-line me-2"></i> Admission du Patient
+        <i class="ri-user-add-line me-2"></i> sortie du Patient
     </h2>
 
     <form method="POST" action="" novalidate>
@@ -85,43 +85,10 @@
                         </div>
                     </div>
 
-                    <!-- Motif -->
-                    <div class="col-md-12">
-                        <label class="form-label fw-semibold">Motif de l’admission</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-file-list-2-line"></i></span>
-                            <input type="text" class="form-control" name="motif" placeholder="Ex: douleur, fièvre..." required>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                  
 
-        <!-- Constantes vitales -->
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <h5 class="fw-bold mb-3 text-primary"><i class="ri-heart-line me-1"></i> Constantes Vitales</h5>
-                <div class="row g-3">
-                    <!-- Température -->
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Température (°C)</label>
-                        <input type="number" step="0.1" class="form-control" name="temperature">
-                    </div>
+      
 
-                    <!-- Tension -->
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Tension artérielle (mmHg)</label>
-                        <input type="text" class="form-control" name="tension" placeholder="Ex: 120/80">
-                    </div>
-
-                    <!-- Poids -->
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Poids (kg)</label>
-                        <input type="number" step="0.1" class="form-control" name="poids">
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Observations -->
         <div class="card shadow-sm border-0 mb-4">
