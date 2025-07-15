@@ -1,6 +1,143 @@
-{%extends 'secretaire_medicales/base_secretaire_medicales.html' %}
+{% extends 'secretaire_medicales/base_secretaire_medicales.html' %}
+{% block content %}
+<div class="container mt-5 mb-5">
+    <h2 class="mb-4 text-primary fw-bold">
+        <i class="ri-user-add-line me-2"></i> Admission du Patient
+    </h2>
 
-{% block content%}
+    <form method="POST" action="" novalidate>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Nom -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Nom</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ri-user-line"></i></span>
+                            <input type="text" class="form-control" name="nom" required placeholder="Nom du patient">
+                        </div>
+                    </div>
 
+                    <!-- Prénom -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Prénom</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ri-user-line"></i></span>
+                            <input type="text" class="form-control" name="prenom" required placeholder="Prénom du patient">
+                        </div>
+                    </div>
 
-{%endblock%}
+                    <!-- Sexe -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Sexe</label><br>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="sexe" value="Homme" id="homme">
+                            <label class="form-check-label" for="homme">Homme</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="sexe" value="Femme" id="femme">
+                            <label class="form-check-label" for="femme">Femme</label>
+                        </div>
+                    </div>
+
+                    <!-- Date de naissance -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Date de naissance</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                            <input type="date" class="form-control" name="date_naissance">
+                        </div>
+                    </div>
+
+                    <!-- Adresse -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Adresse</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ri-map-pin-line"></i></span>
+                            <input type="text" class="form-control" name="adresse" placeholder="Adresse complète">
+                        </div>
+                    </div>
+
+                    <!-- Téléphone -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Téléphone</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ri-phone-line"></i></span>
+                            <input type="text" class="form-control" name="telephone" placeholder="Numéro de téléphone">
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ri-mail-line"></i></span>
+                            <input type="email" class="form-control" name="email" placeholder="Adresse email" required>
+                        </div>
+                    </div>
+
+                    <!-- Numéro d'assurance -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Numéro d'assurance</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ri-shield-user-line"></i></span>
+                            <input type="text" class="form-control" name="numero_assurance" placeholder="N° assurance">
+                        </div>
+                    </div>
+
+                    <!-- Motif -->
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Motif de l’admission</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ri-file-list-2-line"></i></span>
+                            <input type="text" class="form-control" name="motif" placeholder="Ex: douleur, fièvre..." required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Constantes vitales -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h5 class="fw-bold mb-3 text-primary"><i class="ri-heart-line me-1"></i> Constantes Vitales</h5>
+                <div class="row g-3">
+                    <!-- Température -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Température (°C)</label>
+                        <input type="number" step="0.1" class="form-control" name="temperature">
+                    </div>
+
+                    <!-- Tension -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Tension artérielle (mmHg)</label>
+                        <input type="text" class="form-control" name="tension" placeholder="Ex: 120/80">
+                    </div>
+
+                    <!-- Poids -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Poids (kg)</label>
+                        <input type="number" step="0.1" class="form-control" name="poids">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Observations -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <label class="form-label fw-semibold">Observations supplémentaires</label>
+                <textarea class="form-control" name="observations" rows="3" placeholder="Notes supplémentaires..."></textarea>
+            </div>
+        </div>
+
+        <!-- Boutons -->
+        <div class="d-flex justify-content-end gap-3">
+            <a href="" class="btn btn-outline-secondary">Annuler</a>
+            <button type="submit" class="btn btn-success">
+                <i class="ri-save-line me-1"></i> Enregistrer
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
