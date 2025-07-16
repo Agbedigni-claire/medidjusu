@@ -1,280 +1,225 @@
-{%extends 'doctor/base_doctor.html' %}
-
-{% block content%}
+{% extends 'doctor/base_doctor.html' %}
+{% block content %}
 <div class="app-container">
 
-  <!-- App hero header starts -->
-  <div class="app-hero-header d-flex align-items-center">
-
-    <!-- Breadcrumb starts -->
-    <ol class="breadcrumb">
+  <!-- Header & Breadcrumb -->
+  <div class="app-hero-header d-flex align-items-center justify-content-between">
+    <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item">
-        <i class="ri-home-8-line lh-1 pe-3 me-3 border-end"></i>
-        <a href="index.html">Medecin</a>
+        <i class="ri-home-8-line me-2"></i>
+        <a href="/doctor">Médecin</a>
       </li>
-      <li class="breadcrumb-item text-primary" aria-current="page">
-        Tableau de bord
-      </li>
+      <li class="breadcrumb-item text-primary" aria-current="page">Tableau de bord</li>
     </ol>
-    <!-- Breadcrumb ends -->
+    <div class="d-none d-lg-flex gap-1">
+      {% for label in ["Aujourd'hui", "7 jours", "2 semaines", "1 mois", "3 mois", "6 mois", "1 an"] %}
+      <button class="btn btn-sm btn-outline-secondary{% if loop.first %} btn-outline-primary{% endif %}">
+        {{ label }}
+      </button>
+      {% endfor %}
+    </div>
+  </div>
 
-    <!-- Sales stats starts -->
-    <div class="ms-auto d-lg-flex d-none flex-row">
-      <div class="d-flex flex-row gap-1 day-sorting">
-        <button class="btn btn-sm btn-primary">Aujourd'hui</button>
-        <button class="btn btn-sm">7 Jours</button>
-        <button class="btn btn-sm">2 Mois</button>
-        <button class="btn btn-sm">1 Mois</button>
-        <button class="btn btn-sm">3 Mois</button>
-        <button class="btn btn-sm">6 Mois</button>
-        <button class="btn btn-sm">1 Année</button>
+  <!-- Greeting & Stats -->
+  <div class="row mt-4 gx-3">
+    <div class="col-xxl-6 col-sm-12 mb-3">
+      <div class="card bg-primary text-white h-100 shadow-lg">
+        <div class="card-body d-flex align-items-center p-4">
+          <img src="{{ url_for('static', filename='images/doctor.svg') }}" alt="Doctor" class="img-230 mt-n5 me-4"
+            style="max-width:150px; object-fit:contain;">
+          <div>
+            <h6 class="mb-1">Bonjour,</h6>
+            <h3 class="fw-bold mb-1">Dr. {{ doctor.nom_complet }}</h3>
+            <p class="mb-2 fs-5">{{ doctor.qualification }}</p>
+            <h5 class="mb-3">
+              Vous avez un total de
+              <span class="badge bg-danger">{{ rdv_count }} rendez-vous</span> aujourd’hui.
+            </h5>
+
+            <div class="rating-stars">
+              <div class="readonly5"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <!-- Sales stats ends -->
 
-  </div>
-  <!-- App Hero header ends -->
-
-  <!-- App body starts -->
-  <div class="app-body">
-
-    <!-- Row starts -->
-    <div class="row">
-      <div class="col-12 mt-4">
-
-        <!-- Row starts -->
-        <div class="row gx-3">
-          <div class="col-xxl-6 col-sm-12">
-            <div class="card mb-3 bg-1">
-              <div class="card-body mh-230">
-
-                <!-- Row starts -->
-                <div class="row gx-3">
-                  <div class="col-sm-3">
-                    <img src="{{ url_for('static', filename='images/doctor.svg') }}" class="img-230 mt-n5"
-                      alt="Medical Dashboard">
-
-                  </div>
-                  <div class="col-sm-9">
-                    <div class="text-white mt-3">
-                      <h6>Bonjour</h6>
-                      <h3>{{session['nom']}}</h3>
-                      <h6>Gynecologiste, MS, MD, MBBS</h6>
-                      <h5>Vous aviez au Total <span class="badge bg-danger">18 rendez-vous</span> aujourd'hui.</h5>
-                      <div class="rating-stars">
-                        <div class="readonly5"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Row ends -->
-
-              </div>
-            </div>
+    {% set stats = [
+    {"icon": "ri-empathize-line", "value": "3809", "label": "Patients", "color": "primary", "change": "40% Plus élevé"},
+    {"icon": "ri-lungs-line", "value": "906", "label": "Chirurgies", "color": "danger", "change": "26% Plus élevé"},
+    {"icon": "ri-money-dollar-circle-line", "value": "$986K", "label": "Revenus", "color": "success", "change": "30%
+    Plus élevé"}
+    ] %}
+    {% for stat in stats %}
+    <div class="col-xxl-2 col-sm-4 mb-3">
+      <div class="card text-center h-100">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+          <div class="icon-box xl bg-{{ stat.color }}-subtle rounded-5 mb-2">
+            <i class="{{ stat.icon }} fs-1 text-{{ stat.color }}"></i>
           </div>
-          <div class="col-xxl-2 col-sm-4">
-            <div class="card mb-3">
-              <div class="card-body mh-230">
-
-                <!-- Card details start -->
-                <div>
-                  <div class="d-flex flex-column align-items-center">
-                    <div class="icon-box xl bg-primary-subtle rounded-5 mb-2 no-shadow">
-                      <i class="ri-empathize-line fs-1 text-primary"></i>
-                    </div>
-                    <h1 class="text-primary">3809</h1>
-                    <h6>Patients</h6>
-                    <span class="badge bg-primary">40% Haut</span>
-                  </div>
-                </div>
-                <!-- Card details end -->
-
-              </div>
-            </div>
-          </div>
-          <div class="col-xxl-2 col-sm-4">
-            <div class="card mb-3">
-              <div class="card-body mh-230">
-
-                <!-- Card details start -->
-                <div>
-                  <div class="d-flex flex-column align-items-center">
-                    <div class="icon-box xl bg-danger-subtle rounded-5 mb-2 no-shadow">
-                      <i class="ri-lungs-line fs-1 text-danger"></i>
-                    </div>
-                    <h1 class="text-danger">906</h1>
-                    <h6>Chirurgie</h6>
-                    <span class="badge bg-danger">26% Haut</span>
-                  </div>
-                </div>
-                <!-- Card details end -->
-
-              </div>
-            </div>
-          </div>
-          <div class="col-xxl-2 col-sm-4">
-            <div class="card mb-3">
-              <div class="card-body mh-230">
-
-                <!-- Card details start -->
-                <div>
-                  <div class="d-flex flex-column align-items-center">
-                    <div class="icon-box xl bg-success-subtle rounded-5 mb-2 no-shadow">
-                      <i class="ri-money-dollar-circle-line fs-1 text-success"></i>
-                    </div>
-                    <h1 class="text-success">$986K</h1>
-                    <h6>Gain</h6>
-                    <span class="badge bg-success">30% Haut</span>
-                  </div>
-                </div>
-                <!-- Card details end -->
-
-              </div>
-            </div>
-          </div>
+          <h1 class="text-{{ stat.color }}">{{ stat.value }}</h1>
+          <h6>{{ stat.label }}</h6>
+          <span class="badge bg-{{ stat.color }}">{{ stat.change }}</span>
         </div>
-        <!-- Row ends -->
-
-        <!-- ----------------- AJOUTS POUR LE MEDECIN ----------------- -->
-        <div class="row gx-3 mt-4">
-
-          <!-- Consultations du jour -->
-          <div class="col-xxl-3 col-sm-6">
-            <div class="card mb-3">
-              <div class="card-body text-center">
-                <i class="ri-stethoscope-line fs-1 text-info"></i>
-                <h1 class="text-info">12</h1>
-                <h6>Consultations aujourd’hui</h6>
-              </div>
-            </div>
-          </div>
-
-          <!-- Patients hospitalisés -->
-          <div class="col-xxl-3 col-sm-6">
-            <div class="card mb-3">
-              <div class="card-body text-center">
-                <i class="ri-hotel-bed-line fs-1 text-warning"></i>
-                <h1 class="text-warning">5</h1>
-                <h6>Patients hospitalisés</h6>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tâches médicales du jour -->
-          <div class="col-xxl-6 col-sm-12">
-            <div class="card mb-3">
-              <div class="card-header">
-                <h5 class="card-title">Tâches médicales du jour</h5>
-              </div>
-              <div class="card-body">
-                <ul class="list-group">
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Lire résultats de laboratoire
-                    <span class="badge bg-info rounded-pill">3</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Valider les comptes-rendus
-                    <span class="badge bg-warning rounded-pill">1</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Rédiger des ordonnances
-                    <span class="badge bg-success rounded-pill">2</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-        </div>
-        <!-- Fin ajouts -->
-
-        <!-- Raccourcis rapides -->
-        <div class="row mt-3">
-          <div class="col-12">
-            <div class="d-flex gap-2 flex-wrap mb-4">
-              <a href="/consultations/nouveau" class="btn btn-outline-primary">
-                <i class="ri-add-line"></i> Nouvelle consultation
-              </a>
-              <a href="/patients/mes-patients" class="btn btn-outline-secondary">
-                <i class="ri-team-line"></i> Mes patients
-              </a>
-              <a href="/rendez-vous" class="btn btn-outline-success">
-                <i class="ri-calendar-check-line"></i> Mes rendez-vous
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Alertes urgentes -->
-        <div class="row mt-3">
-          <div class="col-xxl-6 col-sm-12">
-            <div class="card mb-3 border-danger">
-              <div class="card-header bg-danger text-white">
-                <h5 class="card-title">⚠️ Alertes médicales</h5>
-              </div>
-              <div class="card-body">
-                <ul class="list-group">
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Patient ID 3489 : douleur abdominale sévère
-                    <a href="/patient/3489" class="btn btn-sm btn-danger">Voir</a>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Résultat critique : taux de glucose anormal
-                    <a href="/analyse/9987" class="btn btn-sm btn-danger">Consulter</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Fin alertes -->
-
-        <!-- Suite de ton template actuel (graphiques, notes, etc.) -->
-
-        <!-- Row starts -->
-        <div class="row gx-3">
-          <div class="col-xxl-6 col-sm-12">
-            <div class="card mb-3">
-              <div class="card-header">
-                <h5 class="card-title">Patients</h5>
-              </div>
-              <div class="card-body">
-
-                <div class="card-info bg-light lh-1">
-                  20% plus élevé que l'année dernière.
-                </div>
-                <div id="patients"></div>
-
-              </div>
-            </div>
-          </div>
-          <div class="col-xxl-6 col-sm-12">
-            <div class="card mb-3">
-              <div class="card-header">
-                <h5 class="card-title">Rendez-vous</h5>
-              </div>
-              <div class="card-body">
-
-                <div class="card-info bg-light lh-1">
-                  33% plus élevé que l'année dernière.
-                </div>
-                <div id="appointments"></div>
-
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Row ends -->
-
-        <!-- Le reste de ton template (Notes, Type de patient, etc.) -->
-
       </div>
     </div>
-    <!-- Row ends -->
+    {% endfor %}
+  </div>
+
+  <!-- Graphes -->
+  <div class="row mt-4 gx-3">
+    <div class="col-xxl-6 col-sm-12 mb-3">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title">Statistiques patients</h5>
+        </div>
+        <div class="card-body">
+          <div class="card-info bg-light p-2 rounded mb-3">
+            20% plus élevé que l'année dernière.
+          </div>
+          <div id="patients"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xxl-6 col-sm-12 mb-3">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="card-title">Rendez-vous</h5>
+        </div>
+        <div class="card-body">
+          <div class="card-info bg-light p-2 rounded mb-3">
+            33% plus élevé que l'année dernière.
+          </div>
+          <div id="appointments"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Patients alités + Alertes -->
+  <div class="row mt-4 gx-3">
+    <div class="col-12 col-xxl-8 mb-3">
+      <div class="card border-warning shadow-sm h-100">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Patients alités – Surveillance IA de la douleur</h5>
+          <a href="/patients-surveillance" class="btn btn-sm btn-outline-dark">Voir tous</a>
+        </div>
+        <div class="card-body table-responsive p-0">
+          <table class="table table-striped table-bordered align-middle mb-0">
+            <thead class="table-light text-center">
+              <tr>
+                <th class="text-nowrap">Nom du patient</th>
+                <th class="text-nowrap">Niveau de douleur</th>
+                <th class="text-nowrap">Statut</th>
+                <th class="text-nowrap">Zone affectée</th>
+                <th class="text-nowrap">Traitement</th>
+                <th class="text-nowrap">Action</th>
+              </tr>
+            </thead>
+            <tbody class="text-center">
+              {% for p in [
+              {"name":"Patient A", "niveau":"Sévère", "badge":"danger", "statut":"Stable", "source":"Abdomen",
+              "traitement":"Paracétamol 1g", "id":1},
+              {"name":"Patient B", "niveau":"Modérée", "badge":"warning", "statut":"Surveillance", "source":"Dos",
+              "traitement":"Physiothérapie", "id":2},
+              {"name":"Patient C", "niveau":"Légère", "badge":"success", "statut":"Repos", "source":"Jambes",
+              "traitement":"Anti-inflammatoires", "id":3}
+              ] %}
+              <tr>
+                <td class="fw-semibold">{{ p.name }}</td>
+                <td><span class="badge bg-{{ p.badge }}">{{ p.niveau }}</span></td>
+                <td>{{ p.statut }}</td>
+                <td>{{ p.source }}</td>
+                <td>{{ p.traitement }}</td>
+                <td>
+                  <a href="/patient/{{ p.id }}" class="btn btn-sm btn-primary">Voir</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="col-12 col-xxl-4 mb-3">
+      <div class="card border-danger h-100">
+        <div class="card-header bg-danger text-white">
+          <h5 class="mb-0">Alertes médicales importantes</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Patient ID 3489 : douleur abdominale sévère
+              <a href="/patient/3489" class="btn btn-sm btn-danger">Voir</a>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Résultat critique : taux de glucose élevé
+              <a href="/analyse/9987" class="btn btn-sm btn-danger">Consulter</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rendez-vous urgents & Événements -->
+  <div class="row mt-4 gx-3">
+
+    <!-- Urgents -->
+    <div class="col-xxl-6 col-sm-12 mb-3">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0"> Rendez-vous urgents</h5>
+          <a href="/rendezvous-urgents" class="btn btn-sm btn-outline-danger">Voir tous</a>
+        </div>
+        <div class="card-body scroll300">
+          {% for i in range(3) %}
+          <div class="p-3 border rounded-2 mb-3">
+            <div class="d-flex align-items-center mb-3">
+              <img src="{{ url_for('static', filename='images/patient' ~ (i+1) ~ '.png') }}"
+                class="img-4x rounded-5 me-3" alt="Urgent">
+              <p class="m-0">Patient {{ i+1 }} a besoin d'un rendez-vous urgent.</p>
+            </div>
+            <div class="d-flex gap-2">
+              <a href="/rendezvous-urgents" class="btn btn-primary btn-sm">Accepter</a>
+              <button class="btn btn-outline-secondary btn-sm">Refuser</button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Événements -->
+    <div class="col-xxl-6 mb-3">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0">Événements professionnels à venir</h5>
+          <a href="/evenements" class="btn btn-sm btn-outline-primary">Voir plus</a>
+        </div>
+        <div class="card-body scroll300">
+          {% for evt in [
+          {"title":"Conférence sur les nouvelles avancées en gynécologie","date":"25 juillet 2025","location":"Centre de
+          conférence de Lomé"},
+          {"title":"Webinaire : Gestion du stress pour les professionnels de la santé","date":"10 août
+          2025","location":"En ligne"},
+          {"title":"Atelier pratique sur les techniques chirurgicales mini-invasives","date":"15‑16 septembre
+          2025","location":"Hôpital Central"}
+          ] %}
+          <div class="p-3 border rounded-2 mb-3">
+            <h6 class="mb-2">{{ evt.title }}</h6>
+            <p class="mb-1 text-muted"><i class="ri-calendar-line me-1"></i> {{ evt.date }}</p>
+            <p class="mb-1 text-muted"><i class="ri-map-pin-line me-1"></i> {{ evt.location }}</p>
+            <a href="/evenements" class="btn btn-sm btn-primary mt-2">Détails</a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
 
   </div>
-  <!-- App body ends -->
 
 </div>
-
-{%endblock%}
+{% endblock %}

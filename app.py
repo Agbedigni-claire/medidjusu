@@ -325,9 +325,45 @@ def modifier_profile_caissier():
 """debut docteur"""
 # docteur
 @app.route("/doctor")
+@login_required(role='doctor')
 def index_doctor():
-    print("Session:", session)
-    return render_template("doctor/index_doctor.html")
+    email_doctor = session.get('email_doctor')
+    doctor = Doctor.query.filter_by(email_doctor=email_doctor).first()
+    if not doctor:
+        flash("Docteur non trouvé", "danger")
+        return redirect(url_for('login'))
+
+    today_start = datetime.combine(date.today(), datetime.min.time())
+    today_end = datetime.combine(date.today(), datetime.max.time())
+
+    # Nombre de rendez-vous aujourd'hui (consultations en attente ou en cours)
+    rdv_count = Consultation.query.filter(
+        Consultation.doctor_id == doctor.ident,
+        Consultation.date_consultation >= today_start,
+        Consultation.date_consultation <= today_end
+    ).count()
+
+    # Liste unique des patients du docteur (via ses consultations)
+    patient_ids = db.session.query(Consultation.patient_id).filter(
+        Consultation.doctor_id == doctor.ident
+    ).distinct().all()
+    patient_ids = [p[0] for p in patient_ids]
+
+    patients = Patient.query.filter(Patient.ident.in_(patient_ids)).all()
+
+    # Exemple de stats (à remplacer par tes vrais calculs)
+    stats = [
+        {"icon": "ri-empathize-line", "value": len(patients), "label": "Patients", "color": "primary",
+         "change": "40% Plus élevé"},
+        {"icon": "ri-lungs-line", "value": 20, "label": "Chirurgies", "color": "danger", "change": "26% Plus élevé"},
+        {"icon": "ri-money-dollar-circle-line", "value": "$15K", "label": "Revenus", "color": "success",
+         "change": "30% Plus élevé"},
+    ]
+    return render_template("doctor/index_doctor.html",
+                           doctor=doctor,
+                           rdv_count=rdv_count,
+                           patients=patients,
+                           stats=stats)
 
 # liste docteur docteur
 @app.route("/doctor/liste_doctor")
@@ -1268,11 +1304,11 @@ def login():
             session['doctor_id'] = doctor.ident
 
             if result and result['nom_utilisateur']:  # Si rempli
-
+                session['role'] = "doctor"
                 return redirect(url_for('index_doctor'))
 
             else:  # Si vide ou NULL
-                session['role'] = "docteur"
+                session['role'] = "doctor"
                 return redirect(url_for('modifier_profile_doctor'))
 
 
