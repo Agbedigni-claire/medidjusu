@@ -47,41 +47,34 @@
                     <th>ID</th>
                     <th>Nom du patient</th>
                     <th>Email</th>
-                    <th class="text-center">Dim</th>
-                    <th class="text-center">Lun</th>
-                    <th class="text-center">Mar</th>
-                    <th class="text-center">Mer</th>
-                    <th class="text-center">Jeu</th>
-                    <th class="text-center">Ven</th>
-                    <th class="text-center">Sam</th>
+                    <th>motif d Admission</th>
+                    <th>personne à prevenir</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   
                   <tr>
-                    <td></td>
+                    <td>1</td>
                     <td>
+                        
                       <img src=""
                         class="img-shadow img-2x rounded-5 me-1" alt="Photo">
-                     
-                      <span class="text-muted fst-italic">À compléter</span>
-                      
+              
+                     <span>claire</span>
                     </td>
-                    <td></td>
-                    <td></td>
+                    <td>claire@gmail.com</td>
+                    <td>douleur abdominale</td>
+                    <td>claire 93730912</td>
 
-                    <td class="text-center">
-                      
-                      <span class="text-danger">NA</span>
-                    
-                    </td>
+                   
                   
 
                     <td>
+                    
                       <div class="d-inline-flex gap-1">
                         <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delRow"
-                          onclick="">
+                          onclick="supprimer">
                           <i class="ri-delete-bin-line"></i>
                         </button>
                         <a href=""
@@ -91,6 +84,10 @@
                         <a href=""
                           class="btn btn-outline-info btn-sm">
                           <i class="ri-eye-line"></i>
+                        </a>
+                        <a href=""
+                          class="btn btn-outline-success btn-sm" title="sortie">
+                          <i class="ri-edit-box-line"></i>
                         </a>
                       </div>
                     </td>
