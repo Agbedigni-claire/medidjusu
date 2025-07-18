@@ -37,7 +37,7 @@
                         {% if c.etat == "Terminée" %}
                         <tr>
                             <td>#{{ c.id }}</td>
-                            <td>{{ c.date_consultation.strftime('%d/%m/%Y %H:%M') if c.date_consultation else 'Non
+                            <td>{{ c.date_fin_consultation.strftime('%d/%m/%Y %H:%M') if c.date_consultation else 'Non
                                 précisée' }}</td>
                             <td>{{ c.patient.nom_complet or "Inconnu" }}</td>
                             <td>{{ c.motif or "Non précisé" }}</td>

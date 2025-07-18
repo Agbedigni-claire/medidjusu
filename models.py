@@ -83,27 +83,30 @@ class Doctor(db.Model):
 
 # Modele Consultation
 class Consultation(db.Model):
-    _tablename_ = 'consultation'
+    __tablename__ = 'consultation'  # correction : 2 underscores (et pas _tablename_)
 
     id = db.Column(db.Integer, primary_key=True)
     date_consultation = db.Column(db.DateTime, default=datetime.utcnow)
     date_confirmation = db.Column(db.DateTime, default=datetime.utcnow)
     date_fin_consultation = db.Column(db.DateTime, nullable=True)
 
-    # Informations générales
-    etat = db.Column(db.String(20), default='en_attente')  # en_attente, en_cours, terminee
+    # --- Liens entre consultations ---
+    consultation_precedente_id = db.Column(db.Integer, db.ForeignKey('consultation.id'), nullable=True)
+    consultation_suivante_id = db.Column(db.Integer, db.ForeignKey('consultation.id'), nullable=True)
 
-    # Motif de la consultation
+    consultation_precedente = db.relationship(
+        'Consultation', remote_side=[id], foreign_keys=[consultation_precedente_id], post_update=True, backref='consultation_suivante'
+    )
+
+    # --- Reste du modèle inchangé ---
+    etat = db.Column(db.String(20), default='en_attente')
+
     motif = db.Column(db.String(255), nullable=True)
     plaintes = db.Column(db.Text, nullable=True)
-
-    # Antécédents
     antecedents_personnels = db.Column(db.Text, nullable=True)
     antecedents_familiaux = db.Column(db.Text, nullable=True)
     allergies = db.Column(db.Text, nullable=True)
     traitements_en_cours = db.Column(db.Text, nullable=True)
-
-    # Examen clinique
     poids = db.Column(db.Float, nullable=True)
     taille = db.Column(db.Float, nullable=True)
     temperature = db.Column(db.Float, nullable=True)
@@ -112,34 +115,24 @@ class Consultation(db.Model):
     frequence_respiratoire = db.Column(db.Integer, nullable=True)
     saturation_oxygene = db.Column(db.Float, nullable=True)
     observations_cliniques = db.Column(db.Text, nullable=True)
-
-    # Examens complémentaires
     examens_biologiques = db.Column(db.Text, nullable=True)
     examens_radiologiques = db.Column(db.Text, nullable=True)
     autres_examens = db.Column(db.Text, nullable=True)
     resultats_examens = db.Column(db.Text, nullable=True)
-
-    # Diagnostic et traitement
     diagnostic = db.Column(db.Text, nullable=True)
     diagnostic_secondaire = db.Column(db.Text, nullable=True)
     traitement = db.Column(db.Text, nullable=True)
     traitement_non_medic = db.Column(db.Text, nullable=True)
     prescription = db.Column(db.Text, nullable=True)
-
-    # Suivi
     conseils = db.Column(db.Text, nullable=True)
     prochain_rdv = db.Column(db.DateTime, nullable=True)
     note_suivi = db.Column(db.Text, nullable=True)
-
-    # Documents
     ordonnance_jointe = db.Column(db.String(255), nullable=True)
     lettre_orientation = db.Column(db.String(255), nullable=True)
     documents_scannes = db.Column(db.String(255), nullable=True)
 
-    # Liens vers patient et médecin
     patient_id = db.Column(db.Integer, db.ForeignKey('patient.ident'), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.ident'), nullable=False)
 
-    # Timestamp automatique
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

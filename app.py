@@ -109,6 +109,7 @@ def index():
 
 #admin liste admin
 @app.route('/admin/liste_admin')
+@login_required(role='admin')
 def liste_admin():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT ident, nom_complet, email_admin, numero_telephone FROM admin")
@@ -118,6 +119,7 @@ def liste_admin():
 
 #suprimer admin
 @app.route('/admin/supprimer/<int:id>', methods=['GET', 'POST'])
+@login_required(role='admin')
 def supprimer_admin(id):
     cursor = mysql.connection.cursor()
     try:
@@ -174,6 +176,7 @@ def liste_docteur_admin():
 
 # uprimer admin
 @app.route('/admin/supprimer_docteur/<int:id>')
+@login_required(role='admin')
 def supprimer_docteur(id):
     cursor = mysql.connection.cursor()
     cursor.execute("DELETE FROM doctor WHERE ident = %s", (id,))
@@ -183,6 +186,7 @@ def supprimer_docteur(id):
 
 #profile admin
 @app.route('/admin/voir/<int:id>')
+@login_required(role='admin')
 def voir_admin(id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute("SELECT ident, nom_complet, email_admin, numero_telephone, date_inscription FROM admin WHERE ident = %s", (id,))
@@ -196,17 +200,20 @@ def voir_admin(id):
 
 # voir profile docteur par admin
 @app.route('/admin/docteur/profile/<int:id>')
+@login_required(role='admin')
 def profile_doctor_admin(id):
     return render_template("admin/gestion_docteur/voir_profile_doctor.html")
 
 # mmodifier profile docteur par admin
 @app.route('/admin/docteur/modifier_profil/<int:id>')
+@login_required(role='admin')
 def modifier_profile_doctor_admin(id):
 
     return render_template("admin/gestion_docteur/modifier_docteur.html")
 
 #liste des patient admin
 @app.route("/admin/liste_patient")
+@login_required(role='admin')
 def liste_patient_admin():
     if 'email_admin' not in session:
         flash("Connectez-vous d'abord", "warning")
@@ -220,16 +227,19 @@ def liste_patient_admin():
 
 #modifier profiel pateint admin
 @app.route('/admin/patient/<int:id>/modifier_profile')
+@login_required(role='admin')
 def modifier_profile_patient_admin(id):
     return render_template("admin/gestion_patient/modifier_patient.html")
 
 #voir profile pateitn admin
 @app.route('/admin/patient/<int:id>/voir_profile')
+@login_required(role='admin')
 def profile_patient_admin(id):
     return render_template("admin/gestion_patient/voir_profile_patient.html")
 
 #surpimer pateirna admin
 @app.route("/admin/patient/supprimer/<int:id>")
+@login_required(role='admin')
 def supprimer_patient_admin(id):
     if 'email_admin' not in session:
         flash("Connectez-vous d'abord", "warning")
@@ -243,6 +253,7 @@ def supprimer_patient_admin(id):
 
 #liste secretaire medical admin
 @app.route("/admin/liste_secretaire")
+@login_required(role='admin')
 def liste_secretaire_admin():
     if 'email_admin' not in session:
         flash("Connectez-vous d'abord", "warning")
@@ -256,6 +267,7 @@ def liste_secretaire_admin():
 
 # supression secretaire medical admin
 @app.route("/admin/secretaire/supprimer/<int:id>")
+@login_required(role='admin')
 def supprimer_secretaire_admin(id):
     if 'email_admin' not in session:
         flash("Connectez-vous d'abord", "warning")
@@ -269,6 +281,7 @@ def supprimer_secretaire_admin(id):
 
 #voir profile secretaire medical admin
 @app.route("/admin/secretaire/<int:id>/profile")
+@login_required(role='admin')
 def voir_secretaire_admin(id):
     if 'email_admin' not in session:
         flash("Connectez-vous d'abord", "warning")
@@ -286,6 +299,7 @@ def voir_secretaire_admin(id):
 
 # modifier profil secretaire medical admin
 @app.route("/admin/secretaire/<int:id>/modifier", methods=['GET', 'POST'])
+@login_required(role='admin')
 def modifier_secretaire_admin(id):
     return render_template("admin/gestion_secretaire_medicale/modifier_secretaire_medicale.html")
 
@@ -295,10 +309,12 @@ def modifier_secretaire_admin(id):
 
 """debut ambulance """
 @app.route("/ambulance")
+@login_required(role='ambulance')
 def index_ambulance():
     return render_template("ambulance/index_ambulance.html")
 
 @app.route("/modifier_profile_ambulancier")
+@login_required(role='ambulance')
 def modifier_profile_ambulancier():
     return render_template("ambulance/gestion_ambulance/modiifer_profile.html")
 """fin ambulance"""
@@ -308,10 +324,12 @@ def modifier_profile_ambulancier():
 
 """debut caissier"""
 @app.route("/caissier")
+@login_required(role='caissier')
 def index_caissier():
     return (render_template("caissier/index_caissier.html"))
 
 @app.route("/caissier/modifier_profile_caissier")
+@login_required(role='caissier')
 def modifier_profile_caissier():
     return render_template("caissier/gestion_caissier/modiifer_profile.html")
 
@@ -367,11 +385,13 @@ def index_doctor():
 
 # liste docteur docteur
 @app.route("/doctor/liste_doctor")
+@login_required(role='doctor')
 def liste_doctor():
     return render_template("doctor/gestion_docteur/liste_doctor.html")
 
 # modification profile docteur
 @app.route("/doctor/modifier_profile", methods=['GET', 'POST'])
+@login_required(role='doctor')
 def modifier_profile_doctor():
     if 'email_doctor' not in session:
         flash("Veuillez vous connecter.", "warning")
@@ -583,101 +603,123 @@ def modifier_profile_doctor():
     return render_template("doctor/gestion_docteur/modifier_profile.html", pays=pays, doctor=doctor)
 
 @app.route("/doctor/profile_doctor")
+@login_required(role='doctor')
 def profile_doctor():
     return render_template("doctor/gestion_docteur/profile_doctor.html")
 
 #doctor patient
 @app.route("/doctor/liste_patient")
+@login_required(role='doctor')
 def liste_patient_doctor():
     return render_template("doctor/gestion_patient/liste_patient.html")
 
 @app.route("/doctor/ajout_patient")
+@login_required(role='doctor')
 def add_patient_doctor():
     return render_template("doctor/gestion_patient/ajout_patient.html")
 
 @app.route("/doctor/modifier_patient")
+@login_required(role='doctor')
 def modifier_patient_doctor():
     return render_template("doctor/gestion_patient/modifier_patient.html")
 
 #doctor rendevous
 @app.route("/doctor/rendez-vous")
+@login_required(role='doctor')
 def rendez_vous_doctor():
     return render_template("doctor/gestion_rendezvous/rendezvous.html")
 
 @app.route("/doctor/rendez-vous/prendre_rendez-vous")
+@login_required(role='doctor')
 def prendre_rendez_vous_doctor():
     return render_template("doctor/gestion_rendezvous/prendre_rendezvous.html")
 
 @app.route("/doctor/rendez-vous/modifier_rendez-vous")
+@login_required(role='doctor')
 def modifier_rendez_vous_doctor():
     return render_template("doctor/gestion_rendezvous/modifier_rendezvous.html")
 
 @app.route("/doctor/rendez-vous/liste_rendez-vous")
+@login_required(role='doctor')
 def liste_rendez_vous_doctor():
     return render_template("doctor/gestion_rendezvous/liste_rendevous.html")
 
 #doctor conge presence
 @app.route("/doctor/conge_presence/congé")
+@login_required(role='doctor')
 def conge_doctor():
     return render_template("doctor/conge_presence/conge.html")
 
 @app.route("/doctor/conge_presence/présence")
+@login_required(role='doctor')
 def presence_doctor():
     return render_template("doctor/conge_presence/presence.html")
 
 # doctor galeri et evenement
 @app.route("/doctor/actualiter")
+@login_required(role='doctor')
 def actualiter_doctor():
     return render_template("doctor/galerie_&_evenement/actualiter.html")
 
 @app.route("/doctor/evenement")
+@login_required(role='doctor')
 def evenement_doctor():
     return render_template("doctor/galerie_&_evenement/evenement.html")
 
 @app.route("/doctor/galerie")
+@login_required(role='doctor')
 def galerie_doctor():
     return render_template("doctor/galerie_&_evenement/galerie.html")
 
 # doctor ia
 @app.route("/doctor/ia/resumer_dossier_medical")
+@login_required(role='doctor')
 def resumer_dossier_doctor():
     return render_template("doctor/gestion_ia/resumer_dossier.html")
 
 @app.route("/doctor/ia/sugection_de_traitement")
+@login_required(role='doctor')
 def sugetion_doctor():
     return render_template("doctor/gestion_ia/sugection_traitement.html")
 
 @app.route("/doctor/ia/surleillance_patient")
+@login_required(role='doctor')
 def surveillance_dossier_doctor():
     return render_template("doctor/gestion_ia/survellanc_patient.html")
 
 # doctor messagerie
 @app.route("/doctor/messagerie")
+@login_required(role='doctor')
 def messageire_doctor():
     return render_template("doctor/gestion_messagerie/messagerie.html")
 
 #doctor hospitalisation
 @app.route("/doctor/hospitalisation")
+@login_required(role='doctor')
 def hospitalisation_doctor():
     return render_template("doctor/hospitalisation/hospitalisation.html")
 
 #parametre dcoctor
 @app.route("/doctor/parametre")
+@login_required(role='doctor')
 def parametre_doctor():
     return render_template("doctor/parametre/parametre.html")
 
 # fiche de paie doctor
 @app.route("/doctor/salaire/fiche_de_paie")
+@login_required(role='doctor')
 def fiche_de_paie_doctor():
     return render_template("doctor/salaire/fiche_de_paie.html")
 
 # dossiermedical doctor
 @app.route("/doctor/dossier_medical")
+@login_required(role='doctor')
 def dossier_medical_doctor():
     return render_template("doctor/dossier_medical/dossier_medical.html")
 
 # consultation
 @app.route("/doctor/consultation")
+@login_required(role='doctor')
 def consultation_doctor():
     return render_template("doctor/consultation/consultation.html")
 
@@ -688,10 +730,12 @@ def consultation_doctor():
 """debut gestionaire de stock"""
 #gestonaire de stoCK
 @app.route("/gestionaire_stock")
+@login_required(role='stock')
 def index_gestionaire_stock():
     return render_template("gestionaire_stock/index_gestionaire_stock.html")
 
 @app.route("/gestionaire_stock/modifier_profile_stock")
+@login_required(role='stock')
 def modifier_profile_stock():
     return render_template("gestionaire_stock/gestion_ambulance/modiifer_profile.html")
 
@@ -699,10 +743,12 @@ def modifier_profile_stock():
 """fin gestionnaire de stock"""
 
 @app.route("/infirmier")
+@login_required(role='patient')
 def index_infirmier():
     return render_template("infirmier/index_infirmier.html")
 
 @app.route("/infirmier/modifier_profile_infirmier")
+@login_required(role='infirmier')
 def modifier_profile_infirmier():
     return render_template("infirmier/gestion_infirmier/modiifer_profile.html")
 
@@ -711,11 +757,13 @@ def modifier_profile_infirmier():
 
 """debut patient"""
 @app.route("/patient")
+@login_required(role='patient')
 def index_patient():
     return render_template("patient/index_patient.html")
 
 # modifier profile patient
 @app.route('/patient/profile/modifier', methods=['GET', 'POST'])
+@login_required(role='patient')
 def modifier_profile_patient():
     if 'email_patient' not in session:
         flash("Veuillez vous connecter pour accéder à cette page.", "warning")
@@ -862,6 +910,7 @@ def modifier_profile_patient():
     return render_template("patient/gestion_patient/modifier_profile.html", patient=patient, pays=pays)
 
 @app.route('/patient/profile')
+@login_required(role='patient')
 def profile_patient():
     return render_template('patient/gestion_patient/profile_patient.html')
 
@@ -874,98 +923,117 @@ def profile_patient():
 """debut secretaire secretaire medical"""
 #secretaiere medical
 @app.route("/secretaire_medicales")
+@login_required(role='secretaire')
 def index_secretaire_medicales():
     return render_template("secretaire_medicales/index_secretaire_medicales.html")
 
 #admission_patient  secretaire medicale
 @app.route("/secretaire_medicales/admission_patient")
+@login_required(role='secretaire')
 def admission_patient():
     return render_template("secretaire_medicales/gestion_patients/admissions_patient.html")
 
 
 #liste des admition et qui permet la sorti
 @app.route("/secretaire_medicales/liste_admission")
+@login_required(role='secretaire')
 def liste_admission():
     return render_template("secretaire_medicales/gestion_patients/liste_admissions.html")
 
 #sortie_patient  secretaire medicale
 @app.route("/secretaire_medicales/sortie_patient")
+@login_required(role='secretaire')
 def sortie_patient():
     return render_template("secretaire_medicales/gestion_patients/sortie_patient.html")
 
 #modification_patients secretaire medicale
 @app.route("/secretaire_medicales/modification_patients")
+@login_required(role='secretaire')
 def modification_patients():
     return render_template("secretaire_medicales/gestion_patients/modification_patients.html")
 
 #gestion_rendezvous secretaire medicale
 @app.route("/secretaire_medicales/gestion_rendezvous")
+@login_required(role='secretaire')
 def gestion_rendezvous():
     return render_template("secretaire_medicales/gestion_rendez_vous/gestion_rendezvous.html")
 
 #gestion_rendezvous secretaire medicale
 @app.route("/secretaire_medicales/liste_rendezvous")
+@login_required(role='secretaire')
 def liste_rendezvous():
     return render_template("secretaire_medicales/gestion_rendez_vous/liste_rendezvous.html")
 
 #Modifier_rendezvous secretaire medicale
 @app.route("/secretaire_medicales/Modifier_rendezvous")
+@login_required(role='secretaire')
 def Modifier_rendezvous():
     return render_template("secretaire_medicales/gestion_rendez_vous/Modifier_rendezvous.html")
 
 #prendre_rendezvous secretaire medicale
 @app.route("/secretaire_medicales/prendre_rendezvous")
+@login_required(role='secretaire')
 def prendre_rendezvous():
     return render_template("secretaire_medicales/gestion_rendez_vous/prendre_rendezvous.html")
 
 #fiche_de_paie secretaire medicale
 @app.route("/secretaire_medicales/fiche_de_paie")
+@login_required(role='secretaire')
 def fiche_de_paie():
     return render_template("secretaire_medicales/gestion_salaire/fiche_de_paie.html")
 
 #messagerie secretaire medicale
 @app.route("/secretaire_medicales/messagerie")
+@login_required(role='secretaire')
 def messagerie():
     return render_template("secretaire_medicales/gestion_messageries/messagerie.html")
 
 #liste_departement secretaire medicale
 @app.route("/secretaire_medicales/liste_departement")
+@login_required(role='secretaire')
 def liste_departement():
     return render_template("secretaire_medicales/gestion_departement/liste_departement.html")
 
 #congé_personnel secretaire medicale
 @app.route("/secretaire_medicales/congé_personnel")
+@login_required(role='secretaire')
 def congé_personnel():
     return render_template("secretaire_medicales/gestion_congé_presence/congé_personnel.html")
 
 #présence_assiduité secretaire medicale
 @app.route("/secretaire_medicales/presence_assiduite")
+@login_required(role='secretaire')
 def presence_assiduite():
     return render_template("secretaire_medicales/gestion_congé_presence/presence_assiduite.html")
 
 #Reserver_chambre secretaire medicale
 @app.route("/secretaire_medicales/Reserver_chambre")
+@login_required(role='secretaire')
 def Reserver_chambre():
     return render_template("secretaire_medicales/Gestion_chambre/Reserver_chambre.html")
 
 #add_ambulance secretaire medicale
 @app.route("/secretaire_medicales/add_ambulance")
+@login_required(role='secretaire')
 def add_ambulance():
     return render_template("secretaire_medicales/gestion_ambulance/add_ambulance.html")
 
 #ambulance_call_list secretaire medicale
 @app.route("/secretaire_medicales/ambulance_call_list")
+@login_required(role='secretaire')
 def ambulance_call_list():
     return render_template("secretaire_medicales/gestion_ambulance/ambulance_call_list.html")
 
 #ambulance_list secretaire medicale
 @app.route("/secretaire_medicales/ambulance_list")
+@login_required(role='secretaire')
 def ambulance_list():
     return render_template("secretaire_medicales/gestion_ambulance/ambulance_list.html")
 
 
 #edit_ambulance secretaire medicale
 @app.route("/secretaire_medicales/edit_ambulance")
+@login_required(role='secretaire')
 def edit_ambulance():
     return render_template("secretaire_medicales/gestion_ambulance/edit_ambulance.html")
 
@@ -973,16 +1041,19 @@ def edit_ambulance():
 
 #ajouter_patient  secretaire medicale
 @app.route("/secretaire_medicales/ajouter_patient")
+@login_required(role='secretaire')
 def ajouter_patient():
     return render_template("secretaire_medicales/gestion_patients/ajouter_patient.html")
 
 #liste_admissions secretaire medicale
 @app.route("/secretaire_medicales/liste_admissions")
+@login_required(role='secretaire')
 def liste_admissions():
     return render_template("secretaire_medicales/gestion_patients/liste_admissions.html")
 
 # modifier profile secretaire
 @app.route('/secretaire/profile/modifier', methods=['GET', 'POST'])
+@login_required(role='secretaire')
 def modifier_profile_secretaire():
     if 'email_secretaire' not in session:
         flash("Veuillez vous connecter.", "warning")
@@ -1167,6 +1238,7 @@ def modifier_profile_secretaire():
 
 #voir profile secretaire medicale
 @app.route("/secretaire_medicales/voir profile")
+@login_required(role='secretaire')
 def profile_secretaire_medicale():
     return render_template("secretaire_medicales/gestion _secretaire_medical/profile53.html")
 
@@ -1178,11 +1250,13 @@ def profile_secretaire_medicale():
 
 """debut internr medecie"""
 @app.route("/interne_medecine")
+@login_required(role='interne')
 def index_interne_medecine():
     return render_template("interne_medecine/index_interne_medecine.html")
 
 
 @app.route("/interne_medecine/modifier_profile_interne")
+@login_required(role='interne')
 def modifier_profile_interne():
     return render_template("interne_medecine/gestion_interne/modiifer_profile.html")
 """fin interne medecie"""
@@ -1190,10 +1264,12 @@ def modifier_profile_interne():
 
 """debut gestionnaire logistique"""
 @app.route("/gestionnaire_logistique")
+@login_required(role='logistique')
 def index_gestionnaire_logistique():
     return render_template("gestionaire_logistique/index_logistique.html")
 
 @app.route("/gestionnaire_logistique/modifier_profile_logistique")
+@login_required(role='logistique')
 def modifier_profile_logistique():
     return render_template("gestionaire_logistique/gestion_logistique/modiifer_profile.html")
 
@@ -1327,7 +1403,7 @@ def login():
             cursor.close()
 
             if result and result['nom_utilisateur']:  # Si rempli
-
+                session['role'] = "patient"
                 return redirect(url_for('index_patient'))
 
             else:  # Si vide ou NULL
@@ -1350,7 +1426,7 @@ def login():
             cursor.close()
 
             if result and result['nom_utilisateur']:  # Si rempli
-
+                session['role'] = "secretaire"
                 return redirect(url_for('index_secretaire_medicales'))
 
             else:
@@ -1374,7 +1450,7 @@ def login():
             cursor.close()
 
             if result and result['nom_utilisateur']:  # Si rempli
-
+                session['role'] = "ambulance"
                 return redirect(url_for('index_ambulancier'))
 
             else:  # Si vide ou NULL
@@ -1398,7 +1474,7 @@ def login():
             cursor.close()
 
             if result and result['nom_utilisateur']:  # Si rempli
-
+                session['role'] = "caissier"
                 return redirect(url_for('index_caissier'))
 
             else:  # Si vide ou NULL
@@ -1422,7 +1498,7 @@ def login():
             cursor.close()
 
             if result and result['nom_utilisateur']:  # Si rempli
-
+                session['role'] = "logistique"
                 return redirect(url_for('index_logistique'))
 
             else:  # Si vide ou NULL
@@ -1446,7 +1522,7 @@ def login():
             cursor.close()
 
             if result and result['nom_utilisateur']:  # Si rempli
-
+                session['role'] = "stock"
                 return redirect(url_for('index_stock'))
 
             else:  # Si vide ou NULL
@@ -1470,7 +1546,7 @@ def login():
             cursor.close()
 
             if result and result['nom_utilisateur']:  # Si rempli
-
+                session['role'] = "infirmier"
                 return redirect(url_for('index_infirmier'))
 
             else:  # Si vide ou NULL
@@ -1494,7 +1570,7 @@ def login():
             cursor.close()
 
             if result and result['nom_utilisateur']:  # Si rempli
-
+                session['role'] = "interne"
                 return redirect(url_for('index_interne'))
 
             else:  # Si vide ou NULL
@@ -1512,6 +1588,7 @@ def login():
 """debut logout"""
 # les deconnection
 @app.route('/logout')
+@login_required()
 def logout():
     # Détection du rôle
     role = None
@@ -1588,6 +1665,7 @@ def envoie_email_connection(email, mot_de_passe):
 
 # inscription de l'admininsatrateur
 @app.route("/signup_admin", methods=['GET', 'POST'])
+@login_required(role='admin')
 def signup():
     if 'email_admin' in session:
         loggedIn, firstName = getLogin('email_admin', 'admin')
@@ -1648,6 +1726,7 @@ def signup():
 
 #inscription du docteur
 @app.route("/signup_docteur", methods=['POST', 'GET'])
+@login_required(role='admin')
 def signup_doctor():
     if 'email_admin' in session:
         loggedIn, firstName = getLogin('email_admin', 'admin')
@@ -1705,6 +1784,7 @@ def signup_doctor():
 
 # #inscription du patient
 @app.route("/signup_patient_admin", methods=['GET', 'POST'])
+@login_required(role='admin')
 def signup_patient_admin():
 
     if 'email_admin' in session:
@@ -1760,6 +1840,7 @@ def signup_patient_admin():
 
 
 @app.route("/signup_patient", methods=['GET', 'POST'])
+@login_required(role='admin')
 def signup_patient():
     if request.method == 'POST':
         donnes = request.form
@@ -1814,6 +1895,7 @@ def signup_patient():
 
 # inscription du secretaire medical
 @app.route("/signup_secretaire_medical", methods=['POST', 'GET'])
+@login_required(role='admin')
 def signup_secretaire():
     if 'email_admin' in session:
         loggedIn, firstName = getLogin('email_admin', 'admin')
@@ -1866,6 +1948,7 @@ def signup_secretaire():
 
 
 @app.route("/signup_ambulancier", methods=['GET', 'POST'])
+@login_required(role='admin')
 def signup_ambulancier():
     if 'email_admin' in session:
         loggedIn, firstName = getLogin('email_admin', 'admin')
@@ -1919,6 +2002,7 @@ def signup_ambulancier():
 
 # inscription du caissier
 @app.route("/signup_caissier", methods=['POST', 'GET'])
+@login_required(role='admin')
 def signup_caissier():
     if 'email_admin' in session:
         loggedIn, firstName = getLogin('email_admin', 'admin')
@@ -1972,6 +2056,7 @@ def signup_caissier():
 
 # inscription du gestionnaire_logistique
 @app.route("/signup_gestionnaire_logistique", methods=['POST', 'GET'])
+@login_required(role='admin')
 def signup_logistique():
     if 'email_admin' in session:
         loggedIn, firstName = getLogin('email_admin', 'admin')
@@ -2025,6 +2110,7 @@ def signup_logistique():
 
 #inscription du gestionnaire_stock
 @app.route("/signup_gestionnaire_stock", methods=['POST', 'GET'])
+@login_required(role='admin')
 def signup_stock():
     if 'email_admin' in session:
         loggedIn, firstName = getLogin('email_admin', 'admin')
@@ -2078,6 +2164,7 @@ def signup_stock():
 
 #inscription du infirmier
 @app.route("/signup_infirmier", methods=['POST', 'GET'])
+@login_required(role='admin')
 def signup_infirmier():
     if 'email_admin' in session:
         loggedIn, firstName = getLogin('email_admin', 'admin')
@@ -2131,6 +2218,7 @@ def signup_infirmier():
 
 #inscription du interne_medecine
 @app.route("/signup_interne_medecine", methods=['POST', 'GET'])
+@login_required(role='admin')
 def signup_interne():
     if 'email_admin' in session:
         loggedIn, firstName = getLogin('email_admin', 'admin')
@@ -2188,7 +2276,8 @@ def signup_interne():
 """debut consultation"""
 # gestion de conssutation
 # ajouter une consultation secretaire medical
-@app.route('/consultations/nouvelle', methods=['GET', 'POST'])
+@app.route('/secretaire/consultations/nouvelle', methods=['GET', 'POST'])
+@login_required(role='secretaire')
 def nouvelle_consultation():
     patients = Patient.query.all()
     doctors = Doctor.query.all()
@@ -2210,14 +2299,34 @@ def nouvelle_consultation():
             etat='en_attente'
         )
         db.session.add(consultation)
+        db.session.flush()
+
+        lier_consultations(consultation.patient_id, consultation)
+
         db.session.commit()
         flash("Consultation enregistrée avec succès", "success")
         return redirect(url_for('liste_consultation_secretaire'))
 
     return render_template('secretaire_medicales/gestion de consultation/consultation.html', patients=patients, doctors=doctors)
 
+#lier consultation
+def lier_consultations(patient_id, nouvelle_consultation):
+    # Récupérer la dernière consultation du patient (avant celle-ci)
+    precedente = Consultation.query.filter(
+        Consultation.patient_id == patient_id,
+        Consultation.id != nouvelle_consultation.id  # Éviter de se référencer à soi-même
+    ).order_by(Consultation.date_consultation.desc()).first()
+
+    if precedente:
+        # Lier les deux consultations
+        nouvelle_consultation.consultation_precedente_id = precedente.id
+        precedente.consultation_suivante_id = nouvelle_consultation.id
+        db.session.add(precedente)  # Nécessaire car on a modifié l'objet
+
+
 # liste des consultations secretaire
 @app.route('/secretaire/consultation/liste')
+@login_required(role='secretaire')
 def liste_consultation_secretaire():
     # On récupère toutes les consultations, éventuellement triées par date décroissante
     consultations = Consultation.query.order_by(Consultation.date_consultation.desc()).all()
@@ -2229,6 +2338,7 @@ def liste_consultation_secretaire():
 
 # modifier consultation secretaire
 @app.route('/secretaire/consultation/<int:id>/modifier', methods=['GET', 'POST'])
+@login_required(role='secretaire')
 def modifier_consultation(id):
     consultation = Consultation.query.get_or_404(id)
     patients = Patient.query.all()
@@ -2247,12 +2357,14 @@ def modifier_consultation(id):
 
 # historique  consultation secretaire
 @app.route('/secretaire/historique_consultations')
+@login_required(role='secretaire')
 def historique_consultations():
     consultations = Consultation.query.filter(Consultation.etat != None).order_by(Consultation.date_fin_consultation.desc()).all()
     return render_template('secretaire_medicales/gestion de consultation/historique_consultations.html', consultations=consultations)
 
 # voir detail d'une consultation secretaire
 @app.route('/secretaire/voir/consultation/<int:id>')
+@login_required(role='secretaire')
 def voir_consultation_secretaire(id):
     consultation = Consultation.query.get_or_404(id)
     return render_template("doctor/consultation/detail_donsultation.html",
@@ -2261,6 +2373,7 @@ def voir_consultation_secretaire(id):
 
 # lisde des consultation medecin
 @app.route('/doctor/<int:doctor_id>/consultations')
+@login_required(role='doctor')
 def liste_consultations_medecin(doctor_id):
     consultations = Consultation.query.filter_by(doctor_id=doctor_id).order_by(Consultation.date_consultation.desc()).all()
     doctor = Doctor.query.get_or_404(doctor_id)
@@ -2268,6 +2381,7 @@ def liste_consultations_medecin(doctor_id):
 
 # faire consultation medecin
 @app.route('/docteur/consultations/<int:consultation_id>/completer', methods=['GET', 'POST'])
+@login_required(role='doctor')
 def completer_consultation(consultation_id):
     consultation = Consultation.query.get_or_404(consultation_id)
 
@@ -2331,10 +2445,11 @@ def completer_consultation(consultation_id):
 
 # consulter consultation medecin
 @app.route('/doctor/consultation/historique')
+@login_required(role='doctor')
 def historique_consultations_doctor():
     doctor_id = session.get('doctor_id')
     consultations = Consultation.query.filter_by(doctor_id=doctor_id).order_by(
-        Consultation.date_consultation.desc()
+        Consultation.date_fin_consultation.desc()
     ).all()
 
     now = datetime.now()
@@ -2344,7 +2459,7 @@ def historique_consultations_doctor():
         modifiable = False
         if c.date_confirmation:
             minutes_passed = (now - c.date_confirmation).total_seconds() / 60
-            if minutes_passed <= 10000000000000000000000000000:
+            if minutes_passed <= 5:
                 modifiable = True
 
         consultations_info.append({
@@ -2358,6 +2473,7 @@ def historique_consultations_doctor():
 
 # voir consultation passer docteur
 @app.route('/doctor/consultation/voir/<int:id>')
+@login_required(role='doctor')
 def voir_consultation_doctor(id):
     consultation = Consultation.query.get_or_404(id)
     return render_template("doctor/consultation/detail_donsultation.html",
@@ -2367,6 +2483,7 @@ def voir_consultation_doctor(id):
 
 #telecharger uyne consltation en pdf
 @app.route('/doctor/consultation/<int:id>/telecharger')
+@login_required(role='doctor')
 def telecharger_consultation(id):
     consultation = Consultation.query.get_or_404(id)
     html = render_template("doctor/consultation/pdf_consultation.html",
@@ -2393,11 +2510,13 @@ def telecharger_consultation(id):
 
 #modifier renistaliser mot de pass
 @app.route("/Renistialiser_mot_de_passe")
+@login_required()
 def reset_pasword():
     return render_template("admin/connexion/reset_password.html")
 
 # mot de pass oublier
 @app.route("/mot_de_passe_oublié")
+@login_required()
 def forgot_password():
     return render_template("admin/connexion/forgot_password.html")
 

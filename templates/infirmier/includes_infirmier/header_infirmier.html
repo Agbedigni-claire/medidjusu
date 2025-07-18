@@ -333,31 +333,18 @@
                 data-bs-toggle="dropdown" aria-expanded="false">
                 <div class="avatar-box">JB<span class="status busy"></span></div>
             </a>
-            {% if session['email_utilisateur'] %}
             <div class="dropdown-menu dropdown-menu-end shadow-lg">
                 <div class="px-3 py-2">
                     <span class="small">Docteur</span>
                     <h6 class="m-0">{{session['nom']}}</h6>
                 </div>
                 <div class="mx-3 my-2 d-grid">
-                    <a href="{{url_for('logout_doctor')}}" class="btn btn-danger">Logout</a>
+                    <a href="{{url_for('logout')}}" class="btn btn-danger">Logout</a>
                 </div>
             </div>
-            {% else%}
-            <div class="dropdown-menu dropdown-menu-end shadow-lg">
-                <div class="px-3 py-2">
-                    <span class="small">Docteur</span>
-                    <h6 class="m-0">inviter</h6>
-                </div>
-                <div class="mx-3 my-2 d-grid">
-                    <a href="{{url_for('login')}}" class="btn btn-danger">Login</a>
-                </div>
-            </div>
-            {% endif %}
+            <!-- Header user settings ends -->
+
         </div>
-        <!-- Header user settings ends -->
+        <!-- App header actions ends -->
 
     </div>
-    <!-- App header actions ends -->
-
-</div>
