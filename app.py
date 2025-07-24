@@ -927,10 +927,12 @@ def profile_patient():
 def index_secretaire_medicales():
     return render_template("secretaire_medicales/index_secretaire_medicales.html")
 
+"""admission"""
 #admission_patient  secretaire medicale
-@app.route("/secretaire_medicales/admission_patient")
+@app.route("/secretaire_medicales/admission_patient", methods=['GET', 'POST'])
 @login_required(role='secretaire')
 def admission_patient():
+
     return render_template("secretaire_medicales/gestion_patients/admissions_patient.html")
 
 
@@ -2468,7 +2470,7 @@ def historique_consultations_doctor():
         })
 
     return render_template('doctor/consultation/historique_consultations.html',
-                           consultations_info=consultations_info)
+                           consultations=consultations)
 
 
 # voir consultation passer docteur
