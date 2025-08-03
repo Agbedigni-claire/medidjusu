@@ -935,8 +935,7 @@ def admission_patient():
 
     return render_template("secretaire_medicales/gestion_patients/admissions_patient.html")
 
-
-#liste des admition et qui permet la sorti
+# admission_patient et liste des admissions – gérés par la secrétaire médicale
 @app.route("/secretaire_medicales/liste_admission")
 @login_required(role='secretaire')
 def liste_admission():
@@ -2379,7 +2378,7 @@ def voir_consultation_secretaire(id):
 def liste_consultations_medecin(doctor_id):
     consultations = Consultation.query.filter_by(doctor_id=doctor_id).order_by(Consultation.date_consultation.desc()).all()
     doctor = Doctor.query.get_or_404(doctor_id)
-    return render_template('doctor/consultation/liste_consultation.html', consultations=consultations, doctor=doctor)
+    return render_template('doctor/consultation/liste_consultation.html0000000000000000000000', consultations=consultations, doctor=doctor)
 
 # faire consultation medecin
 @app.route('/docteur/consultations/<int:consultation_id>/completer', methods=['GET', 'POST'])
