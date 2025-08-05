@@ -1,0 +1,60 @@
+{% extends "patients/base_patients.html" %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="text-primary">
+            <i class="ri-stethoscope-line me-2"></i>
+            Mon historique de consultations
+        </h4>
+        <a href="{{ url_for('index_patients') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="ri-arrow-go-back-line"></i> Retour à l’accueil
+        </a>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            {% if consultations %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Médecin</th>
+                            <th>Motif</th>
+                            <th>Diagnostic</th>
+                            <th class="text-center">Détails</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in consultations %}
+                        {% if c.etat == "Terminée" %}
+                        <tr>
+                            <td>{{ c.date_consultation.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ c.doctor.nom_utilisateur or 'Non précisé' }}</td>
+                            <td>{{ c.motif or 'Non précisé' }}</td>
+                            <td>{{ c.diagnostic or 'En attente' }}</td>
+                            <td class="text-center">
+                                <a href="{{ url_for('voir_consultation_patient', id=c.id) }}"
+                                   class="btn btn-sm btn-outline-primary">
+                                   <i class="ri-eye-line"></i> Voir
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center">
+                Vous n’avez pas encore d’historique de consultation disponible.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

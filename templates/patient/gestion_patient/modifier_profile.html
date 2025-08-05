@@ -174,7 +174,7 @@
                                     value="{{ patient.nom_utilisateur }}">
                             </div>
                         </div>
-                        {%if not patient.nom_utilisateur}
+                       {% if not patient.nom_utilisateur %}
                         <!-- Nouveau mot de passe -->
                         <div class="col-md-3">
                             <label for="new_password">Nouveau mot de passe</label>
