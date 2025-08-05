@@ -2709,5 +2709,112 @@ def forgot_password():
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Ajouter un inventaire
+@app.route("/gestionaire_stock/ajout_inventaire")
+@login_required(role='admin')
+def ajout_inventaire():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    return render_template("gestionaire_stock/gestion_stock/ajout_inventaire.html")
+
+
+# suppression des inventaire
+@app.route("/gestionaire_stock/suppression_inventaire")
+@login_required(role='admin')
+def suppression_inventaire():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    return render_template("gestionaire_stock/gestion_stock/suppression_inventaire.html")
+
+# modifier des inventaire
+@app.route("/gestionaire_stock/modification_inventaire")
+@login_required(role='admin')
+def modification_inventaire():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    return render_template("gestionaire_stock/gestion_stock/suppression_inventaire.html")
+
+# suivi en temps réel
+@app.route("/gestionaire_stock/suivi_en_temps_reel")
+@login_required(role='admin')
+def suivi_en_temps_reel():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    return render_template("gestionaire_stock/gestion_stock/suivi_en_temps_reel.html")
+
+#alerte stock
+@app.route("/Module_ia/alerte_stock")
+@login_required(role='admin')
+def alerte_stock():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    return render_template("gestionaire_stock/Module_ia/alerte_stock.html")
+
+#approvisionement
+@app.route("/Module_ia/suggestion_approvisionement")
+@login_required(role='admin')
+def suggestion_approvisionement():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    return render_template("gestionaire_stock/Module_ia/suggestion_approvisionement.html")
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
+
+
