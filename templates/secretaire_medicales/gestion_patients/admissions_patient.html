@@ -1,178 +1,255 @@
 {% extends 'secretaire_medicales/base_secretaire_medicales.html' %}
+
 {% block content %}
 <div class="container mt-5 mb-5">
-    <h2 class="mb-4 text-primary fw-bold">
-        <i class="ri-user-add-line me-2"></i> Admission du Patient
-    </h2>
+  <h2 class="mb-4 text-primary fw-bold">
+    <i class="ri-user-add-line me-2"></i> Admission du Patient
+  </h2>
 
-    <form method="POST" action="" novalidate>
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <div class="row g-3">
-                    <!-- Nom -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Nom</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-user-line"></i></span>
-                            <input type="text" class="form-control" name="nom" required placeholder="Nom du patient">
-                        </div>
-                    </div>
+  <form method="POST" action="{{ url_for('admission_patient') }}" novalidate>
+    <!-- Sélection patient existant -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h5 class="fw-bold mb-3 text-primary">
+          <i class="ri-search-line me-1"></i> Sélectionner un patient existant
+        </h5>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="patientSelect" class="form-label fw-semibold">Patient</label>
+            <select id="patientSelect" class="form-select" name="patient_id" required>
+              <option value="" disabled selected>Veuillez choisir votre patient</option>
+              {% for p in patients %}
+              <option value="{{ p.ident }}" data-nom="{{ p.nom }}" data-prenom="{{ p.prenom }}"
+                data-telephone="{{ p.telephone }}" data-email="{{ p.email }}"
+                data-numero_assurance="{{ p.numero_assurance }}" data-date_naissance="{{ p.date_naissance }}"
+                data-sexe="{{ p.sexe }}" data-adresse="{{ p.adresse }}">
+                {{ p.nom }} {{ p.prenom }} ({{ p.email }})
+              </option>
+              {% endfor %}
+            </select>
+            <small class="form-text text-muted">Choisissez un patient pour pré-remplir le formulaire.</small>
+          </div>
+        </div>
+      </div>
+    </div>
 
-                    <!-- Prénom -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Prénom</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-user-line"></i></span>
-                            <input type="text" class="form-control" name="prenom" required placeholder="Prénom du patient">
-                        </div>
-                    </div>
-
-                    <!-- Sexe -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Sexe</label><br>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="sexe" value="Homme" id="homme">
-                            <label class="form-check-label" for="homme">Homme</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="sexe" value="Femme" id="femme">
-                            <label class="form-check-label" for="femme">Femme</label>
-                        </div>
-                    </div>
-
-                    <!-- Date de naissance -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Date de naissance</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-calendar-line"></i></span>
-                            <input type="date" class="form-control" name="date_naissance">
-                        </div>
-                    </div>
-
-                    <!-- Adresse -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Adresse</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-map-pin-line"></i></span>
-                            <input type="text" class="form-control" name="adresse" placeholder="Adresse complète">
-                        </div>
-                    </div>
-
-                    <!-- Téléphone -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Téléphone</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-phone-line"></i></span>
-                            <input type="text" class="form-control" name="telephone" placeholder="Numéro de téléphone">
-                        </div>
-                    </div>
-
-                    <!-- Email -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Email</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-mail-line"></i></span>
-                            <input type="email" class="form-control" name="email" placeholder="Adresse email" required>
-                        </div>
-                    </div>
-
-                    <!-- Numéro d'assurance -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Numéro d'assurance</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-shield-user-line"></i></span>
-                            <input type="text" class="form-control" name="numero_assurance" placeholder="N° assurance">
-                        </div>
-                    </div>
-
-                    <!-- Motif -->
-                    <div class="col-md-12">
-                        <label class="form-label fw-semibold">Motif de l’admission</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-file-list-2-line"></i></span>
-                            <input type="text" class="form-control" name="motif" placeholder="Ex: douleur, fièvre..." required>
-                        </div>
-                    </div>
-                </div>
+    <!-- Formulaire patient -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <div class="row g-3">
+          <!-- Nom -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Nom</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-user-line"></i></span>
+              <input type="text" class="form-control" id="nom" name="nom" required placeholder="Nom du patient"
+                autocomplete="off" value="{{ admission.nom if admission }}">
             </div>
-        </div>
+          </div>
 
-        <!-- Constantes vitales -->
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <h5 class="fw-bold mb-3 text-primary"><i class="ri-heart-line me-1"></i> Constantes Vitales</h5>
-                <div class="row g-3">
-                    <!-- Température -->
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Température (°C)</label>
-                        <input type="number" step="0.1" class="form-control" name="temperature">
-                    </div>
-
-                    <!-- Tension -->
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Tension artérielle (mmHg)</label>
-                        <input type="text" class="form-control" name="tension" placeholder="Ex: 120/80">
-                    </div>
-
-                    <!-- Poids -->
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">Poids (kg)</label>
-                        <input type="number" step="0.1" class="form-control" name="poids">
-                    </div>
-                </div>
+          <!-- Prénom -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Prénom</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-user-line"></i></span>
+              <input type="text" class="form-control" id="prenom" name="prenom" required
+                value="{{ admission.prenom if admission }}" placeholder="Prénom du patient" autocomplete="off">
             </div>
-        </div>
-        <!-- personne à prevenir -->
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <h5 class="fw-bold mb-3 text-primary"><i class="ri-heart-line me-1"></i>personne à prevenir</h5>
-                <div class="row g-3">
-                    <!--nom -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Nom</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-user-line"></i></span>
-                            <input type="text" class="form-control" name="nom" required placeholder="Nom">
-                        </div>
-                    </div>
+          </div>
 
-                    <!-- prenom -->
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Prénom</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-user-line"></i></span>
-                            <input type="text" class="form-control" name="prenom" required placeholder="Prénom">
-                        </div>
-                    </div>
-
-                    <!-- num de tel -->
-                   <div class="col-md-6">
-                        <label class="form-label fw-semibold">Téléphone</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="ri-phone-line"></i></span>
-                            <input type="text" class="form-control" name="telephone" placeholder="Numéro de téléphone">
-                        </div>
-                    </div>
-                </div>
+          <!-- Sexe -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Sexe</label><br>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="sexe" value="Homme" id="homme" {% if admission and
+                admission.sexe=='Homme' %}checked{% endif %}>
+              <label class="form-check-label" for="homme">Homme</label>
             </div>
-        </div>
-
-
-        <!-- Observations -->
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <label class="form-label fw-semibold">Observations supplémentaires</label>
-                <textarea class="form-control" name="observations" rows="3" placeholder="Notes supplémentaires..."></textarea>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="sexe" value="Femme" id="femme" {% if admission and
+                admission.sexe=='Femme' %}checked{% endif %}>
+              <label class="form-check-label" for="femme">Femme</label>
             </div>
-        </div>
+          </div>
 
-        <!-- Boutons -->
-        <div class="d-flex justify-content-end gap-3">
-            <a href="" class="btn btn-outline-secondary">Annuler</a>
-            <button type="submit" class="btn btn-success">
-                <i class="ri-save-line me-1"></i> Enregistrer
-            </button>
+          <!-- Date de naissance -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Date de naissance</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+              <input type="date" class="form-control" id="date_naissance" name="date_naissance"
+                value="{{ admission.date_naissance.strftime('%Y-%m-%d') if admission and admission.date_naissance}}"
+                autocomplete="off">
+            </div>
+          </div>
+
+          <!-- Adresse -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Adresse</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-map-pin-line"></i></span>
+              <input type="text" class="form-control" id="adresse" name="adresse"
+                value="{{ admission.adresse if admission}} placeholder=" Adresse complète" autocomplete="off">
+            </div>
+          </div>
+
+          <!-- Téléphone -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Téléphone</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-phone-line"></i></span>
+              <input type="text" class="form-control" id="telephone" name="telephone"
+                value="{{ admission.telephone if admission }}" placeholder="Numéro de téléphone" autocomplete="off">
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Email</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-mail-line"></i></span>
+              <input type="email" class="form-control" id="email" name="email"
+                value="{{ admission.email if admission }}" placeholder="Adresse email" required autocomplete="off">
+            </div>
+          </div>
+
+          <!-- Numéro d'assurance -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Numéro d'assurance</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-shield-user-line"></i></span>
+              <input type="text" class="form-control" id="numero_assurance" name="numero_assurance"
+                value="{{ admission.numero_assurance if admission}}" placeholder="N° assurance" autocomplete="off">
+            </div>
+          </div>
+
+          <!-- Motif -->
+          <div class="col-md-12">
+            <label class="form-label fw-semibold">Motif de l’admission</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-file-list-2-line"></i></span>
+              <input type="text" class="form-control" name="motif" value="{{ admission.motif if admission}}"
+                placeholder="Ex: douleur, fièvre..." required autocomplete="off">
+            </div>
+          </div>
         </div>
-    </form>
+      </div>
+    </div>
+
+    <!-- Constantes vitales -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h5 class="fw-bold mb-3 text-primary"><i class="ri-heart-line me-1"></i> Constantes Vitales</h5>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Température (°C)</label>
+            <input type="number" step="0.1" class="form-control" name="temperature"
+              value="{{ admission.temperature if admission}}" placeholder="37" autocomplete="off">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Tension artérielle (mmHg)</label>
+            <input type="text" class="form-control" name="tension" value="{{ admission.tension if admission}}"
+              placeholder="Ex: 120/80" autocomplete="off">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Poids (kg)</label>
+            <input type="number" step="0.1" class="form-control" name="poids" value="{{ admission.poids if admission}}"
+              placeholder="00" autocomplete="off">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personne à prévenir -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h5 class="fw-bold mb-3 text-primary"><i class="ri-user-line me-1"></i> Personne à prévenir</h5>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Nom</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-user-line"></i></span>
+              <input type="text" class="form-control" name="pp_nom" required value="{{ admission.pp_nom if admission}}"
+                placeholder="Nom" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Prénom</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-user-line"></i></span>
+              <input type="text" class="form-control" name="pp_prenom" required
+                value="{{ admission.pp_prenom if admission}}" placeholder="Prénom" autocomplete="off">
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Téléphone</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="ri-phone-line"></i></span>
+              <input type="text" class="form-control" name="pp_telephone"
+                value="{{ admission.pp_telephone if admission}}" placeholder="Numéro de téléphone" autocomplete="off">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Observations -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <label class="form-label fw-semibold">Observations supplémentaires</label>
+        <textarea class="form-control" name="observations" rows="3" placeholder="Notes supplémentaires..."
+          autocomplete="off">{{ admission.observations if admission }}</textarea>
+      </div>
+    </div>
+
+    <!-- Boutons -->
+    <div class="d-flex justify-content-end gap-3">
+      <a href="{{ url_for('liste_admission') }}" class="btn btn-outline-secondary">Annuler</a>
+      <button type="submit" class="btn btn-success">
+        <i class="ri-save-line me-1"></i> Enregistrer
+      </button>
+    </div>
+  </form>
 </div>
+
+<!-- Script JS pour remplir le formulaire avec les données du patient sélectionné -->
+<script>
+  document.getElementById('patientSelect').addEventListener('change', function () {
+    const option = this.options[this.selectedIndex];
+
+    if (option.value === "") {
+      document.getElementById('nom').value = "";
+      document.getElementById('prenom').value = "";
+      document.querySelector('input[name="sexe"][value="Homme"]').checked = false;
+      document.querySelector('input[name="sexe"][value="Femme"]').checked = false;
+      document.getElementById('date_naissance').value = "";
+      document.getElementById('adresse').value = "";
+      document.getElementById('telephone').value = "";
+      document.getElementById('email').value = "";
+      document.getElementById('numero_assurance').value = "";
+    } else {
+      document.getElementById('nom').value = option.dataset.nom || "";
+      document.getElementById('prenom').value = option.dataset.prenom || "";
+      document.getElementById('telephone').value = option.dataset.telephone || "";
+      document.getElementById('email').value = option.dataset.email || "";
+      document.getElementById('numero_assurance').value = option.dataset.numero_assurance || "";
+      document.getElementById('date_naissance').value = option.dataset.date_naissance || "";
+      document.getElementById('adresse').value = option.dataset.adresse || "";
+
+      // Remplissage du sexe
+      const sexe = option.dataset.sexe;
+      if (sexe === "Homme" || sexe === "Femme") {
+        document.querySelector('input[name="sexe"][value="' + sexe + '"]').checked = true;
+      } else {
+        document.querySelector('input[name="sexe"][value="Homme"]').checked = false;
+        document.querySelector('input[name="sexe"][value="Femme"]').checked = false;
+      }
+    }
+  });
+</script>
+
 {% endblock %}

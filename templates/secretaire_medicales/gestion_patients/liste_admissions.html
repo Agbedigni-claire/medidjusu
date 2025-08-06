@@ -9,23 +9,12 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <i class="ri-home-8-line lh-1 pe-3 me-3 border-end"></i>
-        <a href="">secretaire_medicales</a>
+        <a href="{{url_for('admission_patient')}}">secretaire_medicales</a>
       </li>
       <li class="breadcrumb-item text-primary" aria-current="page">
         Liste d admissions
       </li>
     </ol>
-    <div class="ms-auto d-lg-flex d-none flex-row">
-      <div class="d-flex flex-row gap-1 day-sorting">
-        <button class="btn btn-sm btn-primary">Aujourd'hui</button>
-        <button class="btn btn-sm">7j</button>
-        <button class="btn btn-sm">2sem</button>
-        <button class="btn btn-sm">1mois</button>
-        <button class="btn btn-sm">3mois</button>
-        <button class="btn btn-sm">6mois</button>
-        <button class="btn btn-sm">1an</button>
-      </div>
-    </div>
   </div>
 
   <!-- Corps de l’application -->
@@ -34,8 +23,8 @@
       <div class="col-sm-12">
         <div class="card">
           <div class="card-header d-flex align-items-center justify-content-between">
-            <h5 class="card-title">Liste d admissions</h5>
-            <a href="" class="btn btn-primary ms-auto">Ajouter un patient</a>
+            <h5 class="card-title">Liste des Admissions</h5>
+            <a href="" class="btn btn-primary ms-auto">Faire une Admission</a>
           </div>
           <div class="card-body">
 
@@ -53,70 +42,71 @@
                   </tr>
                 </thead>
                 <tbody>
-                  
+                  {% for admission in admissions %}
                   <tr>
-                    <td>1</td>
+                    <td>{{ admission.ident }}</td>
                     <td>
-                        
-                      <img src=""
+                      <img src="{{ url_for('static', filename='path_to_default_photo.png') }}"
                         class="img-shadow img-2x rounded-5 me-1" alt="Photo">
-              
-                     <span>claire</span>
+                      <span>{{ admission.nom }} {{ admission.prenom }}</span>
                     </td>
-                    <td>claire@gmail.com</td>
-                    <td>douleur abdominale</td>
-                    <td>claire 93730912</td>
-
-                   
-                  
-
+                    <td>{{ admission.email }}</td>
+                    <td>{{ admission.motif }}</td>
+                    <td>{{ admission.pp_nom }} {{ admission.pp_telephone }}</td>
                     <td>
-                    
                       <div class="d-inline-flex gap-1">
-                        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delRow"
-                          onclick="supprimer">
+                        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                          data-bs-target="#modalDelete" data-id="{{ admission.ident }}"
+                          onclick="updateDeleteLinkAdmission(this)">
                           <i class="ri-delete-bin-line"></i>
                         </button>
-                        <a href=""
+                        <a href="{{ url_for('modifier_admission', admission_id=admission.ident) }}"
                           class="btn btn-outline-success btn-sm" title="Modifier le profil">
                           <i class="ri-edit-box-line"></i>
                         </a>
-                        <a href=""
+                        <a href="{{ url_for('voir_admission', admission_id=admission.ident) }}"
                           class="btn btn-outline-info btn-sm">
                           <i class="ri-eye-line"></i>
                         </a>
-                        <a href=""
+                        <a href="{{ url_for('sortie_patient', admission_id=admission.ident) }}"
                           class="btn btn-outline-success btn-sm" title="sortie">
                           <i class="ri-edit-box-line"></i>
                         </a>
                       </div>
                     </td>
                   </tr>
-                 
+                  {% else %}
+                  <tr>
+                    <td colspan="6" class="text-center">Aucune admission trouvée.</td>
+                  </tr>
+                  {% endfor %}
                 </tbody>
               </table>
             </div>
 
-            <!-- Modale de suppression -->
-            <div class="modal fade" id="delRow" tabindex="-1" aria-labelledby="delRowLabel" aria-hidden="true">
+            <!-- Modal suppression admission -->
+            <div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="modalDeleteLabel"
+              aria-hidden="true">
               <div class="modal-dialog modal-sm">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="delRowLabel">Confirmation</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                <div class="modal-content border-danger">
+                  <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="modalDeleteLabel">Confirmation</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                      aria-label="Fermer"></button>
                   </div>
                   <div class="modal-body">
-                    Êtes-vous sûr de vouloir supprimer ce patient de la liste ?
+                    Êtes-vous sûr de vouloir supprimer cette <strong>admission</strong> ?
                   </div>
                   <div class="modal-footer">
-                    <div class="d-flex justify-content-end gap-2">
-                      <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Non</button>
-                      <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Oui</a>
-                    </div>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Oui, supprimer</a>
                   </div>
                 </div>
               </div>
             </div>
+
+
+
 
           </div>
         </div>

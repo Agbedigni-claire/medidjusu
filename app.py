@@ -5,7 +5,7 @@ import hashlib
 from credentials import *
 from flask_mail import Mail, Message
 import re
-from models import db, Consultation, Patient, Doctor
+from models import db, Consultation, Patient, Doctor, Admission
 from datetime import  datetime, date, time
 from flask_migrate import Migrate
 from xhtml2pdf import pisa
@@ -932,14 +932,207 @@ def index_secretaire_medicales():
 @app.route("/secretaire_medicales/admission_patient", methods=['GET', 'POST'])
 @login_required(role='secretaire')
 def admission_patient():
+    patients = Patient.query.all()
+    patients_data = []
 
-    return render_template("secretaire_medicales/gestion_patients/admissions_patient.html")
+    for p in patients:
+        # admission_patient et liste des admissions – gérés par la secrétaire médicale
+        if p.nom_complet:
+            nom_parts = p.nom_complet.split(' ', 1)
+            nom = nom_parts[0]
+            prenom = nom_parts[1] if len(nom_parts) > 1 else ''
+        else:
+            nom = ''
+            prenom = ''
 
-# admission_patient et liste des admissions – gérés par la secrétaire médicale
+        patients_data.append({
+            'ident': p.ident,
+            'nom': nom,
+            'prenom': prenom,
+            'telephone': p.numero_telephone,
+            'email': p.email_patient,
+            'date_naissance': p.date_naissance.strftime('%Y-%m-%d') if p.date_naissance else '',
+            'sexe': p.sexe if p.sexe else '',
+            'adresse': p.adresse if p.adresse else '',
+        })
+
+    if request.method == "POST":
+        # Récupérer les données du formulaire
+        patient_id = request.form.get("patient_id")
+        nom = request.form.get("nom")
+        prenom = request.form.get("prenom")
+        email = request.form.get("email")
+        telephone = request.form.get("telephone")
+        adresse = request.form.get("adresse")
+        date_naissance = request.form.get("date_naissance")
+        sexe = request.form.get("sexe")
+        numero_assurance = request.form.get("numero_assurance")
+        motif = request.form.get("motif")
+        temperature = request.form.get("temperature")
+        tension = request.form.get("tension")
+        poids = request.form.get("poids")
+        observations = request.form.get("observations")
+
+        # Personne à prévenir
+        pp_nom = request.form.get("pp_nom")
+        pp_prenom = request.form.get("pp_prenom")
+        pp_telephone = request.form.get("pp_telephone")
+
+        # les verification
+        existing_user = Patient.query.filter_by(email_patient=email).first()
+
+        if existing_user:
+            flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+            return redirect(request.url)
+
+        if re.match(pattern_email, email):
+            pass
+        else:
+            flash("Votre email est invalide", "danger")
+            return redirect(request.url)
+
+        # Sécuriser les conversions
+        try:
+            date_naissance_dt = datetime.strptime(date_naissance, "%Y-%m-%d") if date_naissance else None
+        except ValueError:
+            flash("Date de naissance invalide.", "danger")
+            return redirect(request.referrer)
+
+        try:
+            temperature = float(temperature) if temperature else None
+        except ValueError:
+            flash("Température invalide.", "danger")
+            return redirect(request.referrer)
+
+        try:
+            poids = float(poids) if poids else None
+        except ValueError:
+            flash("Poids invalide.", "danger")
+            return redirect(request.referrer)
+
+        # --- Vérifier si patient existe ou créer ---
+        if not patient_id:
+            nom_complet = f"{nom} {prenom}".strip()
+            existing_patient = Patient.query.filter_by(nom_complet=nom_complet, email_patient=email).first()
+
+            if not existing_patient:
+                # Mot de passe statique "1234" haché
+                default_password = "1234"
+                hashed_password = hashlib.md5(default_password.encode()).hexdigest()
+
+                new_patient = Patient(
+                    nom_complet=nom_complet,
+                    email_patient=email,
+                    password=hashed_password,
+                    date_naissance=datetime.strptime(date_naissance, "%Y-%m-%d") if date_naissance else None,
+                    numero_telephone=telephone,
+                    adresse=adresse,
+                    sexe=sexe,
+                    actif=True
+                )
+                db.session.add(new_patient)
+                db.session.flush()  # pour récupérer new_patient.ident sans commit
+                patient_id = new_patient.ident
+            else:
+                patient_id = existing_patient.ident
+
+        # --- Créer l'admission ---
+        try:
+            admission = Admission(
+                nom=nom,
+                prenom=prenom,
+                sexe=sexe,
+                date_naissance=date_naissance_dt,
+                adresse=adresse,
+                telephone=telephone,
+                email=email,
+                numero_assurance=numero_assurance,
+                motif=motif,
+                temperature=temperature,
+                tension=tension,
+                poids=poids,
+                observations=observations,
+                pp_nom=pp_nom,
+                pp_prenom=pp_prenom,
+                pp_telephone=pp_telephone
+            )
+            db.session.add(admission)
+            db.session.commit()
+            flash("Admission enregistrée avec succès", "success")
+            return redirect(url_for("liste_admission"))
+        except Exception as e:
+            db.session.rollback()
+            flash("Erreur lors de l'enregistrement de l'admission.", "danger")
+            return redirect(request.referrer)
+
+    return render_template("secretaire_medicales/gestion_patients/admissions_patient.html", patients=patients_data)
+
+#liste des admition et qui permet la sorti
+
 @app.route("/secretaire_medicales/liste_admission")
 @login_required(role='secretaire')
 def liste_admission():
-    return render_template("secretaire_medicales/gestion_patients/liste_admissions.html")
+    admissions = Admission.query.all()
+    return render_template("secretaire_medicales/gestion_patients/liste_admissions.html", admissions=admissions)
+
+#modifier admission
+@app.route('/admission/modifier/<int:admission_id>', methods=['GET', 'POST'])
+def modifier_admission(admission_id):
+    admission = Admission.query.get_or_404(admission_id)
+
+    if request.method == 'POST':
+        # Récupère les données du formulaire modifié
+        admission.nom = request.form.get('nom')
+        admission.prenom = request.form.get('prenom')
+        admission.sexe = request.form.get('sexe')
+
+        date_naissance = request.form.get('date_naissance')
+        if date_naissance:
+            admission.date_naissance = datetime.strptime(date_naissance, '%Y-%m-%d')
+
+        admission.adresse = request.form.get('adresse')
+        admission.telephone = request.form.get('telephone')
+        admission.email = request.form.get('email')
+        admission.numero_assurance = request.form.get('numero_assurance')
+        admission.motif = request.form.get('motif')
+        admission.temperature = float(request.form.get('temperature')) if request.form.get('temperature') else None
+        admission.tension = request.form.get('tension')
+        admission.poids = float(request.form.get('poids')) if request.form.get('poids') else None
+        admission.observations = request.form.get('observations')
+
+        admission.pp_nom = request.form.get('pp_nom')
+        admission.pp_prenom = request.form.get('pp_prenom')
+        admission.pp_telephone = request.form.get('pp_telephone')
+
+        db.session.commit()
+        flash("Admission modifiée avec succès.", "success")
+        return redirect(url_for('liste_admission'))
+
+    # En GET, on affiche le formulaire pré-rempli
+    return render_template("secretaire_medicales/gestion_patients/admissions_patient.html", admission=admission)
+
+#suprimer admission
+@app.route('/admin/admission/supprimer/<int:admission_id>', methods=['GET', 'POST'])
+def supprimer_admission(admission_id):
+    admission = Admission.query.get_or_404(admission_id)
+
+    try:
+        db.session.delete(admission)
+        db.session.commit()
+        flash("Admission supprimée avec succès.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Erreur lors de la suppression : {str(e)}", "danger")
+
+    return redirect(url_for('liste_admission'))
+
+# voir admission
+@app.route('/admin/admission/<int:admission_id>')
+def voir_admission(admission_id):
+    admission = Admission.query.get(admission_id)
+    if not admission:
+        pass
+    return render_template('secretaire_medicales/gestion_patients/voir_admission.html', admission=admission)
 
 #sortie_patient  secretaire medicale
 @app.route("/secretaire_medicales/sortie_patient")
@@ -1699,13 +1892,6 @@ def signup():
                     return redirect(request.url)
             else:
                 flash("Votre email est invalide", "danger")
-                return redirect(request.url)
-
-            # verifier si le numero est valide
-            if re.match(pattern_phone, numero_telephone):
-                pass
-            else:
-                flash("phone number invalide", "danger")
                 return redirect(request.url)
 
             try:
@@ -2523,5 +2709,127 @@ def forgot_password():
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Ajouter un inventaire
+@app.route("/gestionaire_stock/ajout_inventaire")
+@login_required(role='admin')
+def ajout_inventaire():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    return render_template("gestionaire_stock/gestion_stock/ajout_inventaire.html")
+
+
+# suppression des inventaire
+@app.route("/gestionaire_stock/suppression_inventaire")
+@login_required(role='admin')
+def suppression_inventaire():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    return render_template("gestionaire_stock/gestion_stock/suppression_inventaire.html")
+
+# modifier des inventaire
+@app.route("/gestionaire_stock/modification_inventaire")
+@login_required(role='admin')
+def modification_inventaire():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    return render_template("gestionaire_stock/gestion_stock/suppression_inventaire.html")
+
+# suivi en temps réel
+@app.route("/gestionaire_stock/suivi_en_temps_reel")
+@login_required(role='admin')
+def suivi_en_temps_reel():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    return render_template("gestionaire_stock/gestion_stock/suivi_en_temps_reel.html")
+
+#alerte stock
+@app.route("/Module_ia/alerte_stock")
+@login_required(role='admin')
+def alerte_stock():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    return render_template("gestionaire_stock/Module_ia/alerte_stock.html")
+
+#approvisionement
+@app.route("/Module_ia/suggestion_approvisionement")
+@login_required(role='admin')
+def suggestion_approvisionement():
+    if 'email_admin' not in session:
+        flash("Connectez-vous d'abord", "warning")
+        return redirect(url_for('login'))
+
+    return render_template("gestionaire_stock/Module_ia/suggestion_approvisionement.html")
+
+
+
+
+
+#historique
+@app.route("/patient/historique_patient/historique_patient")
+@login_required(role='patient')
+
+def historique_patient():
+    patient_id = session.get('patient_id')
+
+    consultations = Consultation.query.filter_by(patient_id=patient_id).order_by(Consultation.date_consultation.desc()).all()
+
+    return render_template("patient/historique_patient/historique_patient.html")
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
+
+

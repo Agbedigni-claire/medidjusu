@@ -138,3 +138,38 @@ class Consultation(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+#modelle admision
+class Admission(db.Model):
+    __tablename__ = 'admissions'
+
+    ident = db.Column(db.Integer, primary_key=True)
+
+    # --- Informations personnelles du patient ---
+    nom = db.Column(db.String(100), nullable=False)
+    prenom = db.Column(db.String(100), nullable=False)
+    sexe = db.Column(db.String(10), nullable=False)
+    date_naissance = db.Column(db.Date, nullable=False)
+    adresse = db.Column(db.String(255), nullable=True)
+    telephone = db.Column(db.String(20), nullable=True)
+    email = db.Column(db.String(120), nullable=False)
+    numero_assurance = db.Column(db.String(50), nullable=True)
+
+    # --- Détails de l'admission ---
+    motif = db.Column(db.String(255), nullable=False)
+    date_admission = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # --- Constantes vitales ---
+    temperature = db.Column(db.Float, nullable=True)
+    tension = db.Column(db.String(20), nullable=True)
+    poids = db.Column(db.Float, nullable=True)
+
+    # --- Observations médicales ---
+    observations = db.Column(db.Text, nullable=True)
+
+    # --- Personne à prévenir (fusionnée) ---
+    pp_nom = db.Column(db.String(100), nullable=True)
+    pp_prenom = db.Column(db.String(100), nullable=True)
+    pp_telephone = db.Column(db.String(20), nullable=True)
+
+    def __repr__(self):
+        return f"<Admission {self.nom} {self.prenom} - {self.email}>"

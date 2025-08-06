@@ -1,4 +1,4 @@
-{% extends "patients/base_patients.html" %}
+{% extends "patient/base_patient.html" %}
 
 {% block content %}
 <div class="container py-4">
@@ -9,9 +9,7 @@
             <i class="ri-stethoscope-line me-2"></i>
             Mon historique de consultations
         </h4>
-        <a href="{{ url_for('index_patients') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="ri-arrow-go-back-line"></i> Retour à l’accueil
-        </a>
+       
     </div>
 
     <!-- Contenu principal -->

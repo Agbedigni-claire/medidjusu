@@ -51,3 +51,14 @@ function updateDeleteLinkSecretaire(button) {
   const deleteUrl = `/admin/secretaire/supprimer/${secretaireId}`;
   document.getElementById("confirmDeleteBtn").setAttribute("href", deleteUrl);
 }
+
+// supresion admission
+function updateDeleteLinkAdmission(button) {
+  const admissionId = button.getAttribute("data-id");
+  const deleteUrl = `/admin/admission/supprimer/${admissionId}`;
+  const confirmBtn = document.getElementById("confirmDeleteBtn");
+
+  if (confirmBtn) {
+    confirmBtn.setAttribute("href", deleteUrl);
+  }
+}
