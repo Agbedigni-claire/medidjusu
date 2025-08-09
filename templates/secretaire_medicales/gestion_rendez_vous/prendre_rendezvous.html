@@ -1,10 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+ {% extends "secretaire_medicales/base_secretaire_medicales.html" %}
 
-</body>
-</html>
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-warning text-white">
+            <h4>Modifier le rendez-vous</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Nom</label>
+                    <input type="text" name="nom" class="form-control" value="" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Prénom</label>
+                    <input type="text" name="prenom" class="form-control" value="" required>
+
+                </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ r.email if r else '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Téléphone</label>
+                            <input type="text" name="telephone" class="form-control" value="{{ r.telephone if r else '' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Spécialité</label>
+                            <select name="specialite" class="form-select" required>
+                                <option {% if r and r.specialite == 'Généraliste' %}selected{% endif %}>Généraliste</option>
+                                <option {% if r and r.specialite == 'Cardiologie' %}selected{% endif %}>Cardiologie</option>
+                                <option {% if r and r.specialite == 'Gynécologie' %}selected{% endif %}>Gynécologie</option>
+                                <option {% if r and r.specialite == 'Pédiatrie' %}selected{% endif %}>Pédiatrie</option>
+                                <option {% if r and r.specialite == 'Ophtalmologie' %}selected{% endif %}>Ophtalmologie</option>
+                                <option {% if r and r.specialite == 'Dermatologie' %}selected{% endif %}>Dermatologie</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Date</label>
+                            <input type="date" name="date" class="form-control" value="{{ r.date if r else '' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Heure</label>
+                            <input type="time" name="heure" class="form-control" value="{{ r.heure if r else '' }}" required>
+                        </div>
+
+                  
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <a href="{{ url_for('afficher_rendezvous') }}" class="btn btn-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -307,3 +307,26 @@ DESCRIBE interne_medecine;
 DROP TABLE IF EXISTS interne_medecine;
 -- Sélectionner et afficher toutes les données présentes dans chaque table
 SELECT * FROM interne_medecine;
+
+INSERT INTO test_consultation (
+    date_consultation,date_confirmation,etat,patient_id,doctor_id,created_at,updated_at)
+    VALUES (
+    '2025-08-06',
+    '2025-08-07',
+    'confirmée',
+    1,
+    2,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+);
+
+CREATE TABLE test_consultation (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    date_consultation DATE,
+    date_confirmation DATE,
+    etat VARCHAR(50),
+    patient_id INT,
+    doctor_id INT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

@@ -5,7 +5,7 @@ import hashlib
 from credentials import *
 from flask_mail import Mail, Message
 import re
-from models import db, Consultation, Patient, Doctor, Admission
+from models import db, Consultation, Patient, Doctor, Admission, HConsultation
 from datetime import  datetime, date, time
 from flask_migrate import Migrate
 from xhtml2pdf import pisa
@@ -28,6 +28,13 @@ app.config['MYSQL_CURSORCLASS'] =my_CURSORCLASS
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{my_user}:{my_password}@{my_host}/{my_db}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
+
+ 
+ 
+
+
+
+
 
 # Initialisation pour la mise a jour des table lors de la modification du model
 migrate = Migrate(app, db)
@@ -2817,11 +2824,11 @@ def suggestion_approvisionement():
 @login_required(role='patient')
 
 def historique_patient():
-    patient_id = session.get('patient_id')
+    # patient_id = session.get('patient_id')
+    consultations = HConsultation.query.all()
 
-    consultations = Consultation.query.filter_by(patient_id=patient_id).order_by(Consultation.date_consultation.desc()).all()
-
-    return render_template("patient/historique_patient/historique_patient.html")
+    return render_template("patient/historique_patient/historique_patient.html",
+                           historique_consultations=consultations)
 
 
 

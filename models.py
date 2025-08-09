@@ -80,6 +80,19 @@ class Doctor(db.Model):
     heure_fin_samedi = db.Column(db.String(10))
 
     consultations = db.relationship('Consultation', backref='doctor', lazy=True)
+#modele Hconsultation
+class HConsultation(db.Model):
+    __tablename__ = 'Hconsultation'  # correction : 2 underscores (et pas _tablename_)
+
+ 
+    id = db.Column(db.Integer, primary_key=True)
+    etat = db.Column(db.String(20), default='en_attente')
+    patient_id = db.Column(db.Integer, db.ForeignKey('patient.ident'), nullable=False)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.ident'), nullable=False)
+    motif = db.Column(db.String(255) , nullable=False)
+
+
+
 
 # Modele Consultation
 class Consultation(db.Model):
