@@ -1146,7 +1146,6 @@ def modifier_admission(admission_id):
 @app.route('/admin/admission/supprimer/<int:admission_id>', methods=['GET', 'POST'])
 def supprimer_admission(admission_id):
     admission = Admission.query.get_or_404(admission_id)
-
     try:
         db.session.delete(admission)
         db.session.commit()
@@ -1154,8 +1153,7 @@ def supprimer_admission(admission_id):
     except Exception as e:
         db.session.rollback()
         flash(f"Erreur lors de la suppression : {str(e)}", "danger")
-
-    return redirect(url_for('liste_admission'))
+    return redirect(url_for('liste_admissions'))
 
 # voir admission
 @app.route('/admin/admission/<int:admission_id>')

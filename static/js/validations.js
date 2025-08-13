@@ -57,7 +57,6 @@ function updateDeleteLinkAdmission(button) {
   const admissionId = button.getAttribute("data-id");
   const deleteUrl = `/admin/admission/supprimer/${admissionId}`;
   const confirmBtn = document.getElementById("confirmDeleteBtn");
-
   if (confirmBtn) {
     confirmBtn.setAttribute("href", deleteUrl);
   }

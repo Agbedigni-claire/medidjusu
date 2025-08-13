@@ -1,0 +1,125 @@
+{% extends 'secretaire_medicales/base_secretaire_medicales.html' %}
+
+{% block content %}
+<div class="app-container">
+
+    <!-- En-tête -->
+    <div class="app-hero-header d-flex align-items-center">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <i class="ri-home-8-line lh-1 pe-3 me-3 border-end"></i>
+                <a href="{{ url_for('index_secretaire_medicales') }}">secretaire_medicales</a>
+            </li>
+            <li class="breadcrumb-item text-primary" aria-current="page">
+                Liste des Sorties
+            </li>
+        </ol>
+    </div>
+
+    <!-- Corps de l’application -->
+    <div class="app-body">
+        <div class="row gx-3">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="card-title">Liste des Sorties</h5>
+                        <a href="{{ url_for('liste_admissions') }}" class="btn btn-primary ms-auto">Liste des
+                            admission</a>
+                    </div>
+                    <div class="card-body">
+
+                        <!-- Tableau des sorties -->
+                        <div class="table-responsive">
+                            <table id="basicExample" class="table truncate m-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nom du patient</th>
+                                        <th>Email</th>
+                                        <th>Motif de sortie</th>
+                                        <th>Date de sortie</th>
+                                        <th>Observations</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for sortie in sorties %}
+                                    <tr>
+                                        <td>{{ sortie.ident }}</td>
+                                        <td>
+                                            <img src="{{ url_for('static', filename='path_to_default_photo.png') }}"
+                                                class="img-shadow img-2x rounded-5 me-1" alt="Photo">
+                                            <span>{{ sortie.nom }} {{ sortie.prenom }}</span>
+                                        </td>
+                                        <td>{{ sortie.email }}</td>
+                                        <td>{{ sortie.motif }}</td>
+                                        <td>{{ sortie.date_sortie.strftime('%d/%m/%Y %H:%M') }}</td>
+                                        <td>{{ sortie.observations or '—' }}</td>
+                                        <td>
+                                            <div class="d-inline-flex gap-1">
+                                                <a href="{{ url_for('voir_sortie', sortie_id=sortie.ident) }}"
+                                                    class="btn btn-outline-info btn-sm" title="Voir la sortie">
+                                                    <i class="ri-eye-line"></i>
+                                                </a>
+                                                <a href="{{ url_for('modifier_sortie', sortie_id=sortie.ident) }}"
+                                                    class="btn btn-outline-success btn-sm" title="Modifier la sortie">
+                                                    <i class="ri-edit-box-line"></i>
+                                                </a>
+                                                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                                                    data-bs-target="#modalDelete" data-id="{{ sortie.ident }}"
+                                                    onclick="updateDeleteLinkSortie(this)" title="Supprimer">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">Aucune sortie trouvée.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Modal suppression sortie -->
+                        <div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="modalDeleteLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog modal-sm">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalDeleteLabel">Confirmation</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Fermer"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Êtes-vous sûr de vouloir supprimer cette sortie ?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            data-bs-dismiss="modal">Annuler</button>
+                                        <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Oui</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateDeleteLinkSortie(button) {
+        const sortieId = button.getAttribute("data-id");
+        const deleteUrl = `/admin/sortie/supprimer/${sortieId}`;  // adapte l’URL à ta route Flask
+        const confirmBtn = document.getElementById("confirmDeleteBtn");
+        if (confirmBtn) {
+            confirmBtn.setAttribute("href", deleteUrl);
+        }
+    }
+</script>
+
+{% endblock %}

@@ -60,23 +60,23 @@
                     <td>{{ admission.pp_nom }} {{ admission.pp_telephone }}</td>
                     <td>
                       <div class="d-inline-flex gap-1">
-                        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
-                          data-bs-target="#modalDelete" data-id="{{ admission.ident }}"
-                          onclick="updateDeleteLinkAdmission(this)">
-                          <i class="ri-delete-bin-line"></i>
-                        </button>
+                        <a href="{{ url_for('sortie_patient', admission_id=admission.ident) }}"
+                          class="btn btn-outline-success btn-sm" title="sortie">
+                          <i class="ri-door-open-line"></i>
+                        </a>
                         <a href="{{ url_for('modifier_admission', admission_id=admission.ident) }}"
                           class="btn btn-outline-success btn-sm" title="Modifier le profil">
                           <i class="ri-edit-box-line"></i>
                         </a>
                         <a href="{{ url_for('voir_admission', admission_id=admission.ident) }}"
-                          class="btn btn-outline-info btn-sm">
+                          class="btn btn-outline-info btn-sm" title="Voir admission">
                           <i class="ri-eye-line"></i>
                         </a>
-                        <a href="{{ url_for('sortie_patient', admission_id=admission.ident) }}"
-                          class="btn btn-outline-success btn-sm" title="sortie">
-                          <i class="ri-edit-box-line"></i>
-                        </a>
+                        <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                          data-bs-target="#modalDelete" data-id="{{ admission.ident }}"
+                          onclick="updateDeleteLinkAdmission(this)" title="suprimer admission">
+                          <i class="ri-delete-bin-line"></i>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -93,18 +93,17 @@
             <div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="modalDeleteLabel"
               aria-hidden="true">
               <div class="modal-dialog modal-sm">
-                <div class="modal-content border-danger">
-                  <div class="modal-header bg-danger text-white">
+                <div class="modal-content">
+                  <div class="modal-header">
                     <h5 class="modal-title" id="modalDeleteLabel">Confirmation</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                      aria-label="Fermer"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
                   </div>
                   <div class="modal-body">
-                    Êtes-vous sûr de vouloir supprimer cette <strong>admission</strong> ?
+                    Êtes-vous sûr de vouloir supprimer cette admission ?
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Oui, supprimer</a>
+                    <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Oui</a>
                   </div>
                 </div>
               </div>
