@@ -1,6 +1,54 @@
 {% extends "gestionaire_stock/base_gestionaire_stock.html" %}
 
-{% block content%}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4"> Inventaire</h1>
 
-
-{%endblock%}
+   
+    <!-- Tableau inventaire -->
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Référence</th>
+                    <th>Nom</th>
+                    <th>Quantité</th>
+                    <th>Date d’expiration</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="table-warning">
+                    <td>MED-001</td>
+                    <td>Gants médicaux</td>
+                    <td>50</td>
+                    <td>2025-12-15</td>
+                    <td>
+                        
+                    </td>
+                </tr>
+                <tr class="table-danger">
+                    <td>MED-002</td>
+                    <td>Seringues 5ml</td>
+                    <td>5</td>
+                    <td>2025-08-20</td>
+                    <td>
+                        
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>MED-003</td>
+                    <td>Masques chirurgicaux</td>
+                    <td>200</td>
+                    <td>2026-01-10</td>
+                    <td>
+                        
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

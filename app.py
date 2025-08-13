@@ -5,7 +5,7 @@ import hashlib
 from credentials import *
 from flask_mail import Mail, Message
 import re
-from models import db, Consultation, Patient, Doctor, Admission, HConsultation
+from models import db, Patient, Doctor, Admission , Produit
 from datetime import  datetime, date, time
 from flask_migrate import Migrate
 from xhtml2pdf import pisa
@@ -2769,11 +2769,12 @@ def ajout_inventaire():
 @app.route("/gestionaire_stock/suppression_inventaire")
 @login_required(role='admin')
 def suppression_inventaire():
+    produits=Produit.query.all()
     if 'email_admin' not in session:
         flash("Connectez-vous d'abord", "warning")
         return redirect(url_for('login'))
 
-    return render_template("gestionaire_stock/gestion_stock/suppression_inventaire.html")
+    return render_template("gestionaire_stock/gestion_stock/suppression_inventaire.html",   produit=produits[0])
 
 # modifier des inventaire
 @app.route("/gestionaire_stock/modification_inventaire")
@@ -2836,7 +2837,59 @@ if __name__ == "__main__":
     app.run(debug=True)
 
 
+# Afficher toutes les ressources
+@app.route("/ressources")
+@login_required(role='admin')
+def liste_ressources():
+    
+    return render_template("logistique/ressources/liste.html", )
+
+# Enregistrer une ressource
+@app.route("/ressources/ajouter", methods=["GET", "POST"])
+@login_required(role='admin')
+def ajouter_ressource():
+    
+    return render_template("logistique/ressources/ajouter.html")
+
+# Modifier une ressource
+@app.route("/ressources/modifier/<int:id>", methods=["GET", "POST"])
+@login_required(role='admin')
+def modifier_ressource(id):
+   
+    return render_template("logistique/ressources/modifier.html", )
+
+# Supprimer une ressource
+@app.route("/ressources/supprimer/<int:id>")
+@login_required(role='admin')
+def supprimer_ressource(id):
+    
+    return redirect(url_for("logistique.liste_ressources"))
 
 
 
+@app.route("/equipements")
+@login_required(role='admin')
+def liste_equipements():
+    
+    return render_template("logistique/equipements/liste.html")
 
+@app.route("/equipements/suivi/<int:id>")
+@login_required(role='admin')
+def suivi_equipement(id):
+    
+    return render_template("logistique/equipements/suivi.html")
+
+
+
+@app.route("/maintenance/ajouter/<int:equipement_id>", methods=["GET", "POST"])
+@login_required(role='admin')
+def ajouter_maintenance(equipement_id):
+       
+    return render_template("logistique/maintenance/ajouter.html")
+
+@app.route("/maintenance/supprimer/<int:id>")
+@login_required(role='admin')
+
+def supprimer_maintenance(id):
+   
+    return redirect(url_for("logistique.suivi_equipement"))

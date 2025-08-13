@@ -3,6 +3,15 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+#modele produit 
+class Produit(db.Model):
+    __tablename__='produits' 
+
+    reference=db.Column(db.String(100),primary_key=True)
+    nom_produit=db.Column(db.String(225))
+    quantite=db.Column(db.Integer )
+    
+
 # modele Pateint
 
 class Patient(db.Model):
@@ -80,28 +89,9 @@ class Doctor(db.Model):
     heure_fin_samedi = db.Column(db.String(10))
 
     consultations = db.relationship('Consultation', backref='doctor', lazy=True)
-#modele Hconsultation
-class HConsultation(db.Model):
-    __tablename__ = 'Hconsultation'  # correction : 2 underscores (et pas _tablename_)
-
- 
-    id = db.Column(db.Integer, primary_key=True)
-    etat = db.Column(db.String(20), default='en_attente')
-    patient_id = db.Column(db.Integer, db.ForeignKey('patient.ident'), nullable=False)
-    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.ident'), nullable=False)
-    motif = db.Column(db.String(255) , nullable=False)
-
-
-
 
 # Modele Consultation
-class Consultation(db.Model):
-    __tablename__ = 'consultation'  # correction : 2 underscores (et pas _tablename_)
 
-    id = db.Column(db.Integer, primary_key=True)
-    date_consultation = db.Column(db.DateTime, default=datetime.utcnow)
-    date_confirmation = db.Column(db.DateTime, default=datetime.utcnow)
-    date_fin_consultation = db.Column(db.DateTime, nullable=True)
 
     # --- Liens entre consultations ---
     consultation_precedente_id = db.Column(db.Integer, db.ForeignKey('consultation.id'), nullable=True)

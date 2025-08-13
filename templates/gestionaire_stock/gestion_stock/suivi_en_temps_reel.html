@@ -1,6 +1,14 @@
 {% extends "gestionaire_stock/base_gestionaire_stock.html" %}
 
-{% block content%}
+{% block content %}
+<div class="container mt-4">
+    <h1> Alertes Inventaire</h1>
 
-
-{%endblock%}
+    <div class="alert alert-danger">
+        <strong>Stock critique :</strong> Seringues 5ml – 5 unités restantes
+    </div>
+    <div class="alert alert-warning">
+        <strong>Date d’expiration proche :</strong> Gants médicaux – expire le 2025-12-15
+    </div>
+</div>
+{% endblock %}
