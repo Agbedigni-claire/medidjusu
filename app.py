@@ -5,7 +5,7 @@ import hashlib
 from credentials import *
 from flask_mail import Mail, Message
 import re
-from models import db, Consultation, Patient, Doctor, Admission, Sortie
+from models import db, Consultation, Patient, Doctor, Admission, Sortie, Produit
 from datetime import  datetime, date, time
 from flask_migrate import Migrate
 from xhtml2pdf import pisa
@@ -2846,7 +2846,7 @@ def suggestion_approvisionement():
 
 def historique_patient():
     # patient_id = session.get('patient_id')
-    consultations = HConsultation.query.all()
+    consultations = Consultation.query.all()
 
     return render_template("patient/historique_patient/historique_patient.html",
                            historique_consultations=consultations)
