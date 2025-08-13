@@ -1169,6 +1169,13 @@ def voir_admission(admission_id):
 def sortie_patient():
     return render_template("secretaire_medicales/gestion_patients/sortie_patient.html")
 
+#liste sortie patient secretaire medicale
+@app.route("/secretaire_medicales/liste_sortie_patient")
+@login_required(role='secretaire')
+def liste_sorties():
+    sorties = Sortie.query.order_by(Sortie.date_sortie.desc()).all()
+    return render_template('secretaire_medicales/gestion_patients/liste_sortie_patient.html', sorties=sorties)
+
 #modification_patients secretaire medicale
 @app.route("/secretaire_medicales/modification_patients")
 @login_required(role='secretaire')
