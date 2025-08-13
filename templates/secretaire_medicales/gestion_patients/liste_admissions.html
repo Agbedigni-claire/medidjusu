@@ -12,7 +12,7 @@
         <a href="{{url_for('admission_patient')}}">secretaire_medicales</a>
       </li>
       <li class="breadcrumb-item text-primary" aria-current="page">
-        Liste d admissions
+        Liste des admissions
       </li>
     </ol>
   </div>
@@ -42,6 +42,11 @@
                   </tr>
                 </thead>
                 <tbody>
+                  {%if admissions%}
+                  eloge
+                  {%else%}
+                  papa
+                  {%endif%}
                   {% for admission in admissions %}
                   <tr>
                     <td>{{ admission.ident }}</td>
@@ -104,9 +109,6 @@
                 </div>
               </div>
             </div>
-
-
-
 
           </div>
         </div>

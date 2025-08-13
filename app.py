@@ -5,7 +5,7 @@ import hashlib
 from credentials import *
 from flask_mail import Mail, Message
 import re
-from models import db, Patient, Doctor, Admission , Produit
+from models import db, Consultation, Patient, Doctor, Admission, Sortie
 from datetime import  datetime, date, time
 from flask_migrate import Migrate
 from xhtml2pdf import pisa
@@ -29,14 +29,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{my_user}:{my_password
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 
- 
- 
 
-
-
-
-
-# Initialisation pour la mise a jour des table lors de la modification du model
+# Initialisation pour la mise a jour des tables lors de la modification du model
 migrate = Migrate(app, db)
 
 # initialisation de l'orm
@@ -1074,12 +1068,42 @@ def admission_patient():
 
     return render_template("secretaire_medicales/gestion_patients/admissions_patient.html", patients=patients_data)
 
-#liste des admition et qui permet la sorti
+#sortie patient secretaire medical
+@app.route('/secretaire/admission/sortie/<int:admission_id>', methods=['GET', 'POST'])
+def creer_sortie(admission_id):
+    admission = Admission.query.get_or_404(admission_id)
+
+    if request.method == 'POST':
+        observations_supp = request.form.get('observations')
+
+        sortie = Sortie(
+            nom=admission.nom,
+            prenom=admission.prenom,
+            sexe=admission.sexe,
+            date_naissance=admission.date_naissance,
+            adresse=admission.adresse,
+            telephone=admission.telephone,
+            email=admission.email,
+            numero_assurance=admission.numero_assurance,
+            motif=admission.motif,
+            date_sortie=datetime.utcnow(),
+            observations=observations_supp
+        )
+
+        db.session.add(sortie)
+        db.session.commit()
+        flash('Sortie du patient enregistrée avec succès.', 'success')
+        return redirect(url_for('liste_admissions'))
+
+    return render_template('sortie_form.html', admission=admission)
+
+#liste des admition et qui permet la sortie
 
 @app.route("/secretaire_medicales/liste_admission")
 @login_required(role='secretaire')
-def liste_admission():
+def liste_admissions():
     admissions = Admission.query.all()
+    print(admissions)
     return render_template("secretaire_medicales/gestion_patients/liste_admissions.html", admissions=admissions)
 
 #modifier admission
@@ -1246,11 +1270,7 @@ def edit_ambulance():
 def ajouter_patient():
     return render_template("secretaire_medicales/gestion_patients/ajouter_patient.html")
 
-#liste_admissions secretaire medicale
-@app.route("/secretaire_medicales/liste_admissions")
-@login_required(role='secretaire')
-def liste_admissions():
-    return render_template("secretaire_medicales/gestion_patients/liste_admissions.html")
+
 
 # modifier profile secretaire
 @app.route('/secretaire/profile/modifier', methods=['GET', 'POST'])
@@ -2571,7 +2591,7 @@ def voir_consultation_secretaire(id):
 def liste_consultations_medecin(doctor_id):
     consultations = Consultation.query.filter_by(doctor_id=doctor_id).order_by(Consultation.date_consultation.desc()).all()
     doctor = Doctor.query.get_or_404(doctor_id)
-    return render_template('doctor/consultation/liste_consultation.html0000000000000000000000', consultations=consultations, doctor=doctor)
+    return render_template('doctor/consultation/liste_consultation.html', consultations=consultations, doctor=doctor)
 
 # faire consultation medecin
 @app.route('/docteur/consultations/<int:consultation_id>/completer', methods=['GET', 'POST'])
@@ -2662,7 +2682,7 @@ def historique_consultations_doctor():
         })
 
     return render_template('doctor/consultation/historique_consultations.html',
-                           consultations=consultations)
+                           consultations_info=consultations_info)
 
 
 # voir consultation passer docteur
@@ -2677,7 +2697,7 @@ def voir_consultation_doctor(id):
 
 #telecharger uyne consltation en pdf
 @app.route('/doctor/consultation/<int:id>/telecharger')
-@login_required(role='doctor')
+@login_required()
 def telecharger_consultation(id):
     consultation = Consultation.query.get_or_404(id)
     html = render_template("doctor/consultation/pdf_consultation.html",

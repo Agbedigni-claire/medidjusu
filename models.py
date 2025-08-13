@@ -176,3 +176,29 @@ class Admission(db.Model):
 
     def __repr__(self):
         return f"<Admission {self.nom} {self.prenom} - {self.email}>"
+
+class Sortie(db.Model):
+    __tablename__ = 'sortie'
+
+    ident = db.Column(db.Integer, primary_key=True)
+
+    # --- Informations personnelles du patient au moment de la sortie ---
+    nom = db.Column(db.String(100), nullable=False)
+    prenom = db.Column(db.String(100), nullable=False)
+    sexe = db.Column(db.String(10), nullable=False)
+    date_naissance = db.Column(db.Date, nullable=False)
+    adresse = db.Column(db.String(255), nullable=True)
+    telephone = db.Column(db.String(20), nullable=True)
+    email = db.Column(db.String(120), nullable=False)
+    numero_assurance = db.Column(db.String(50), nullable=True)
+
+    # --- Détails de l'admission ---
+    motif = db.Column(db.String(255), nullable=False)
+
+    # --- Détails de la sortie ---
+    date_sortie = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    observations = db.Column(db.Text, nullable=True)  # Observations supplémentaires
+
+    # --- Lien avec l'admission ---
+    admission_id = db.Column(db.Integer, db.ForeignKey('admissions.ident'), nullable=True)
+    admission = db.relationship('Admission', backref=db.backref('sortie', uselist=False))
