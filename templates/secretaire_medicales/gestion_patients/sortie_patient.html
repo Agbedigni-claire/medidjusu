@@ -3,10 +3,10 @@
 
 <div class="container mt-5 mb-5">
     <h2 class="mb-4 text-primary fw-bold">
-        <i class="ri-user-add-line me-2"></i>sortie du Patient
+        <i class="ri-user-add-line me-2"></i>Sortie du Patient
     </h2>
 
-    <form method="POST" action="" novalidate>
+    <form method="POST" action="{{ url_for('creer_sortie', admission_id=admission.ident) }}" novalidate>
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
                 <div class="row g-3">
@@ -23,8 +23,6 @@
             </div>
         </div>
 
-
-
         <!-- Observations -->
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
@@ -36,14 +34,12 @@
 
         <!-- Boutons -->
         <div class="d-flex justify-content-end gap-3">
-            <a href="" class="btn btn-outline-secondary">Annuler</a>
+            <a href="{{ url_for('liste_admissions') }}" class="btn btn-outline-secondary">Annuler</a>
             <button type="submit" class="btn btn-success">
                 <i class="ri-save-line me-1"></i> Enregistrer
             </button>
         </div>
     </form>
 </div>
-
->
 
 {% endblock %}

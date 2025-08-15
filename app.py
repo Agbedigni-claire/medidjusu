@@ -982,9 +982,8 @@ def admission_patient():
         # les verification
         existing_user = Patient.query.filter_by(email_patient=email).first()
 
-        if existing_user:
-            flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
-            return redirect(request.url)
+        if not patient_id and existing_user:
+            patient_id = existing_user.ident
 
         if re.match(pattern_email, email):
             pass
@@ -1060,22 +1059,28 @@ def admission_patient():
             db.session.add(admission)
             db.session.commit()
             flash("Admission enregistrée avec succès", "success")
-            return redirect(url_for("liste_admission"))
+            return redirect(url_for("liste_admissions"))
         except Exception as e:
             db.session.rollback()
+            print("eloge .................................", e)
             flash("Erreur lors de l'enregistrement de l'admission.", "danger")
             return redirect(request.referrer)
 
     return render_template("secretaire_medicales/gestion_patients/admissions_patient.html", patients=patients_data)
 
-#sortie patient secretaire medical
-@app.route('/secretaire/admission/sortie/<int:admission_id>', methods=['GET', 'POST'])
+#sortie_patient  secretaire medicale
+@app.route("/secretaire/admission/sortie/<int:admission_id>", methods=['GET', 'POST'])
+@login_required(role='secretaire')
 def creer_sortie(admission_id):
+    # Récupérer l'admission
     admission = Admission.query.get_or_404(admission_id)
 
     if request.method == 'POST':
+        # Récupérer les champs du formulaire
+        motif_sortie = request.form.get('motif')
         observations_supp = request.form.get('observations')
 
+        # Créer la sortie
         sortie = Sortie(
             nom=admission.nom,
             prenom=admission.prenom,
@@ -1085,17 +1090,29 @@ def creer_sortie(admission_id):
             telephone=admission.telephone,
             email=admission.email,
             numero_assurance=admission.numero_assurance,
-            motif=admission.motif,
+            motif=motif_sortie or admission.motif,
             date_sortie=datetime.utcnow(),
-            observations=observations_supp
+            observations=observations_supp,
+            admission=admission
         )
 
         db.session.add(sortie)
         db.session.commit()
+
+        # Stocker l'ID de l'admission dans la session si besoin
+        session['last_admission_id'] = admission.ident
+
         flash('Sortie du patient enregistrée avec succès.', 'success')
         return redirect(url_for('liste_admissions'))
 
-    return render_template('sortie_form.html', admission=admission)
+    # GET : afficher le formulaire
+    return render_template(
+        "secretaire_medicales/gestion_patients/sortie_patient.html",
+        admission=admission
+    )
+
+
+
 
 #liste des admition et qui permet la sortie
 
@@ -1163,11 +1180,7 @@ def voir_admission(admission_id):
         pass
     return render_template('secretaire_medicales/gestion_patients/voir_admission.html', admission=admission)
 
-#sortie_patient  secretaire medicale
-@app.route("/secretaire_medicales/sortie_patient")
-@login_required(role='secretaire')
-def sortie_patient():
-    return render_template("secretaire_medicales/gestion_patients/sortie_patient.html")
+
 
 #liste sortie patient secretaire medicale
 @app.route("/secretaire_medicales/liste_sortie_patient")
