@@ -181,6 +181,9 @@ class Admission(db.Model):
     pp_prenom = db.Column(db.String(100), nullable=True)
     pp_telephone = db.Column(db.String(20), nullable=True)
 
+    # sortitr verification
+    statut_sortie = db.Column(db.String(10), default="non", nullable=False)
+
     def __repr__(self):
         return f"<Admission {self.nom} {self.prenom} - {self.email}>"
 

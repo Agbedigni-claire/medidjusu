@@ -42,12 +42,8 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {%if admissions%}
-                  eloge
-                  {%else%}
-                  papa
-                  {%endif%}
                   {% for admission in admissions %}
+                  {% if admission.statut_sortie != "oui"%}
                   <tr>
                     <td>{{ admission.ident }}</td>
                     <td>
@@ -60,7 +56,7 @@
                     <td>{{ admission.pp_nom }} {{ admission.pp_telephone }}</td>
                     <td>
                       <div class="d-inline-flex gap-1">
-                        <a href="{{ url_for('sortie_patient', admission_id=admission.ident) }}"
+                        <a href="{{ url_for('creer_sortie', admission_id=admission.ident) }}"
                           class="btn btn-outline-success btn-sm" title="sortie">
                           <i class="ri-door-open-line"></i>
                         </a>
@@ -80,10 +76,7 @@
                       </div>
                     </td>
                   </tr>
-                  {% else %}
-                  <tr>
-                    <td colspan="6" class="text-center">Aucune admission trouvée.</td>
-                  </tr>
+                  {% endif %}
                   {% endfor %}
                 </tbody>
               </table>

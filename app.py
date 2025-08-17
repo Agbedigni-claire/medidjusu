@@ -1069,7 +1069,7 @@ def admission_patient():
     return render_template("secretaire_medicales/gestion_patients/admissions_patient.html", patients=patients_data)
 
 #sortie_patient  secretaire medicale
-@app.route("/secretaire/admission/sortie/<int:admission_id>", methods=['GET', 'POST'])
+@app.route("/secretaire/sortie/<int:admission_id>", methods=['GET', 'POST'])
 @login_required(role='secretaire')
 def creer_sortie(admission_id):
     # Récupérer l'admission
@@ -1097,13 +1097,17 @@ def creer_sortie(admission_id):
         )
 
         db.session.add(sortie)
+
+        # Mise à jour du statut de sortie dans Admission
+        admission.statut_sortie = "oui"
+
         db.session.commit()
 
         # Stocker l'ID de l'admission dans la session si besoin
         session['last_admission_id'] = admission.ident
 
         flash('Sortie du patient enregistrée avec succès.', 'success')
-        return redirect(url_for('liste_admissions'))
+        return redirect(url_for('liste_sorties'))
 
     # GET : afficher le formulaire
     return render_template(
@@ -1159,6 +1163,19 @@ def modifier_admission(admission_id):
     # En GET, on affiche le formulaire pré-rempli
     return render_template("secretaire_medicales/gestion_patients/admissions_patient.html", admission=admission)
 
+#modifier sortie
+@app.route("/secretaire_medicales/sorties/modifier/<int:sortie_id>", methods=["GET", "POST"])
+@login_required(role="secretaire")
+def modifier_sortie(sortie_id):
+    sortie = Sortie.query.get_or_404(sortie_id)
+
+    if request.method == "POST":
+        sortie.observations = request.form.get("observations")
+        db.session.commit()
+        flash("Sortie modifiée avec succès.", "success")
+        return redirect(url_for("liste_sorties"))
+
+    return render_template("secretaire_medicales/gestion_patients/sortie_patient.html", sortie=sortie)
 #suprimer admission
 @app.route('/admin/admission/supprimer/<int:admission_id>', methods=['GET', 'POST'])
 def supprimer_admission(admission_id):
@@ -1180,7 +1197,11 @@ def voir_admission(admission_id):
         pass
     return render_template('secretaire_medicales/gestion_patients/voir_admission.html', admission=admission)
 
-
+@app.route("/secretaire_medicales/sortie/<int:sortie_id>")
+@login_required(role='secretaire')
+def voir_sortie(sortie_id):
+    sortie = Sortie.query.get_or_404(sortie_id)
+    return render_template("secretaire_medicales/gestion_patients/voir_sortie_patient.html", sortie=sortie)
 
 #liste sortie patient secretaire medicale
 @app.route("/secretaire_medicales/liste_sortie_patient")
