@@ -2947,42 +2947,26 @@ def nouveau_rendezvous():
 @app.route('/patient/rendezvous/calendrier')
 @login_required(role='patient')
 def calendrier_rendezvous():
-    # Récupérer le patient connecté
     email_patient = session.get('email_patient')
     patient = Patient.query.filter_by(email_patient=email_patient).first()
     if not patient:
         flash("Patient introuvable.", "danger")
         return redirect(url_for('login'))
 
-    # Récupérer les rendez-vous du patient
     rdvs = RendezVous.query.filter_by(patient_id=patient.ident).all()
 
-    # Créer la liste d'événements pour FullCalendar
+    # Préparer les données pour JS
     events = []
     for r in rdvs:
-        # Convertir heures en datetime si elles sont stockées en string
-        if isinstance(r.heure_debut, str):
-            heure_debut_obj = datetime.strptime(r.heure_debut, "%H:%M").time()
-        else:
-            heure_debut_obj = r.heure_debut
-        if isinstance(r.heure_fin, str):
-            heure_fin_obj = datetime.strptime(r.heure_fin, "%H:%M").time()
-        else:
-            heure_fin_obj = r.heure_fin
-
-        start = datetime.combine(r.date_rdv, heure_debut_obj).isoformat()
-        end = datetime.combine(r.date_rdv, heure_fin_obj).isoformat()
-
-        title = f"{r.doctor.nom_complet if r.doctor else 'Médecin non attribué'} - {r.motif}"
-
         events.append({
-            'title': title,
-            'start': start,
-            'end': end,
-            'color': '#3788d8' if r.statut == 'confirmé' else '#f0ad4e'
+            'date': r.date_rdv.strftime("%Y-%m-%d"),
+            'title': f"{r.doctor.nom_complet if r.doctor else 'Médecin non attribué'} - {r.motif}",
+            'time': f"{r.heure_debut.strftime('%H:%M')} - {r.heure_fin.strftime('%H:%M')}",
+            'statut': r.statut
         })
 
     return render_template('patient/gestion_rendez_vous/calendrier.html', events=events)
+
 
 
 
