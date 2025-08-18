@@ -212,3 +212,72 @@ class Sortie(db.Model):
     # --- Lien avec l'admission ---
     admission_id = db.Column(db.Integer, db.ForeignKey('admissions.ident'), nullable=True)
     admission = db.relationship('Admission', backref=db.backref('sortie', uselist=False))
+
+#modelle secretaire medicale
+class SecretaireMedicale(db.Model):
+    __tablename__ = "secretaire_medicale"
+
+    ident = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Identifiants et connexion
+    nom_utilisateur = db.Column(db.String(100), default=None)
+    email_secretaire = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    date_inscription = db.Column(db.DateTime, nullable=False, server_default=db.func.current_timestamp())
+
+    # Informations personnelles
+    nom_complet = db.Column(db.String(225), default=None)
+    date_naissance = db.Column(db.Date, default=None)
+    sexe = db.Column(db.Enum('Homme', 'Femme'), default=None)
+    situation_matrimoniale = db.Column(db.String(50), default=None)
+    photo = db.Column(db.String(255), default=None)
+    description = db.Column(db.Text, default=None)
+
+    # Coordonnées
+    adresse = db.Column(db.Text, default=None)
+    pays = db.Column(db.String(30), default=None)
+    ville = db.Column(db.String(30), default=None)
+    code_postal = db.Column(db.String(20), default=None)
+    numero_telephone = db.Column(db.String(15), default=None)
+
+    # Horaires par jour
+    heure_debut_dimanche = db.Column(db.String(10), default=None)
+    heure_fin_dimanche = db.Column(db.String(10), default=None)
+    heure_debut_lundi = db.Column(db.String(10), default=None)
+    heure_fin_lundi = db.Column(db.String(10), default=None)
+    heure_debut_mardi = db.Column(db.String(10), default=None)
+    heure_fin_mardi = db.Column(db.String(10), default=None)
+    heure_debut_mercredi = db.Column(db.String(10), default=None)
+    heure_fin_mercredi = db.Column(db.String(10), default=None)
+    heure_debut_jeudi = db.Column(db.String(10), default=None)
+    heure_fin_jeudi = db.Column(db.String(10), default=None)
+    heure_debut_vendredi = db.Column(db.String(10), default=None)
+    heure_fin_vendredi = db.Column(db.String(10), default=None)
+    heure_debut_samedi = db.Column(db.String(10), default=None)
+    heure_fin_samedi = db.Column(db.String(10), default=None)
+
+    def __repr__(self):
+        return f"<SecretaireMedicale {self.nom_complet} ({self.email_secretaire})>"
+
+# modele rendezvous
+class RendezVous(db.Model):
+    __tablename__ = 'rendezvous'
+
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey('patient.ident'), nullable=False)
+    doctor_id = db.Column(db.Integer, db.ForeignKey('doctor.ident'), nullable=True)  # Nullable si secrétaire attribue
+    secretaire_id = db.Column(db.Integer, db.ForeignKey('secretaire_medicale.ident'),
+                              nullable=True)  # pour suivi attribution
+
+    date_rdv = db.Column(db.Date, nullable=False)
+    heure_debut = db.Column(db.Time, nullable=False)
+    heure_fin = db.Column(db.Time, nullable=False)
+
+    statut = db.Column(db.Enum('en attente', 'confirmé', 'annulé', 'terminé'), default='en attente')
+    urgence = db.Column(db.Boolean, default=False)
+    motif = db.Column(db.Text, default=None)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    patient = db.relationship('Patient', backref='rendezvous')
+    doctor = db.relationship('Doctor', backref='rendezvous')
+    secretaire = db.relationship('SecretaireMedicale', backref='rendezvous')

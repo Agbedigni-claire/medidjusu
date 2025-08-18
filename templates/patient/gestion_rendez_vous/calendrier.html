@@ -1,0 +1,38 @@
+{% extends "patient/base_patient.html" %}
+
+{% block head %}
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <h2>Mes rendez-vous</h2>
+    <div id="calendar"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- FullCalendar JS -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'fr',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            events: {{ events| tojson | safe |default('[]') }},
+        selectable: true,
+        select: function (info) {
+            window.location.href = "{{ url_for('nouveau_rendezvous') }}?date=" + info.startStr;
+        }
+    });
+    calendar.render();
+});
+</script>
+{% endblock %}

@@ -5,7 +5,7 @@ import hashlib
 from credentials import *
 from flask_mail import Mail, Message
 import re
-from models import db, Consultation, Patient, Doctor, Admission, Sortie, Produit
+from models import db, Consultation, Patient, Doctor, Admission, Sortie, Produit, SecretaireMedicale, RendezVous
 from datetime import  datetime, date, time
 from flask_migrate import Migrate
 from xhtml2pdf import pisa
@@ -614,37 +614,6 @@ def profile_doctor():
 def liste_patient_doctor():
     return render_template("doctor/gestion_patient/liste_patient.html")
 
-@app.route("/doctor/ajout_patient")
-@login_required(role='doctor')
-def add_patient_doctor():
-    return render_template("doctor/gestion_patient/ajout_patient.html")
-
-@app.route("/doctor/modifier_patient")
-@login_required(role='doctor')
-def modifier_patient_doctor():
-    return render_template("doctor/gestion_patient/modifier_patient.html")
-
-#doctor rendevous
-@app.route("/doctor/rendez-vous")
-@login_required(role='doctor')
-def rendez_vous_doctor():
-    return render_template("doctor/gestion_rendezvous/rendezvous.html")
-
-@app.route("/doctor/rendez-vous/prendre_rendez-vous")
-@login_required(role='doctor')
-def prendre_rendez_vous_doctor():
-    return render_template("doctor/gestion_rendezvous/prendre_rendezvous.html")
-
-@app.route("/doctor/rendez-vous/modifier_rendez-vous")
-@login_required(role='doctor')
-def modifier_rendez_vous_doctor():
-    return render_template("doctor/gestion_rendezvous/modifier_rendezvous.html")
-
-@app.route("/doctor/rendez-vous/liste_rendez-vous")
-@login_required(role='doctor')
-def liste_rendez_vous_doctor():
-    return render_template("doctor/gestion_rendezvous/liste_rendevous.html")
-
 #doctor conge presence
 @app.route("/doctor/conge_presence/congé")
 @login_required(role='doctor')
@@ -717,12 +686,15 @@ def fiche_de_paie_doctor():
 @login_required(role='doctor')
 def dossier_medical_doctor():
     return render_template("doctor/dossier_medical/dossier_medical.html")
-
-# consultation
-@app.route("/doctor/consultation")
+@app.route("/doctor/ajout_patient")
 @login_required(role='doctor')
-def consultation_doctor():
-    return render_template("doctor/consultation/consultation.html")
+def add_patient_doctor():
+    return render_template("doctor/gestion_patient/ajout_patient.html")
+
+@app.route("/doctor/modifier_patient")
+@login_required(role='doctor')
+def modifier_patient_doctor():
+    return render_template("doctor/gestion_patient/modifier_patient.html")
 
 """fin docteur"""
 
@@ -2894,10 +2866,6 @@ def suggestion_approvisionement():
 
     return render_template("gestionaire_stock/Module_ia/suggestion_approvisionement.html")
 
-
-
-
-
 #historique
 @app.route("/patient/historique_patient/historique_patient")
 @login_required(role='patient')
@@ -2908,6 +2876,136 @@ def historique_patient():
 
     return render_template("patient/historique_patient/historique_patient.html",
                            historique_consultations=consultations)
+
+
+
+
+# gestion de rendez vous
+"""debut rendezvous"""
+
+#prendre rendezvous- parient
+@app.route('/patient/rendezvous/nouveau', methods=['GET', 'POST'])
+@login_required(role='patient')
+def nouveau_rendezvous():
+    # Récupérer tous les médecins pour le formulaire
+    medecins = Doctor.query.all()
+
+    if request.method == 'POST':
+        # Récupérer le patient connecté depuis la session
+        email_patient = session.get('email_patient')
+        patient = Patient.query.filter_by(email_patient=email_patient).first()
+        if not patient:
+            flash("Patient introuvable.", "danger")
+            return redirect(url_for('login'))
+
+        patient_id = patient.ident
+        doctor_id = request.form.get('doctor_id') or None
+        date_rdv = request.form.get('date_rdv')
+        heure_debut = request.form.get('heure_debut')
+        heure_fin = request.form.get('heure_fin')
+        motif = request.form.get('motif')
+
+        # Vérification des champs
+        if not date_rdv or not heure_debut or not heure_fin:
+            flash("Veuillez remplir la date et le créneau horaire.", "danger")
+            return redirect(url_for('nouveau_rendezvous'))
+
+        # Conversion en objets datetime
+        date_rdv_obj = datetime.strptime(date_rdv, "%Y-%m-%d").date()
+        heure_debut_obj = datetime.strptime(heure_debut, "%H:%M").time()
+        heure_fin_obj = datetime.strptime(heure_fin, "%H:%M").time()
+
+        # Vérifier disponibilité si médecin choisi
+        if doctor_id:
+            conflict = RendezVous.query.filter_by(doctor_id=doctor_id, date_rdv=date_rdv_obj) \
+                .filter(RendezVous.heure_debut < heure_fin_obj) \
+                .filter(RendezVous.heure_fin > heure_debut_obj) \
+                .first()
+            if conflict:
+                flash("Ce créneau n'est pas disponible pour ce médecin.", "danger")
+                return redirect(url_for('nouveau_rendezvous'))
+
+        # Créer le rendez-vous
+        rdv = RendezVous(
+            patient_id=patient_id,
+            doctor_id=doctor_id,
+            date_rdv=date_rdv_obj,
+            heure_debut=heure_debut_obj,
+            heure_fin=heure_fin_obj,
+            motif=motif,
+            statut='en attente'
+        )
+        db.session.add(rdv)
+        db.session.commit()
+
+        flash("Rendez-vous enregistré avec succès.", "success")
+        return redirect(url_for('calendrier_rendezvous'))
+
+    return render_template('patient/gestion_rendez_vous/nouveau_rendezvous.html', medecins=medecins)
+
+#calendrier rendevous patient
+@app.route('/patient/rendezvous/calendrier')
+@login_required(role='patient')
+def calendrier_rendezvous():
+    # Récupérer le patient connecté
+    email_patient = session.get('email_patient')
+    patient = Patient.query.filter_by(email_patient=email_patient).first()
+    if not patient:
+        flash("Patient introuvable.", "danger")
+        return redirect(url_for('login'))
+
+    # Récupérer les rendez-vous du patient
+    rdvs = RendezVous.query.filter_by(patient_id=patient.ident).all()
+
+    # Créer la liste d'événements pour FullCalendar
+    events = []
+    for r in rdvs:
+        # Convertir heures en datetime si elles sont stockées en string
+        if isinstance(r.heure_debut, str):
+            heure_debut_obj = datetime.strptime(r.heure_debut, "%H:%M").time()
+        else:
+            heure_debut_obj = r.heure_debut
+        if isinstance(r.heure_fin, str):
+            heure_fin_obj = datetime.strptime(r.heure_fin, "%H:%M").time()
+        else:
+            heure_fin_obj = r.heure_fin
+
+        start = datetime.combine(r.date_rdv, heure_debut_obj).isoformat()
+        end = datetime.combine(r.date_rdv, heure_fin_obj).isoformat()
+
+        title = f"{r.doctor.nom_complet if r.doctor else 'Médecin non attribué'} - {r.motif}"
+
+        events.append({
+            'title': title,
+            'start': start,
+            'end': end,
+            'color': '#3788d8' if r.statut == 'confirmé' else '#f0ad4e'
+        })
+
+    return render_template('patient/gestion_rendez_vous/calendrier.html', events=events)
+
+
+
+#doctor rendevous
+@app.route("/doctor/rendez-vous")
+@login_required(role='doctor')
+def rendez_vous_doctor():
+    return render_template("doctor/gestion_rendezvous/rendezvous.html")
+
+@app.route("/doctor/rendez-vous/prendre_rendez-vous")
+@login_required(role='doctor')
+def prendre_rendez_vous_doctor():
+    return render_template("doctor/gestion_rendezvous/prendre_rendezvous.html")
+
+@app.route("/doctor/rendez-vous/modifier_rendez-vous")
+@login_required(role='doctor')
+def modifier_rendez_vous_doctor():
+    return render_template("doctor/gestion_rendezvous/modifier_rendezvous.html")
+
+@app.route("/doctor/rendez-vous/liste_rendez-vous")
+@login_required(role='doctor')
+def liste_rendez_vous_doctor():
+    return render_template("doctor/gestion_rendezvous/liste_rendevous.html")
 
 
 
