@@ -61,3 +61,14 @@ function updateDeleteLinkAdmission(button) {
     confirmBtn.setAttribute("href", deleteUrl);
   }
 }
+
+// suppression sortie
+function updateDeleteLinkSortie(button) {
+  const sortieId = button.getAttribute("data-id");
+  // URL correcte selon ta route Flask
+  const deleteUrl = `/secretaire/sortie/supprimer/${sortieId}`;
+  const confirmBtn = document.getElementById("confirmDeleteBtn");
+  if (confirmBtn) {
+    confirmBtn.setAttribute("href", deleteUrl);
+  }
+}

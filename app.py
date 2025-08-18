@@ -1189,6 +1189,25 @@ def supprimer_admission(admission_id):
         flash(f"Erreur lors de la suppression : {str(e)}", "danger")
     return redirect(url_for('liste_admissions'))
 
+#sprimer sortie
+@app.route('/secretaire/sortie/supprimer/<int:sortie_id>', methods=['GET', 'POST'])
+@login_required(role='secretaire')
+def supprimer_sortie(sortie_id):
+    sortie = Sortie.query.get_or_404(sortie_id)
+    try:
+        # Optionnel : remettre le statut_sortie de l'admission à "non"
+        if sortie.admission:
+            sortie.admission.statut_sortie = "non"
+
+        db.session.delete(sortie)
+        db.session.commit()
+        flash("Sortie du patient supprimée avec succès.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Erreur lors de la suppression : {str(e)}", "danger")
+    return redirect(url_for('liste_sorties'))
+
+
 # voir admission
 @app.route('/admin/admission/<int:admission_id>')
 def voir_admission(admission_id):

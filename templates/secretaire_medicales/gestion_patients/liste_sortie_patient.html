@@ -110,16 +110,17 @@
         </div>
     </div>
 </div>
-
 <script>
     function updateDeleteLinkSortie(button) {
         const sortieId = button.getAttribute("data-id");
-        const deleteUrl = `/admin/sortie/supprimer/${sortieId}`;  // adapte l’URL à ta route Flask
+        // URL correcte selon ta route Flask
+        const deleteUrl = `/secretaire/sortie/supprimer/${sortieId}`;
         const confirmBtn = document.getElementById("confirmDeleteBtn");
         if (confirmBtn) {
             confirmBtn.setAttribute("href", deleteUrl);
         }
     }
 </script>
+
 
 {% endblock %}
