@@ -2962,12 +2962,45 @@ def calendrier_rendezvous():
             'date': r.date_rdv.strftime("%Y-%m-%d"),
             'title': f"{r.doctor.nom_complet if r.doctor else 'Médecin non attribué'} - {r.motif}",
             'time': f"{r.heure_debut.strftime('%H:%M')} - {r.heure_fin.strftime('%H:%M')}",
-            'statut': r.statut
+            'statut': r.statut,
+            'url': url_for('detail_rendezvous', id=r.id)  # 👈 route vers détail
         })
 
     return render_template('patient/gestion_rendez_vous/calendrier.html', events=events)
 
+@app.route('/patient/rendezvous/<int:id>')
+@login_required(role='patient')
+def detail_rendezvous(id):
+    rdv = RendezVous.query.get_or_404(id)
 
+    # si tu n’as que rdv.id_medecin
+    medecin = Doctor.query.get(rdv.id_medecin) if hasattr(rdv, "id_medecin") else None
+
+    return render_template(
+        "patient/gestion_rendez_vous/detail_rendezvous.html",
+        rdv=rdv,
+        medecin=medecin
+    )
+
+#annuler un rendezvous patient
+@app.route('/patient/rendezvous/annuler/<int:rendezvous_id>', methods=['POST'])
+@login_required(role='patient')
+def annuler_rendezvous(rendezvous_id):
+    rdv = RendezVous.query.get_or_404(rendezvous_id)
+
+    # Vérification : est-ce bien le patient connecté qui veut annuler ?
+    email_patient = session.get('email_patient')
+    patient = Patient.query.filter_by(email_patient=email_patient).first()
+    if not patient or rdv.patient_id != patient.ident:
+        flash("Action non autorisée.", "danger")
+        return redirect(url_for('calendrier_rendezvous'))
+
+    # Mettre à jour le statut
+    rdv.statut = "annulé"
+    db.session.commit()
+
+    flash("Votre rendez-vous a été annulé avec succès.", "success")
+    return redirect(url_for('calendrier_rendezvous'))
 
 
 #doctor rendevous

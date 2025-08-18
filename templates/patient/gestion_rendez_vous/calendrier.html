@@ -7,6 +7,7 @@
     <button onclick="prevMonth()">← Mois précédent</button>
     <span id="month-year" style="font-weight: bold; margin: 0 10px;"></span>
     <button onclick="nextMonth()">Mois suivant →</button>
+
 </div>
 
 <table>
@@ -22,6 +23,8 @@
         </tr>
     </thead>
     <tbody id="calendar-body"></tbody>
+
+
 </table>
 
 <style>
@@ -156,4 +159,7 @@
 
     buildCalendar();
 </script>
+<a href="{{ url_for('nouveau_rendezvous') }}" class="btn btn-secondary">
+    <i class="bi bi-arrow-left"></i> Prendre rendez-vous
+</a>
 {% endblock %}
