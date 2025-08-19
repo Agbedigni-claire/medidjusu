@@ -1,0 +1,119 @@
+{% extends "patient/base_patient.html" %}
+
+{% block content %}
+<style>
+    .fancy-title {
+        font-weight: 700;
+        font-size: 1.6rem;
+        color: #0d6efd;
+    }
+
+    .section-icon {
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+        color: #0d6efd;
+    }
+
+    .card-custom {
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: 0.3s ease;
+    }
+
+    .card-custom:hover {
+        transform: scale(1.005);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+    }
+
+    .badge-etat {
+        font-size: 0.9rem;
+        background: linear-gradient(90deg, #0d6efd, #66b2ff);
+        color: white;
+        border-radius: 30px;
+        padding: 0.4rem 1rem;
+    }
+
+    .label-text {
+        font-weight: 600;
+        color: #34495e;
+    }
+
+    .value-text {
+        color: #555;
+        font-size: 0.96rem;
+    }
+</style>
+
+<div class="app-container">
+    <div class="app-hero-header d-flex align-items-center justify-content-between">
+        <h4 class="fancy-title"><i class="ri-stethoscope-line section-icon"></i> Consultation N°{{ consultation.id }}
+        </h4>
+        <a href="{{ url_for('historique_patient') }}" class="btn btn-outline-secondary rounded-pill btn-sm">← Retour</a>
+    </div>
+
+    <div class="app-body mt-4">
+        <div class="card card-custom mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="ri-information-line section-icon"></i> Informations générales
+            </div>
+            <div class="card-body">
+                <p><span class="label-text">Médecin :</span> <span class="value-text">Dr {{
+                        consultation.doctor.nom_complet }}</span></p>
+                <p><span class="label-text">Date de consultation :</span> <span class="value-text">{{
+                        consultation.date_consultation.strftime('%d/%m/%Y') }}</span></p>
+                <p><span class="label-text">État :</span> <span class="badge-etat">{{ consultation.etat or "Non défini"
+                        }}</span></p>
+            </div>
+        </div>
+
+        {% macro section_card(title, icon, data) %}
+        <div class="card card-custom mb-4">
+            <div class="card-header bg-light">
+                <i class="{{ icon }} section-icon"></i> {{ title }}
+            </div>
+            <div class="card-body">
+                {% for label, value in data %}
+                <p><span class="label-text">{{ label }} :</span><br>
+                    <span class="value-text">{{ value if value else 'Non précisé' }}</span>
+                </p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endmacro %}
+
+        {{ section_card('Motif de la consultation', 'ri-file-list-3-line', [
+        ('Motif', consultation.motif),
+        ('Plaintes', consultation.plaintes)
+        ]) }}
+
+        {{ section_card('Examens complémentaires', 'ri-microscope-line', [
+        ('Examens biologiques', consultation.examens_biologiques),
+        ('Examens radiologiques', consultation.examens_radiologiques),
+        ('Résultats', consultation.resultats_examens)
+        ]) }}
+
+        {{ section_card('Diagnostic et traitement', 'ri-capsule-line', [
+        ('Diagnostic', consultation.diagnostic),
+        ('Traitement prescrit', consultation.traitement),
+        ('Prescription', consultation.prescription)
+        ]) }}
+
+        {{ section_card('Suivi', 'ri-time-line', [
+        ('Conseils', consultation.conseils),
+        ('Prochain RDV', consultation.prochain_rdv.strftime('%d/%m/%Y') if consultation.prochain_rdv else None)
+        ]) }}
+
+        {{ section_card('Documents', 'ri-attachment-2', [
+        ('Ordonnance jointe', consultation.ordonnance_jointe),
+        ('Lettre d’orientation', consultation.lettre_orientation)
+        ]) }}
+
+        <div class="text-end mt-3">
+            <a href="{{ url_for('telecharger_consultation', id=consultation.id) }}"
+                class="btn btn-primary rounded-pill">
+                <i class="ri-download-2-line"></i> Télécharger en PDF
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

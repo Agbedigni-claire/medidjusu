@@ -1615,6 +1615,7 @@ def login():
                 return redirect(url_for('modifier_profile_doctor'))
 
 
+
         elif is_valid(email, "email_patient", password, "patient"):
 
             session['email_patient'] = email
@@ -1629,13 +1630,29 @@ def login():
 
             cursor.close()
 
-            if result and result['nom_utilisateur']:  # Si rempli
-                session['role'] = "patient"
-                return redirect(url_for('index_patient'))
+            patient = Patient.query.filter_by(email_patient=email).first()
 
-            else:  # Si vide ou NULL
+            if patient:
+
+                # Toujours enregistrer patient_id
+
+                session["patient_id"] = patient.ident
+
                 session['role'] = "patient"
-                return redirect(url_for('modifier_profile_patient'))
+
+                if result and result['nom_utilisateur']:  # Si profil déjà rempli
+
+                    return redirect(url_for('index_patient'))
+
+                else:  # Si profil incomplet
+
+                    return redirect(url_for('modifier_profile_patient'))
+
+            else:
+
+                flash("Patient introuvable.", "danger")
+
+                return redirect(url_for('login_patient'))
 
 
         elif is_valid(email, "email_secretaire", password, "secretaire_medicale"):
@@ -2722,7 +2739,36 @@ def telecharger_consultation(id):
         }
     )
 
+# historique des consultation patient
+@app.route("/patient/historique_patient/historique_patient")
+@login_required(role='patient')
+def historique_patient():
+    patient_id = session.get('patient_id')  # ID du patient connecté
 
+    if not patient_id:
+        flash("Erreur : patient non reconnu.", "danger")
+        return redirect(url_for("index_patient"))
+
+    consultations = Consultation.query.filter_by(patient_id=patient_id).order_by(
+        Consultation.date_consultation.desc()).all()
+
+    return render_template("patient/historique_patient/historique_patient.html",
+                           historique_consultations=consultations)
+
+#detali consumltation patient
+@app.route("/patient/consultation/<int:id>")
+@login_required(role="patient")
+def voir_consultation_patient(id):
+    patient_id = session.get("patient_id")
+
+    consultation = Consultation.query.filter_by(id=id, patient_id=patient_id).first()
+
+    if not consultation:
+        flash("Consultation introuvable ou accès non autorisé.", "danger")
+        return redirect(url_for("historique_patient"))
+
+    return render_template("patient/historique_patient/voir_consultation_patient.html",
+                           consultation=consultation)
 """fin consultation"""
 
 
@@ -2842,16 +2888,7 @@ def suggestion_approvisionement():
 
     return render_template("gestionaire_stock/Module_ia/suggestion_approvisionement.html")
 
-#historique
-@app.route("/patient/historique_patient/historique_patient")
-@login_required(role='patient')
 
-def historique_patient():
-    # patient_id = session.get('patient_id')
-    consultations = Consultation.query.all()
-
-    return render_template("patient/historique_patient/historique_patient.html",
-                           historique_consultations=consultations)
 
 
 

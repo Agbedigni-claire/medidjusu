@@ -55,13 +55,18 @@
           <span class="menu-text">Mon dossier médical</span>
         </a>
       </li>
-
-      <li>
-        <a href="#">
+      <li class="treeview">
+        <a href="#!">
           <i class="ri-file-list-3-line"></i>
-          <span class="menu-text">Historique des examens</span>
+          <span class="menu-text">Mes historiques</span>
         </a>
+        <ul class="treeview-menu">
+          <li><a href="{{url_for('historique_patient')}}">historique des consultations</a></li>
+          <li><a href="">Historique des examens</a></li>
+          <li><a href="">Historique</a></li>
+        </ul>
       </li>
+
 
       <li>
         <a href="#">
