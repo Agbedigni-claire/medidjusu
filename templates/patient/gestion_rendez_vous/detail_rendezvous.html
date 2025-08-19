@@ -3,52 +3,64 @@
 {% block title %}Détail du rendez-vous{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="app-hero-header d-flex align-items-center mb-4">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item">
-                <i class="ri-home-8-line lh-1 pe-3 me-3 border-end"></i>
-                <a href="{{ url_for('index_patient') }}">Patient</a>
-            </li>
-            <li class="breadcrumb-item text-primary" aria-current="page">
-                Details rendez-vous
-            </li>
-        </ol>
-    </div>
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Détails du rendez-vous</h4>
-        </div>
-        <div class="card-body">
-            <p><strong>Date :</strong> {{ rdv.date_rdv.strftime("%d/%m/%Y") }}</p>
-            <p><strong>Heure :</strong> {{ rdv.heure_debut.strftime("%H:%M") }} - {{ rdv.heure_fin.strftime("%H:%M") }}
-            </p>
-            <p><strong>Médecin :</strong> Dr {{ rdv.doctor.nom_complet }}</p>
-            <p><strong>Spécialité :</strong> {{ rdv.doctor.designation }}</p>
-            <p><strong>Statut :</strong>
-                {% if rdv.statut == "confirmé" %}
-                <span class="badge bg-success">Confirmé</span>
-                {% elif rdv.statut == "annulé" %}
-                <span class="badge bg-danger">Annulé</span>
-                {% else %}
-                <span class="badge bg-secondary">{{ rdv.statut }}</span>
-                {% endif %}
-            </p>
-        </div>
-        <div class="card-footer d-flex justify-content-between">
-            <a href="{{ url_for('calendrier_rendezvous') }}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Retour
-            </a>
 
-            {% if rdv.statut != "annulé" %}
-            <form action="{{ url_for('annuler_rendezvous', rendezvous_id=rdv.id) }}" method="POST"
-                onsubmit="return confirm('Voulez-vous vraiment annuler ce rendez-vous ?');">
-                <button type="submit" class="btn btn-danger">
-                    <i class="bi bi-x-circle"></i> Annuler le rendez-vous
-                </button>
-            </form>
-            {% endif %}
+<div class="app-hero-header d-flex align-items-center mb-4">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <i class="ri-home-8-line lh-1 pe-3 me-3 border-end"></i>
+            <a href="{{ url_for('index_patient') }}">Patient</a>
+        </li>
+        <li class="breadcrumb-item text-primary" aria-current="page">
+            Details rendez-vous
+        </li>
+    </ol>
+</div>
+<div class="app-body">
+
+    <!-- Row starts -->
+    <div class="row gx-3">
+        <div class="col-sm-12 col-12">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h3 class="card-title">Détails du rendez-vous</h3>
+                    <a href="{{ url_for('calendrier_rendezvous') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <p><strong>Date :</strong> {{ rdv.date_rdv.strftime("%d/%m/%Y") }}</p>
+                            <p><strong>Heure :</strong> {{ rdv.heure_debut.strftime("%H:%M") }} - {{
+                                rdv.heure_fin.strftime("%H:%M") }}
+                            </p>
+                            <p><strong>Médecin :</strong> Dr {{ rdv.doctor.nom_complet }}</p>
+                            <p><strong>Spécialité :</strong> {{ rdv.doctor.designation }}</p>
+                            <p><strong>Statut :</strong>
+                                {% if rdv.statut == "confirmé" %}
+                                <span class="badge bg-success">Confirmé</span>
+                                {% elif rdv.statut == "annulé" %}
+                                <span class="badge bg-danger">Annulé</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ rdv.statut }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            {% if rdv.statut != "annulé" %}
+                            <form action="{{ url_for('annuler_rendezvous', rendezvous_id=rdv.id) }}" method="POST"
+                                onsubmit="return confirm('Voulez-vous vraiment annuler ce rendez-vous ?');">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-x-circle"></i> Annuler le rendez-vous
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 {% endblock %}

@@ -13,59 +13,77 @@
             </li>
         </ol>
     </div>
-    <!-- Titre de la page -->
-    <div class="page-header">
-        <h2>Prendre un rendez-vous</h2>
-    </div>
+    <div class="app-body">
 
-    <!-- Messages flash -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
+        <!-- Row starts -->
+        <div class="row gx-3">
+            <div class="col-sm-12 col-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <div class="page-header">
+                            <h2 class="card-title">Prendre un rendez-vous</h2>
+                        </div>
+                        <a href="{{ url_for('calendrier_rendezvous') }}" class="btn btn-secondary ms-auto">Retour</a>
+                    </div>
+                    <div class="card-body">
+                        <!-- Titre de la page -->
 
-    <!-- Formulaire de rendez-vous -->
-    <div class="card shadow-sm p-3">
-        <form method="POST">
-            <div class="mb-3">
-                <label for="doctor_id" class="form-label">Médecin :</label>
-                <select name="doctor_id" id="doctor_id" class="form-select">
-                    <option value="">Laisser la secrétaire attribuer</option>
-                    {% for medecin in medecins %}
-                    <option value="{{ medecin.ident }}">{{ medecin.nom_complet }}</option>
-                    {% endfor %}
-                </select>
-            </div>
 
-            <div class="mb-3">
-                <label for="date_rdv" class="form-label">Date :</label>
-                <input type="date" id="date_rdv" name="date_rdv" class="form-control" required>
-            </div>
+                        <!-- Messages flash -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
 
-            <div class="row mb-3">
-                <div class="col">
-                    <label for="heure_debut" class="form-label">Heure de début :</label>
-                    <input type="time" id="heure_debut" name="heure_debut" class="form-control" required>
+                        <!-- Formulaire de rendez-vous -->
+                        <div class="card shadow-sm p-3">
+                            <form method="POST">
+                                <div class="mb-3">
+                                    <label for="doctor_id" class="form-label">Médecin :</label>
+                                    <select name="doctor_id" id="doctor_id" class="form-select">
+                                        <option value="">Laisser la secrétaire attribuer</option>
+                                        {% for medecin in medecins %}
+                                        <option value="{{ medecin.ident }}">{{ medecin.nom_complet }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="date_rdv" class="form-label">Date :</label>
+                                    <input type="date" id="date_rdv" name="date_rdv" class="form-control" required>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label for="heure_debut" class="form-label">Heure de début :</label>
+                                        <input type="time" id="heure_debut" name="heure_debut" class="form-control"
+                                            required>
+                                    </div>
+                                    <div class="col">
+                                        <label for="heure_fin" class="form-label">Heure de fin :</label>
+                                        <input type="time" id="heure_fin" name="heure_fin" class="form-control"
+                                            required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="motif" class="form-label">Motif :</label>
+                                    <textarea id="motif" name="motif" class="form-control" rows="3"></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Prendre rendez-vous</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="col">
-                    <label for="heure_fin" class="form-label">Heure de fin :</label>
-                    <input type="time" id="heure_fin" name="heure_fin" class="form-control" required>
-                </div>
             </div>
-
-            <div class="mb-3">
-                <label for="motif" class="form-label">Motif :</label>
-                <textarea id="motif" name="motif" class="form-control" rows="3"></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Prendre rendez-vous</button>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}

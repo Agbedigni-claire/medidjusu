@@ -13,60 +13,76 @@
             </li>
         </ol>
     </div>
+    <div class="app-body">
 
-    <!-- Titre de la page -->
-    <div class="page-header">
-        <h2>Prendre un rendez-vous</h2>
-    </div>
+        <!-- Row starts -->
+        <div class="row gx-3">
+            <div class="col-sm-12 col-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <a href="{{ url_for('rendez_vous_doctor') }}" class="btn btn-secondary ms-auto">Retour</a>
+                    </div>
+                    <div class="card-body">
+                        <!-- Titre de la page -->
+                        <div class="page-header">
+                            <h2>Prendre un rendez-vous</h2>
+                        </div>
 
-    <!-- Messages flash -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
+                        <!-- Messages flash -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
 
-    <!-- Formulaire de rendez-vous -->
-    <div class="card shadow-sm p-3">
-        <form method="POST">
-            <div class="mb-3">
-                <label for="patient_id" class="form-label">Patient :</label>
-                <select name="patient_id" id="patient_id" class="form-select">
-                    <option value="">Sélectionner un patient</option>
-                    {% for patient in patients %}
-                    <option value="{{ patient.ident }}">{{ patient.nom_complet }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+                        <!-- Formulaire de rendez-vous -->
+                        <div class="card shadow-sm p-3">
+                            <form method="POST">
+                                <div class="mb-3">
+                                    <label for="patient_id" class="form-label">Patient :</label>
+                                    <select name="patient_id" id="patient_id" class="form-select">
+                                        <option value="">Sélectionner un patient</option>
+                                        {% for patient in patients %}
+                                        <option value="{{ patient.ident }}">{{ patient.nom_complet }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
 
-            <div class="mb-3">
-                <label for="date_rdv" class="form-label">Date :</label>
-                <input type="date" id="date_rdv" name="date_rdv" class="form-control" required>
-            </div>
+                                <div class="mb-3">
+                                    <label for="date_rdv" class="form-label">Date :</label>
+                                    <input type="date" id="date_rdv" name="date_rdv" class="form-control" required>
+                                </div>
 
-            <div class="row mb-3">
-                <div class="col">
-                    <label for="heure_debut" class="form-label">Heure de début :</label>
-                    <input type="time" id="heure_debut" name="heure_debut" class="form-control" required>
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label for="heure_debut" class="form-label">Heure de début :</label>
+                                        <input type="time" id="heure_debut" name="heure_debut" class="form-control"
+                                            required>
+                                    </div>
+                                    <div class="col">
+                                        <label for="heure_fin" class="form-label">Heure de fin :</label>
+                                        <input type="time" id="heure_fin" name="heure_fin" class="form-control"
+                                            required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="motif" class="form-label">Motif :</label>
+                                    <textarea id="motif" name="motif" class="form-control" rows="3"></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Attribuer le rendez-vous</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="col">
-                    <label for="heure_fin" class="form-label">Heure de fin :</label>
-                    <input type="time" id="heure_fin" name="heure_fin" class="form-control" required>
-                </div>
             </div>
-
-            <div class="mb-3">
-                <label for="motif" class="form-label">Motif :</label>
-                <textarea id="motif" name="motif" class="form-control" rows="3"></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Attribuer le rendez-vous</button>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}

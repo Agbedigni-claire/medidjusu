@@ -1,6 +1,63 @@
 {% extends "doctor/base_doctor.html"%}
 
 {% block content%}
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    th,
+    td {
+        border: 1px solid #ccc;
+        vertical-align: top;
+        padding: 5px;
+        height: 100px;
+    }
+
+    th {
+        background-color: #f0f0f0;
+    }
+
+    .event {
+        padding: 2px 4px;
+        margin: 2px 0;
+        border-radius: 4px;
+        color: white;
+        font-size: 12px;
+    }
+
+    /* Couleurs selon le statut */
+    .confirmé {
+        background-color: #3788d8;
+        /* bleu */
+    }
+
+    .en-attente {
+        background-color: #f0ad4e;
+        /* jaune/orange */
+    }
+
+    .annulé {
+        background-color: #d9534f;
+        /* rouge */
+    }
+
+    .terminé {
+        background-color: #5cb85c;
+        /* vert */
+    }
+
+    .other-month {
+        color: #aaa;
+    }
+
+    .event:hover {
+        opacity: 0.8;
+        cursor: pointer;
+    }
+</style>
 
 <div class="app-container">
 
@@ -160,13 +217,35 @@
                                 const cell = document.createElement('td');
                                 cell.textContent = day;
                                 const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
                                 events.filter(e => e.date === dayStr).forEach(e => {
                                     const div = document.createElement('div');
                                     div.textContent = `${e.title} (${e.time})`;
-                                    div.className = 'event ' + (e.statut === 'confirmé' ? 'confirmé' : 'en-attente');
-                                    if (e.url) { div.onclick = () => { window.location.href = e.url; }; }
+
+                                    // Appliquer la classe selon le statut
+                                    switch (e.statut.toLowerCase()) {
+                                        case 'confirmé':
+                                            div.className = 'event confirmé';
+                                            break;
+                                        case 'en attente':
+                                            div.className = 'event en-attente';
+                                            break;
+                                        case 'annulé':
+                                            div.className = 'event annulé';
+                                            break;
+                                        case 'terminé':
+                                            div.className = 'event terminé';
+                                            break;
+                                        default:
+                                            div.className = 'event';
+                                    }
+
+                                    if (e.url) {
+                                        div.onclick = () => { window.location.href = e.url; };
+                                    }
                                     cell.appendChild(div);
                                 });
+
                                 row.appendChild(cell);
                             }
 
