@@ -1207,30 +1207,6 @@ def liste_sorties():
 def modification_patients():
     return render_template("secretaire_medicales/gestion_patients/modification_patients.html")
 
-#gestion_rendezvous secretaire medicale
-@app.route("/secretaire_medicales/gestion_rendezvous")
-@login_required(role='secretaire')
-def gestion_rendezvous():
-    return render_template("secretaire_medicales/gestion_rendez_vous/gestion_rendezvous.html")
-
-#gestion_rendezvous secretaire medicale
-@app.route("/secretaire_medicales/liste_rendezvous")
-@login_required(role='secretaire')
-def liste_rendezvous():
-    return render_template("secretaire_medicales/gestion_rendez_vous/liste_rendezvous.html")
-
-#Modifier_rendezvous secretaire medicale
-@app.route("/secretaire_medicales/Modifier_rendezvous")
-@login_required(role='secretaire')
-def Modifier_rendezvous():
-    return render_template("secretaire_medicales/gestion_rendez_vous/Modifier_rendezvous.html")
-
-#prendre_rendezvous secretaire medicale
-@app.route("/secretaire_medicales/prendre_rendezvous")
-@login_required(role='secretaire')
-def prendre_rendezvous():
-    return render_template("secretaire_medicales/gestion_rendez_vous/prendre_rendezvous.html")
-
 #fiche_de_paie secretaire medicale
 @app.route("/secretaire_medicales/fiche_de_paie")
 @login_required(role='secretaire')
@@ -3141,6 +3117,140 @@ def modifier_rendez_vous_doctor(rdv_id):
         return redirect(url_for('rendez_vous_doctor'))
 
     return render_template("doctor/gestion_rendezvous/modifier_rendezvous.html", rdv=rdv)
+
+
+
+#gestion_rendezvous secretaire medicale
+@app.route("/secretaire/rendez-vous", methods=['GET'])
+@login_required(role='secretaire')
+def calendrier_rendezvous_secretaire():
+    # Récupérer tous les rendez-vous
+    rdvs = RendezVous.query.all()
+
+    # Transformer en liste d'événements pour le calendrier JS
+    events = []
+    for rdv in rdvs:
+        events.append({
+            'title': f"{rdv.patient.nom_complet} / {rdv.doctor.nom_complet if rdv.doctor else 'Non attribué'}",
+            'date': rdv.date_rdv.strftime("%Y-%m-%d"),
+            'time': f"{rdv.heure_debut.strftime('%H:%M')} - {rdv.heure_fin.strftime('%H:%M')}",
+            'statut': rdv.statut,
+            'url': url_for('details_rendez_vous_secretaire', rdv_id=rdv.id)
+        })
+
+    return render_template(
+        "secretaire_medicales/gestion_rendez_vous/calendrier_rendezvous.html",
+        events=events
+    )
+
+
+@app.route("/secretaire/rendezvous/<int:rdv_id>/details", methods=["GET", "POST"])
+@login_required(role='secretaire')
+def details_rendez_vous_secretaire(rdv_id):
+    rdv = RendezVous.query.get_or_404(rdv_id)
+    medecins = Doctor.query.all()  # récupère tous les médecins
+
+    if request.method == "POST":
+        action = request.form.get("action")
+
+        # 🔹 Attribuer un médecin si aucun n'est assigné
+        if action == "attribuer_medecin" and rdv.doctor_id is None:
+            selected_medecin_id = request.form.get("doctor_id")
+            if selected_medecin_id:
+                rdv.doctor_id = int(selected_medecin_id)
+                rdv.statut = "Confirmé"
+                rdv.secretaire_id = session.get("secretaire_id")
+                db.session.commit()
+                flash("Médecin attribué avec succès.", "success")
+                return redirect(url_for("calendrier_rendezvous_secretaire"))
+            else:
+                flash("Veuillez sélectionner un médecin.", "warning")
+
+        # Confirmer un rendez-vous en attente
+        elif action == "confirmer" and rdv.statut == "en attente" and rdv.doctor_id:
+            rdv.statut = "Confirmé"
+            db.session.commit()
+            flash("Rendez-vous confirmé.", "success")
+            return redirect(url_for("calendrier_rendezvous_secretaire"))
+
+        # Mettre en attente ou annuler
+        elif action == "attente":
+            rdv.statut = "En attente"
+            db.session.commit()
+            flash("Rendez-vous mis en attente.", "warning")
+            return redirect(url_for("calendrier_rendezvous_secretaire"))
+
+        elif action == "annuler":
+            rdv.statut = "Annulé"
+            db.session.commit()
+            flash("Rendez-vous annulé.", "danger")
+            return redirect(url_for("calendrier_rendezvous_secretaire"))
+
+    return render_template(
+        "secretaire_medicales/gestion_rendez_vous/details_rendezvous.html",
+        rdv=rdv,
+        medecins=medecins
+    )
+
+
+
+#prendre_rendezvous secretaire medicale
+@app.route("/secretaire/rendez-vous/nouveau", methods=['GET', 'POST'])
+@login_required(role='secretaire')
+def prendre_rendez_vous_secretaire():
+    # Récupérer tous les patients et tous les médecins
+    patients = Patient.query.all()
+    medecins = Doctor.query.all()
+
+    if request.method == 'POST':
+        patient_id = request.form.get('patient_id') or None
+        doctor_id = request.form.get('doctor_id') or None
+        date_rdv = request.form.get('date_rdv')
+        heure_debut = request.form.get('heure_debut')
+        heure_fin = request.form.get('heure_fin')
+        motif = request.form.get('motif')
+
+        # Vérification des champs obligatoires
+        if not patient_id or not date_rdv or not heure_debut or not heure_fin:
+            flash("Veuillez remplir tous les champs obligatoires.", "danger")
+            return redirect(url_for('prendre_rendez_vous_secretaire'))
+
+        # Conversion en datetime
+        date_rdv_obj = datetime.strptime(date_rdv, "%Y-%m-%d").date()
+        heure_debut_obj = datetime.strptime(heure_debut, "%H:%M").time()
+        heure_fin_obj = datetime.strptime(heure_fin, "%H:%M").time()
+
+        # Vérifier la disponibilité si médecin choisi
+        if doctor_id:
+            conflict = RendezVous.query.filter_by(doctor_id=doctor_id, date_rdv=date_rdv_obj) \
+                .filter(RendezVous.heure_debut < heure_fin_obj) \
+                .filter(RendezVous.heure_fin > heure_debut_obj) \
+                .first()
+            if conflict:
+                flash("Ce créneau n'est pas disponible pour ce médecin.", "danger")
+                return redirect(url_for('prendre_rendez_vous_secretaire'))
+
+        # Créer le rendez-vous
+        rdv = RendezVous(
+            patient_id=patient_id,
+            doctor_id=doctor_id,
+            date_rdv=date_rdv_obj,
+            heure_debut=heure_debut_obj,
+            heure_fin=heure_fin_obj,
+            motif=motif,
+            statut='confirmé' if doctor_id else 'En attente'
+        )
+        db.session.add(rdv)
+        db.session.commit()
+
+        flash("Rendez-vous créé avec succès.", "success")
+        return redirect(url_for('calendrier_rendezvous_secretaire'))
+
+    return render_template(
+        "secretaire_medicales/gestion_rendez_vous/prendre_rendezvous.html",
+        patients=patients,
+        medecins=medecins
+    )
 
 
 
