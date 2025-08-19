@@ -44,7 +44,7 @@
             <div class="col-sm-12 col-12">
                 <div class="card">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <h5 class="card-title">Rendez-vous</h5>
+                        <h3 class="card-title">Calendrier des rendez-vous</h3>
                         <a href="{{url_for('prendre_rendez_vous_doctor')}}" class="btn btn-primary ms-auto">Prendre
                             Rendez-vous</a>
                     </div>
@@ -52,9 +52,135 @@
 
                         <div id="appointmentsCal"></div>
 
+
+                        <div style="margin-bottom: 10px;">
+                            <button onclick="prevMonth()">← Mois précédent</button>
+                            <span id="month-year" style="font-weight: bold; margin: 0 10px;"></span>
+                            <button onclick="nextMonth()">Mois suivant →</button>
+                        </div>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Lundi</th>
+                                    <th>Mardi</th>
+                                    <th>Mercredi</th>
+                                    <th>Jeudi</th>
+                                    <th>Vendredi</th>
+                                    <th>Samedi</th>
+                                    <th>Dimanche</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendar-body"></tbody>
+                        </table>
+
+                        <style>
+                            table {
+                                border-collapse: collapse;
+                                width: 100%;
+                                table-layout: fixed;
+                            }
+
+                            th,
+                            td {
+                                border: 1px solid #ccc;
+                                vertical-align: top;
+                                padding: 5px;
+                                height: 100px;
+                            }
+
+                            th {
+                                background-color: #f0f0f0;
+                            }
+
+                            .event {
+                                padding: 2px 4px;
+                                margin: 2px 0;
+                                border-radius: 4px;
+                                color: white;
+                                font-size: 12px;
+                            }
+
+                            .confirmé {
+                                background-color: #3788d8;
+                            }
+
+                            .en-attente {
+                                background-color: #f0ad4e;
+                            }
+
+                            .other-month {
+                                color: #aaa;
+                            }
+
+                            .event:hover {
+                                opacity: 0.8;
+                                cursor: pointer;
+                            }
+                        </style>
+
+                        <script>
+                            const events = {{ events | tojson | safe }};
+                            let currentDate = new Date();
+                            const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+                            function buildCalendar() {
+                                document.getElementById('month-year').textContent = monthNames[currentDate.getMonth()] + " " + currentDate.getFullYear();
+                                const tbody = document.getElementById('calendar-body');
+                                tbody.innerHTML = '';
+                                const year = currentDate.getFullYear();
+                                const month = currentDate.getMonth();
+                                const firstDay = new Date(year, month, 1).getDay();
+                                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                                let row = document.createElement('tr');
+                                let dayCount = 1;
+                                for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
+                                    const cell = document.createElement('td');
+                                    cell.classList.add('other-month');
+                                    cell.textContent = '';
+                                    row.appendChild(cell);
+                                }
+                                for (let i = (firstDay === 0 ? 6 : firstDay - 1); i < 7; i++) {
+                                    addDayCell(row, dayCount, year, month);
+                                    dayCount++;
+                                }
+                                tbody.appendChild(row);
+                                while (dayCount <= daysInMonth) {
+                                    row = document.createElement('tr');
+                                    for (let i = 0; i < 7; i++) {
+                                        if (dayCount > daysInMonth) break;
+                                        addDayCell(row, dayCount, year, month);
+                                        dayCount++;
+                                    }
+                                    tbody.appendChild(row);
+                                }
+                            }
+
+                            function addDayCell(row, day, year, month) {
+                                const cell = document.createElement('td');
+                                cell.textContent = day;
+                                const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                                events.filter(e => e.date === dayStr).forEach(e => {
+                                    const div = document.createElement('div');
+                                    div.textContent = `${e.title} (${e.time})`;
+                                    div.className = 'event ' + (e.statut === 'confirmé' ? 'confirmé' : 'en-attente');
+                                    if (e.url) { div.onclick = () => { window.location.href = e.url; }; }
+                                    cell.appendChild(div);
+                                });
+                                row.appendChild(cell);
+                            }
+
+                            function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); buildCalendar(); }
+                            function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); buildCalendar(); }
+                            buildCalendar();
+                        </script>
+
+                        <a href="{{ url_for('prendre_rendez_vous_doctor') }}" class="btn btn-primary mt-3">Prendre
+                            rendez-vous</a>
                     </div>
                 </div>
             </div>
+
         </div>
         <!-- Row ends -->
 
@@ -63,6 +189,6 @@
 
     <!-- App footer starts -->
 
-</div>x
+</div>
 
 {% endblock%}

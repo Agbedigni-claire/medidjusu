@@ -1630,7 +1630,7 @@ def login():
             doctor = Doctor.query.filter_by(email_doctor=email).first()
             session['doctor_id'] = doctor.ident
 
-            if result and result['nom_utilisateur']:  # Si rempli
+            if result and result['nom_utilisateur']:# Si rempli
                 session['role'] = "doctor"
                 return redirect(url_for('index_doctor'))
 
@@ -2968,6 +2968,7 @@ def calendrier_rendezvous():
 
     return render_template('patient/gestion_rendez_vous/calendrier.html', events=events)
 
+# calendrier des rendezvous docteur
 @app.route('/patient/rendezvous/<int:id>')
 @login_required(role='patient')
 def detail_rendezvous(id):
@@ -3007,22 +3008,139 @@ def annuler_rendezvous(rendezvous_id):
 @app.route("/doctor/rendez-vous")
 @login_required(role='doctor')
 def rendez_vous_doctor():
-    return render_template("doctor/gestion_rendezvous/rendezvous.html")
+    doctor_id = session.get('doctor_id')
 
-@app.route("/doctor/rendez-vous/prendre_rendez-vous")
+    # Rendez-vous du médecin OU rendez-vous non attribués
+    rdvs = RendezVous.query.filter(
+        (RendezVous.doctor_id == doctor_id) | (RendezVous.doctor_id == None)
+    ).all()
+
+    events = []
+    for rdv in rdvs:
+        title = rdv.patient.nom_complet
+        if rdv.doctor_id is None:
+            title += " (Non attribué)"
+
+        events.append({
+            'date': rdv.date_rdv.strftime("%Y-%m-%d"),
+            'time': f"{rdv.heure_debut.strftime('%H:%M')} - {rdv.heure_fin.strftime('%H:%M')}",
+            'title': title,
+            'statut': rdv.statut,
+            'url': url_for('details_rendez_vous_doctor', rdv_id=rdv.id)  # lien vers la vue détail
+        })
+
+    return render_template("doctor/gestion_rendezvous/rendezvous.html", events=events)
+
+
+# detail rendezvous doctor
+@app.route("/doctor/rendezvous/<int:rdv_id>/details", methods=["GET", "POST"])
+def details_rendez_vous_doctor(rdv_id):
+    rdv = RendezVous.query.get_or_404(rdv_id)
+
+    if request.method == "POST":
+        action = request.form.get("action")
+
+        # 🔹 Si le rdv n’a pas encore de médecin
+        if action == "attribuer" and rdv.doctor_id is None:
+            rdv.doctor_id = session.get("doctor_id")  # le docteur connecté
+            rdv.statut = "confirmé"
+            db.session.commit()
+            flash("Rendez-vous attribué avec succès.", "success")
+            return redirect(url_for("rendez_vous_doctor"))
+
+        # 🔹 Si le rdv est déjà attribué à ce docteur
+        if action == "confirmer" and rdv.doctor_id == session.get("doctor_id"):
+            rdv.statut = "Confirmé"
+            db.session.commit()
+            flash("Rendez-vous confirmé avec succès.", "success")
+            return redirect(url_for("rendez_vous_doctor"))
+
+        if action == "attente" and rdv.doctor_id == session.get("doctor_id"):
+            rdv.statut = "annulé"
+            db.session.commit()
+            flash("Rendez-vous Annulé avec succès.", "success")
+            return redirect(url_for("rendez_vous_doctor"))
+    return render_template("doctor/gestion_rendezvous/details_rendezvous.html", rdv=rdv)
+
+
+
+#prendre rendevous pour le docteur
+@app.route("/doctor/rendez-vous/prendre_rendez-vous", methods=['GET', 'POST'])
 @login_required(role='doctor')
 def prendre_rendez_vous_doctor():
-    return render_template("doctor/gestion_rendezvous/prendre_rendezvous.html")
+    # Récupérer le docteur connecté depuis la session
+    doctor_id = session.get('doctor_id')
+    if not doctor_id:
+        flash("Docteur non connecté.", "danger")
+        return redirect(url_for('login'))
 
-@app.route("/doctor/rendez-vous/modifier_rendez-vous")
-@login_required(role='doctor')
-def modifier_rendez_vous_doctor():
-    return render_template("doctor/gestion_rendezvous/modifier_rendezvous.html")
+    # Récupérer tous les patients pour le formulaire
+    patients = Patient.query.all()
 
-@app.route("/doctor/rendez-vous/liste_rendez-vous")
+    if request.method == 'POST':
+        patient_id = request.form.get('patient_id')
+        date_rdv = request.form.get('date_rdv')
+        heure_debut = request.form.get('heure_debut')
+        heure_fin = request.form.get('heure_fin')
+        motif = request.form.get('motif')
+
+        # Vérification des champs obligatoires
+        if not patient_id or not date_rdv or not heure_debut or not heure_fin:
+            flash("Veuillez remplir tous les champs obligatoires.", "danger")
+            return redirect(url_for('prendre_rendez_vous_doctor'))
+
+        # Conversion en objets datetime
+        date_rdv_obj = datetime.strptime(date_rdv, "%Y-%m-%d").date()
+        heure_debut_obj = datetime.strptime(heure_debut, "%H:%M").time()
+        heure_fin_obj = datetime.strptime(heure_fin, "%H:%M").time()
+
+        # Vérifier disponibilité du médecin
+        conflict = RendezVous.query.filter_by(doctor_id=doctor_id, date_rdv=date_rdv_obj) \
+            .filter(RendezVous.heure_debut < heure_fin_obj) \
+            .filter(RendezVous.heure_fin > heure_debut_obj) \
+            .first()
+        if conflict:
+            flash("Ce créneau n'est pas disponible.", "danger")
+            return redirect(url_for('prendre_rendez_vous_doctor'))
+
+        # Créer le rendez-vous attribué au docteur
+        rdv = RendezVous(
+            patient_id=patient_id,
+            doctor_id=doctor_id,
+            date_rdv=date_rdv_obj,
+            heure_debut=heure_debut_obj,
+            heure_fin=heure_fin_obj,
+            motif=motif,
+            statut='Confirmé'  # Médecin attribue directement => confirmé
+        )
+        db.session.add(rdv)
+        db.session.commit()
+
+        flash("Rendez-vous attribué avec succès.", "success")
+        return redirect(url_for('rendez_vous_doctor'))
+
+    # Afficher le formulaire
+    return render_template(
+        "doctor/gestion_rendezvous/prendre_rendezvous.html",
+        patients=patients
+    )
+
+
+#modifier rendezvous docreur
+@app.route("/doctor/rendez-vous/modifier_rendez-vous/<int:rdv_id>", methods=['GET', 'POST'])
 @login_required(role='doctor')
-def liste_rendez_vous_doctor():
-    return render_template("doctor/gestion_rendezvous/liste_rendevous.html")
+def modifier_rendez_vous_doctor(rdv_id):
+    rdv = RendezVous.query.get_or_404(rdv_id)
+    if request.method == 'POST':
+        rdv.date_rdv = request.form.get('date_rdv')
+        rdv.heure_debut = request.form.get('heure_debut')
+        rdv.heure_fin = request.form.get('heure_fin')
+        rdv.motif = request.form.get('motif')
+        db.session.commit()
+        flash("Rendez-vous modifié avec succès", "success")
+        return redirect(url_for('rendez_vous_doctor'))
+
+    return render_template("doctor/gestion_rendezvous/modifier_rendezvous.html", rdv=rdv)
 
 
 
