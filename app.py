@@ -6,7 +6,7 @@ from credentials import *
 from flask_mail import Mail, Message
 import re
 from models import db, Consultation, Patient, Doctor, Admission, Sortie, Produit, SecretaireMedicale, RendezVous
-from datetime import  datetime, date, time
+from datetime import  datetime, date, time, timedelta
 from flask_migrate import Migrate
 from xhtml2pdf import pisa
 from io import BytesIO
@@ -952,6 +952,40 @@ def index_secretaire_medicales():
     # Liste des sorties récentes (par exemple 10 dernières)
     sorties = Sortie.query.order_by(Sortie.date_sortie.desc()).limit(10).all()
 
+    today = datetime.utcnow()
+    start_of_week = today - timedelta(days=today.weekday())
+    start_of_last_week = start_of_week - timedelta(days=7)
+    end_of_last_week = start_of_week - timedelta(seconds=1)
+
+    # Comptage des patients inscrits cette semaine
+    patients_this_week = Patient.query.filter(Patient.date_inscription >= start_of_week).count()
+
+    # Comptage des patients inscrits la semaine dernière
+    patients_last_week = Patient.query.filter(
+        Patient.date_inscription >= start_of_last_week,
+        Patient.date_inscription <= end_of_last_week
+    ).count()
+
+    # Calcul du pourcentage
+    if patients_last_week > 0:
+        pourcentage = ((patients_this_week - patients_last_week) / patients_last_week) * 100
+    else:
+        pourcentage = 100 if patients_this_week > 0 else 0
+
+    today = date.today()
+    start_of_week = today - timedelta(days=today.weekday())
+
+    labels = []
+    data = []
+
+    for i in range(7):
+        jour = start_of_week + timedelta(days=i)
+        labels.append(jour.strftime("%A"))  # ex: Lundi, Mardi…
+        count = RendezVous.query.filter(
+            RendezVous.date_rdv == jour
+        ).count()
+        data.append(count)
+
     return render_template(
         "secretaire_medicales/index_secretaire_medicales.html",
         total_rdv_today=total_rdv_today,
@@ -959,7 +993,11 @@ def index_secretaire_medicales():
         total_sorties=total_sorties,
         rendezvous=rendezvous,
         admissions=admissions,
-        sorties=sorties
+        sorties=sorties,
+        patients_this_week=patients_this_week,
+        patients_last_week=patients_last_week,
+        pourcentage=round(pourcentage),
+                           labels=labels, data=data
     )
 
 @app.route('/rendezvous/confirmer/<int:rdv_id>')
@@ -1799,12 +1837,14 @@ def login():
             result = cursor.fetchone()
 
             cursor.close()
-
+            secretaire = SecretaireMedicale.query.filter_by(email_secretaire=email).first()
             if result and result['nom_utilisateur']:  # Si rempli
+                session["secretaire_id"] = secretaire.ident
                 session['role'] = "secretaire"
                 return redirect(url_for('index_secretaire_medicales'))
 
             else:
+                session["secretaire_id"] = secretaire.ident
                 session['role'] = "secretaire"
                 return redirect(url_for('modifier_profile_secretaire'))
 
@@ -3204,6 +3244,12 @@ def details_rendez_vous_doctor(rdv_id):
             db.session.commit()
             flash("Rendez-vous Annulé avec succès.", "success")
             return redirect(url_for("rendez_vous_doctor"))
+
+        if action == "terminer" and rdv.doctor_id == session.get("doctor_id"):
+            rdv.statut = "Terminé"
+            db.session.commit()
+            flash("Rendez-vous Terminé avec succès.", "success")
+            return redirect(url_for("rendez_vous_doctor"))
     return render_template("doctor/gestion_rendezvous/details_rendezvous.html", rdv=rdv)
 
 
@@ -3316,13 +3362,13 @@ def calendrier_rendezvous_secretaire():
 @login_required(role='secretaire')
 def details_rendez_vous_secretaire(rdv_id):
     rdv = RendezVous.query.get_or_404(rdv_id)
-    medecins = Doctor.query.all()  # récupère tous les médecins
+    medecins = Doctor.query.all()
 
     if request.method == "POST":
         action = request.form.get("action")
 
-        # 🔹 Attribuer un médecin si aucun n'est assigné
-        if action == "attribuer_medecin" and rdv.doctor_id is None:
+        # Attribuer un médecin
+        if action == "attribuer_medecin":
             selected_medecin_id = request.form.get("doctor_id")
             if selected_medecin_id:
                 rdv.doctor_id = int(selected_medecin_id)
@@ -3330,28 +3376,40 @@ def details_rendez_vous_secretaire(rdv_id):
                 rdv.secretaire_id = session.get("secretaire_id")
                 db.session.commit()
                 flash("Médecin attribué avec succès.", "success")
-                return redirect(url_for("calendrier_rendezvous_secretaire"))
             else:
                 flash("Veuillez sélectionner un médecin.", "warning")
+            return redirect(url_for("calendrier_rendezvous_secretaire"))
 
-        # Confirmer un rendez-vous en attente
-        elif action == "confirmer" and rdv.statut == "en attente" and rdv.doctor_id:
+        # Confirmer un rendez-vous
+        elif action == "confirmer" and rdv.statut == "En attente" and rdv.doctor_id:
             rdv.statut = "Confirmé"
+            rdv.secretaire_id = session.get("secretaire_id")
             db.session.commit()
             flash("Rendez-vous confirmé.", "success")
             return redirect(url_for("calendrier_rendezvous_secretaire"))
 
-        # Mettre en attente ou annuler
+        # Mettre en attente
         elif action == "attente":
             rdv.statut = "En attente"
+            rdv.secretaire_id = session.get("secretaire_id")
             db.session.commit()
             flash("Rendez-vous mis en attente.", "warning")
             return redirect(url_for("calendrier_rendezvous_secretaire"))
 
+        # Annuler
         elif action == "annuler":
             rdv.statut = "Annulé"
+            rdv.secretaire_id = session.get("secretaire_id")
             db.session.commit()
             flash("Rendez-vous annulé.", "danger")
+            return redirect(url_for("calendrier_rendezvous_secretaire"))
+
+        # Terminer
+        elif action == "terminer":
+            rdv.statut = "Terminé"
+            rdv.secretaire_id = session.get("secretaire_id")
+            db.session.commit()
+            flash("Rendez-vous terminé.", "success")
             return redirect(url_for("calendrier_rendezvous_secretaire"))
 
     return render_template(
@@ -3359,6 +3417,7 @@ def details_rendez_vous_secretaire(rdv_id):
         rdv=rdv,
         medecins=medecins
     )
+
 
 
 
@@ -3402,6 +3461,7 @@ def prendre_rendez_vous_secretaire():
         rdv = RendezVous(
             patient_id=patient_id,
             doctor_id=doctor_id,
+            secretaire_id = session.get("secretaire_id"),
             date_rdv=date_rdv_obj,
             heure_debut=heure_debut_obj,
             heure_fin=heure_fin_obj,
@@ -3420,6 +3480,35 @@ def prendre_rendez_vous_secretaire():
         medecins=medecins
     )
 
+"""fin rendezvous"""
+
+#dossier medicale
+"""gestion dossier medicale"""
+#dossiermedicla patient
+@app.route("/patient/dossier_medical/<int:patient_id>")
+@login_required(role='patient')
+def dossier_medical_patient(patient_id):
+    # 🔹 Récupérer le patient
+    patient = Patient.query.get_or_404(patient_id)
+
+    # 🔹 Récupérer ses consultations
+    consultations = Consultation.query.filter_by(patient_id=patient.ident).all()
+
+    # 🔹 Récupérer ses rendez-vous
+    rendezvous = RendezVous.query.filter_by(patient_id=patient.ident).all()
+
+    # 🔹 Récupérer ses admissions et sorties
+    admissions = Admission.query.filter_by(email=patient.email_patient).all()
+    sorties = Sortie.query.join(Admission).filter(Admission.email == patient.email_patient).all()
+
+    return render_template(
+        "patient/gestion_dossier_medical/dossier_medical.html",
+        patient=patient,
+        consultations=consultations,
+        rendezvous=rendezvous,
+        admissions=admissions,
+        sorties=sorties
+    )
 
 
 if __name__ == "__main__":
