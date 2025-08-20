@@ -732,7 +732,37 @@ def modifier_profile_infirmier():
 @app.route("/patient")
 @login_required(role='patient')
 def index_patient():
-    return render_template("patient/index_patient.html")
+    # Récupération de l'email du patient stocké en session
+    email_patient = session.get('email_patient')
+    if not email_patient:
+        flash("Vous devez être connecté", "warning")
+        return redirect(url_for('login'))
+
+    # Récupération du patient depuis la base
+    patient = Patient.query.filter_by(email_patient=email_patient).first()
+    if not patient:
+        flash("Patient introuvable", "danger")
+        return redirect(url_for('login'))
+
+    # Exemple : récupérer tous les rapports liés à ce patient
+    # Ici tu peux adapter selon ton modèle de rapports (Consultation, etc.)
+    rapports = Consultation.query.filter_by(patient_id=patient.ident).all()
+    if patient.date_naissance:
+        today = date.today()
+        patient.age = today.year - patient.date_naissance.year - (
+                    (today.month, today.day) < (patient.date_naissance.month, patient.date_naissance.day))
+    else:
+        patient.age = "Non renseigné"
+    return render_template(
+        "patient/index_patient.html",
+        patient=patient,
+        rapports=[{"nom": r.motif or "Consultation", "date": r.date_consultation.strftime("%d/%m/%Y")} for r in rapports],
+        rapport_detail=None  # tu peux remplacer par un rapport spécifique si nécessaire
+    )
+
+
+
+
 
 # modifier profile patient
 @app.route('/patient/profile/modifier', methods=['GET', 'POST'])
@@ -898,7 +928,48 @@ def profile_patient():
 @app.route("/secretaire_medicales")
 @login_required(role='secretaire')
 def index_secretaire_medicales():
-    return render_template("secretaire_medicales/index_secretaire_medicales.html")
+    # Nombre de rendez-vous aujourd'hui
+    total_rdv_today = RendezVous.query.filter(RendezVous.date_rdv == date.today()).count()
+
+    # Total admissions
+    total_admissions = Admission.query.count()
+
+    # Total sorties
+    total_sorties = Sortie.query.count()
+
+    # Liste des prochains rendez-vous (par exemple 10 prochains)
+    rendezvous = (
+        RendezVous.query
+        .filter(RendezVous.date_rdv >= date.today(), RendezVous.statut == 'en attente')
+        .order_by(RendezVous.date_rdv.asc())
+        .limit(10)
+        .all()
+    )
+
+    # Liste des admissions récentes (par exemple 10 dernières)
+    admissions = Admission.query.order_by(Admission.date_admission.desc()).limit(10).all()
+
+    # Liste des sorties récentes (par exemple 10 dernières)
+    sorties = Sortie.query.order_by(Sortie.date_sortie.desc()).limit(10).all()
+
+    return render_template(
+        "secretaire_medicales/index_secretaire_medicales.html",
+        total_rdv_today=total_rdv_today,
+        total_admissions=total_admissions,
+        total_sorties=total_sorties,
+        rendezvous=rendezvous,
+        admissions=admissions,
+        sorties=sorties
+    )
+
+@app.route('/rendezvous/confirmer/<int:rdv_id>')
+def confirmer_rendezvous(rdv_id):
+    rdv = RendezVous.query.get(rdv_id)
+    if rdv:
+        rdv.statut = 'confirmé'  # ou ce que tu utilises comme champ statut
+        db.session.commit()
+    return redirect(url_for('index_secretaire_medicales'))
+
 
 """admission"""
 #admission_patient  secretaire medicale
@@ -1201,6 +1272,66 @@ def liste_sorties():
     sorties = Sortie.query.order_by(Sortie.date_sortie.desc()).all()
     return render_template('secretaire_medicales/gestion_patients/liste_sortie_patient.html', sorties=sorties)
 
+# #inscription du patient secretaire
+@app.route("/secretaire/gestion_patient/signup_patient_secretaire", methods=['GET', 'POST'])
+@login_required(role='secretaire')
+def signup_patient_secretaire():
+        if request.method == 'POST':
+            donnes = request.form
+            email = donnes.get('email')
+            password = donnes.get('pwd')
+            confirm_password = donnes.get('conf_pwd')
+
+            if password != confirm_password:
+                return "Les mots de passe ne correspondent pas. Veuillez réessayer."
+
+            hashed_password = hashlib.md5(password.encode()).hexdigest()
+            cursor = mysql.connection.cursor()
+
+            # Vérifier si l'email est déjà utilisé
+            cursor.execute("SELECT * FROM patient WHERE email_patient = %s", (email,))
+            existing_user = cursor.fetchone()
+
+            if existing_user:
+                flash("Cet email est déjà utilisé. Veuillez en utiliser un autre.", "danger")
+                return redirect(request.url)
+
+            # verifier si email est valide
+            if re.match(pattern_email, email):
+                pass
+            else:
+                flash("Votre email est invalide", "danger")
+                return redirect(request.url)
+            try:
+                cursor.execute("""INSERT INTO patient (email_patient, password)
+                                  VALUES (%s, %s)""",
+                               (email, hashed_password))
+                mysql.connection.commit()
+
+                # Envoi de l'email pour informer le patient
+                try:
+                    envoie_email_connection(email, password)
+                except Exception as e:
+                    print(e)
+
+                flash("Compte créé avec succès. Un email de confirmation a été envoyé.", "success")
+                return redirect(url_for('liste_patient_secretaire'))
+
+            except Exception as e:
+                return f"Erreur lors de l'inscription : {e}"
+
+        return render_template('secretaire_medicales/gestion_patients/signup.html')
+
+#liste des patient secretaire
+@app.route("/secretaire/gestion_patient/liste_patient")
+@login_required(role='secretaire')
+def liste_patient_secretaire():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM patient")
+    patients = cursor.fetchall()
+
+    return render_template("secretaire_medicales/gestion_patients/liste_patient.html", patients=patients)
+
 #modification_patients secretaire medicale
 @app.route("/secretaire_medicales/modification_patients")
 @login_required(role='secretaire')
@@ -1467,7 +1598,7 @@ def modifier_profile_secretaire():
 @app.route("/secretaire_medicales/voir profile")
 @login_required(role='secretaire')
 def profile_secretaire_medicale():
-    return render_template("secretaire_medicales/gestion _secretaire_medical/profile53.html")
+    return render_template("secretaire_medicales/gestion _secretaire_medical/profile.html")
 
 """fin secretaire medical"""
 

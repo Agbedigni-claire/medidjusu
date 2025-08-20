@@ -271,7 +271,7 @@ class RendezVous(db.Model):
 
     date_rdv = db.Column(db.Date, nullable=False)
     heure_debut = db.Column(db.Time, nullable=False)
-    heure_fin = db.Column(db.Time, nullable=False)
+    heure_fin = db.Column(db.Time, default=None, nullable=False)
 
     statut = db.Column(db.Enum('en attente', 'confirmé', 'annulé', 'terminé'), default='en attente')
     urgence = db.Column(db.Boolean, default=False)

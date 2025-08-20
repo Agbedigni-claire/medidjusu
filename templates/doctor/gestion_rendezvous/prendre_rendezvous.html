@@ -27,19 +27,6 @@
                         <div class="page-header">
                             <h2>Prendre un rendez-vous</h2>
                         </div>
-
-                        <!-- Messages flash -->
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                        {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        {% endfor %}
-                        {% endif %}
-                        {% endwith %}
-
                         <!-- Formulaire de rendez-vous -->
                         <div class="card shadow-sm p-3">
                             <form method="POST">
@@ -66,8 +53,7 @@
                                     </div>
                                     <div class="col">
                                         <label for="heure_fin" class="form-label">Heure de fin :</label>
-                                        <input type="time" id="heure_fin" name="heure_fin" class="form-control"
-                                            required>
+                                        <input type="time" id="heure_fin" name="heure_fin" class="form-control">
                                     </div>
                                 </div>
 
