@@ -1290,18 +1290,55 @@ def supprimer_sortie(sortie_id):
 
 
 # voir admission
-@app.route('/admin/admission/<int:admission_id>')
+@app.route('/admission/<int:admission_id>')
 def voir_admission(admission_id):
     admission = Admission.query.get(admission_id)
     if not admission:
         pass
     return render_template('secretaire_medicales/gestion_patients/voir_admission.html', admission=admission)
 
+@app.route('/patient/detail/admission/<int:admission_id>')
+@login_required(role='patient')
+def voir_admission_patient(admission_id):
+    admission = Admission.query.get_or_404(admission_id)
+
+    # 🔹 Récupérer le patient lié
+    patient = Patient.query.filter_by(email_patient=admission.email).first()
+
+    return render_template(
+        'patient/gestion_patient/voir_admission.html',
+        admission=admission,
+        patient=patient  # <-- maintenant disponible dans le template
+    )
+
+#voir sortie secretaire
 @app.route("/secretaire_medicales/sortie/<int:sortie_id>")
 @login_required(role='secretaire')
 def voir_sortie(sortie_id):
     sortie = Sortie.query.get_or_404(sortie_id)
-    return render_template("secretaire_medicales/gestion_patients/voir_sortie_patient.html", sortie=sortie)
+    # Récupérer le patient via l'admission liée
+    patient = None
+    if sortie.admission:
+        patient = Patient.query.filter_by(email_patient=sortie.admission.email).first()
+    return render_template("secretaire_medicales/gestion_patients/voir_sortie_patient.html", sortie=sortie, patient=patient)
+
+#voir sortie patient
+@app.route("/patient/sortie/<int:sortie_id>")
+@login_required(role='patient')
+def voir_sortie_patient(sortie_id):
+    sortie = Sortie.query.get_or_404(sortie_id)
+
+    # 🔹 Récupérer le patient lié via l'admission
+    patient = None
+    if sortie.admission:
+        patient = Patient.query.filter_by(email_patient=sortie.admission.email).first()
+
+    return render_template(
+        "patient/gestion_patient/voir_sortie_patient.html",
+        sortie=sortie,
+        patient=patient  # <-- maintenant disponible
+    )
+
 
 #liste sortie patient secretaire medicale
 @app.route("/secretaire_medicales/liste_sortie_patient")
@@ -1309,6 +1346,7 @@ def voir_sortie(sortie_id):
 def liste_sorties():
     sorties = Sortie.query.order_by(Sortie.date_sortie.desc()).all()
     return render_template('secretaire_medicales/gestion_patients/liste_sortie_patient.html', sorties=sorties)
+
 
 # #inscription du patient secretaire
 @app.route("/secretaire/gestion_patient/signup_patient_secretaire", methods=['GET', 'POST'])
@@ -2956,25 +2994,6 @@ def reset_pasword():
 @login_required()
 def forgot_password():
     return render_template("admin/connexion/forgot_password.html")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
