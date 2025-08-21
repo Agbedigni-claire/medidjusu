@@ -3271,7 +3271,7 @@ def rendez_vous_doctor():
     for rdv in rdvs:
         title = rdv.patient.nom_complet
         if rdv.doctor_id is None:
-            title += " (Non attribué)"
+            title = (title or "") + " (Non attribué)"
 
         events.append({
             'date': rdv.date_rdv.strftime("%Y-%m-%d"),
