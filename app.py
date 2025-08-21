@@ -2761,7 +2761,9 @@ def signup_interne():
 @app.route('/secretaire/consultations/nouvelle', methods=['GET', 'POST'])
 @login_required(role='secretaire')
 def nouvelle_consultation():
-    patients = Patient.query.all()
+    patients = Admission.query.filter(
+        (Admission.statut_sortie == "non") | (Admission.statut_sortie.is_(None))
+    ).all()
     doctors = Doctor.query.all()
 
     if request.method == 'POST':
@@ -2772,14 +2774,24 @@ def nouvelle_consultation():
         if not patient_id or not doctor_id:
             flash("Tous les champs sont obligatoires", "danger")
             return redirect(request.url)
+        admission = Admission.query.get(patient_id)
+
+        # 🔹 Récupérer le patient via l'email
+        patient = Patient.query.filter_by(email_patient=admission.email).first()
 
         consultation = Consultation(
-            patient_id=patient_id,
+            patient_id=patient.ident,
             doctor_id=doctor_id,
             date_consultation=datetime.utcnow(),
+            etat='en_attente',
             motif=motif,
-            etat='en_attente'
+            poids=admission.poids,
+            taille=getattr(admission, 'taille', None),  # si tu as la taille dans Admission
+            temperature=admission.temperature,
+            tension_arterielle=admission.tension,
+            # 🔹 tu peux ajouter d'autres champs préremplis si nécessaire
         )
+
         db.session.add(consultation)
         db.session.flush()
 

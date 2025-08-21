@@ -31,7 +31,11 @@
                                         <select class="form-select" name="patient_id" id="patient_id" required>
                                             <option value="" selected disabled>-- Sélectionner un patient --</option>
                                             {% for p in patients %}
-                                            <option value="{{ p.ident }}">{{ p.nom_complet }}</option>
+                                            <option value="{{ p.ident }}">
+                                                {{ p.nom }} {{ p.prenom }} (admis le {{
+                                                p.date_admission.strftime('%d/%m/%Y à
+                                                %H:%M') }})
+                                            </option>
                                             {% endfor %}
                                         </select>
                                     </div>
