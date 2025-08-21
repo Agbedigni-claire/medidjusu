@@ -1258,7 +1258,8 @@ def modifier_sortie(sortie_id):
 
     return render_template("secretaire_medicales/gestion_patients/sortie_patient.html", sortie=sortie)
 #suprimer admission
-@app.route('/admin/admission/supprimer/<int:admission_id>', methods=['GET', 'POST'])
+@app.route('/secretaire/admission/supprimer/<int:admission_id>', methods=['GET', 'POST'])
+@login_required(role="secretaire")
 def supprimer_admission(admission_id):
     admission = Admission.query.get_or_404(admission_id)
     try:
@@ -1291,12 +1292,14 @@ def supprimer_sortie(sortie_id):
 
 # voir admission
 @app.route('/admission/<int:admission_id>')
+@login_required(role="secretaire")
 def voir_admission(admission_id):
     admission = Admission.query.get(admission_id)
     if not admission:
         pass
     return render_template('secretaire_medicales/gestion_patients/voir_admission.html', admission=admission)
 
+#coir admission patient
 @app.route('/patient/detail/admission/<int:admission_id>')
 @login_required(role='patient')
 def voir_admission_patient(admission_id):
@@ -1306,7 +1309,23 @@ def voir_admission_patient(admission_id):
     patient = Patient.query.filter_by(email_patient=admission.email).first()
 
     return render_template(
-        'patient/gestion_patient/voir_admission.html',
+        'patient/gestion_dossier_medical/voir_admission.html',
+        admission=admission,
+        patient=patient  # <-- maintenant disponible dans le template
+    )
+
+
+#voir admission docteur
+@app.route('/doctor/detail/admission/<int:admission_id>')
+@login_required(role='doctor')
+def voir_admission_doctor(admission_id):
+    admission = Admission.query.get_or_404(admission_id)
+
+    # 🔹 Récupérer le patient lié
+    patient = Patient.query.filter_by(email_patient=admission.email).first()
+
+    return render_template(
+        'doctor/dossier_medical/voir_admission.html',
         admission=admission,
         patient=patient  # <-- maintenant disponible dans le template
     )
@@ -1334,7 +1353,24 @@ def voir_sortie_patient(sortie_id):
         patient = Patient.query.filter_by(email_patient=sortie.admission.email).first()
 
     return render_template(
-        "patient/gestion_patient/voir_sortie_patient.html",
+        "patient/gestion_dossier_medical/voir_sortie_patient.html",
+        sortie=sortie,
+        patient=patient  # <-- maintenant disponible
+    )
+
+#voir soirtie docteur
+@app.route("/docteur/sortie/<int:sortie_id>")
+@login_required(role='doctor')
+def voir_sortie_doctor(sortie_id):
+    sortie = Sortie.query.get_or_404(sortie_id)
+
+    # 🔹 Récupérer le patient lié via l'admission
+    patient = None
+    if sortie.admission:
+        patient = Patient.query.filter_by(email_patient=sortie.admission.email).first()
+
+    return render_template(
+        "doctor/dossier_medical/voir_sortie_patient.html",
         sortie=sortie,
         patient=patient  # <-- maintenant disponible
     )
@@ -2978,6 +3014,7 @@ def voir_consultation_patient(id):
 
     return render_template("patient/historique_patient/voir_consultation_patient.html",
                            consultation=consultation)
+
 """fin consultation"""
 
 
@@ -3528,6 +3565,39 @@ def dossier_medical_patient(patient_id):
         admissions=admissions,
         sorties=sorties
     )
+
+#dossier medical parient docteur
+@app.route("/doctor/dossier_patient/<int:patient_id>")
+@login_required(role="doctor")
+def dossier_patient_docteur(patient_id):
+    # Récupère le patient
+    patient = Patient.query.get_or_404(patient_id)
+
+    # Utilisation de l'email pour lier les admissions et sorties
+    admissions = Admission.query.filter_by(email=patient.email_patient).all()
+    sorties = Sortie.query.filter_by(email=patient.email_patient).all()
+
+    # Consultations et rendez-vous liés par patient_id
+    consultations = Consultation.query.filter_by(patient_id=patient.ident).all()
+    rendezvous = RendezVous.query.filter_by(patient_id=patient.ident).all()
+
+    return render_template(
+        "doctor/dossier_medical/dossier_medical.html",
+        patient=patient,
+        admissions=admissions,
+        sorties=sorties,
+        consultations=consultations,
+        rendezvous=rendezvous,
+    )
+
+
+
+@app.route("/doctor/liste/patients")
+@login_required(role="doctor")
+def liste_patients_dossier_medical():
+    patients = Patient.query.all()
+    return render_template("doctor/dossier_medical/liste_patients.html", patients=patients)
+
 
 
 if __name__ == "__main__":
