@@ -3381,7 +3381,7 @@ def details_rendez_vous_secretaire(rdv_id):
             return redirect(url_for("calendrier_rendezvous_secretaire"))
 
         # Confirmer un rendez-vous
-        elif action == "confirmer" and rdv.statut == "En attente" and rdv.doctor_id:
+        elif action == "confirmer" and rdv.statut == "en attente" and rdv.doctor_id:
             rdv.statut = "Confirmé"
             rdv.secretaire_id = session.get("secretaire_id")
             db.session.commit()
