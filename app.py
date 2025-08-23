@@ -2322,7 +2322,6 @@ def signup_patient_admin():
 
 
 @app.route("/signup_patient", methods=['GET', 'POST'])
-@login_required(role='admin')
 def signup_patient():
     if request.method == 'POST':
         donnes = request.form
