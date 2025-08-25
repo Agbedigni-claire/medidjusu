@@ -52,6 +52,11 @@
       {% endblock %}
       <!-- Sidebar wrapper ends -->
 
+
+      <div id="notif-area" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+      </div>
+
+
       <!-- App container starts -->
       {% block content %}
 
@@ -98,6 +103,45 @@
 
   <!-- Custom JS files -->
   <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+  <script>
+    function checkNotifications() {
+      fetch("/get_notifications")
+        .then(response => response.json())
+        .then(data => {
+          let badge = document.getElementById("notif-badge");
+          let list = document.getElementById("notif-list");
+
+          // Badge
+          badge.textContent = data.count;
+
+          // Liste
+          list.innerHTML = "";
+          if (data.count === 0) {
+            list.innerHTML = `<li><span class="dropdown-item">Aucune notification</span></li>`;
+          } else {
+            data.notifications.forEach(n => {
+              list.innerHTML += `
+                      <li>
+                        <a class="dropdown-item" href="#" onclick="markAsRead(${n.id})">
+                          ${n.message}
+                        </a>
+                      </li>`;
+            });
+          }
+        });
+    }
+
+    function markAsRead(id) {
+      fetch(`/mark_as_read/${id}`)
+        .then(() => checkNotifications());
+    }
+
+    // Vérifie toutes les 5 secondes
+    setInterval(checkNotifications, 5000);
+
+    // Lancer au chargement
+    checkNotifications();
+  </script>
 
 </body>
 

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, session, request, flash,make_response
+from flask import Flask, render_template, redirect, url_for, session, request, flash,make_response, jsonify
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import hashlib
@@ -3068,6 +3068,28 @@ def voir_consultation_patient(id):
 
     return render_template("patient/historique_patient/voir_consultation_patient.html",
                            consultation=consultation)
+
+
+notifications = [
+    {"id": 1, "message": "Rendez-vous confirmé", "lu": False},
+    {"id": 2, "message": "Nouveau message du docteur", "lu": False}
+]
+
+@app.route("/get_notifications")
+def get_notifications():
+    notifs = [n for n in notifications if not n["lu"]]
+    return jsonify({
+        "count": len(notifs),
+        "notifications": notifs
+    })
+
+@app.route("/mark_as_read/<int:notif_id>")
+def mark_as_read(notif_id):
+    for n in notifications:
+        if n["id"] == notif_id:
+            n["lu"] = True
+    return jsonify({"status": "ok"})
+
 
 """fin consultation"""
 
