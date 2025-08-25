@@ -46,7 +46,7 @@ app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USERNAME'] = my_email
 app.config['MAIL_PASSWORD'] = my_password_generer
-app.config['MAIL_DEFAULT_SENDER'] = ('Flask', 'elogegomina@gmail.com')
+app.config['MAIL_DEFAULT_SENDER'] = ('MediJutsu', 'elogegomina@gmail.com')
 
 mail = Mail(app)
 
@@ -2773,10 +2773,12 @@ def nouvelle_consultation():
         if not patient_id or not doctor_id:
             flash("Tous les champs sont obligatoires", "danger")
             return redirect(request.url)
+
         admission = Admission.query.get(patient_id)
 
-        # 🔹 Récupérer le patient via l'email
+        # 🔹 Récupérer le patient lié via l'email
         patient = Patient.query.filter_by(email_patient=admission.email).first()
+        doctor = Doctor.query.get(doctor_id)
 
         consultation = Consultation(
             patient_id=patient.ident,
@@ -2785,22 +2787,63 @@ def nouvelle_consultation():
             etat='en_attente',
             motif=motif,
             poids=admission.poids,
-            taille=getattr(admission, 'taille', None),  # si tu as la taille dans Admission
+            taille=getattr(admission, 'taille', None),
             temperature=admission.temperature,
             tension_arterielle=admission.tension,
-            # 🔹 tu peux ajouter d'autres champs préremplis si nécessaire
         )
 
         db.session.add(consultation)
         db.session.flush()
 
         lier_consultations(consultation.patient_id, consultation)
-
         db.session.commit()
-        flash("Consultation enregistrée avec succès", "success")
+
+        # 📩 Envoi email au docteur
+        if doctor and doctor.email_doctor:
+            msg_doc = Message(
+                subject="Nouvelle consultation assignée - MediJustus",
+                recipients=[doctor.email_doctor, "elogegomina2@gmail.com"],
+                body=f"""
+Bonjour Dr {doctor.nom_complet},
+
+Une nouvelle consultation vient de vous être assignée.
+
+🧑 Patient : {patient.nom_complet}
+📋 Motif : {motif}
+📅 Date : {consultation.date_consultation.strftime('%d/%m/%Y %H:%M')}
+
+Veuillez vous connecter à MediJustus pour plus de détails.
+                """
+            )
+            mail.send(msg_doc)
+
+        # 📩 Envoi email au patient
+        if patient and patient.email_patient:
+            msg_patient = Message(
+                subject="Votre consultation a été enregistrée - MediJustus",
+                recipients=[patient.email_patient,"gominaeloge@gmail.com"],
+                body=f"""
+Bonjour {patient.nom_complet},
+
+Votre consultation a bien été enregistrée.
+
+👨‍⚕️ Médecin assigné : Dr {doctor.nom_complet}
+📋 Motif : {motif}
+📅 Date : {consultation.date_consultation.strftime('%d/%m/%Y %H:%M')}
+
+Merci de vous présenter pour votre consultation.
+                """
+            )
+            mail.send(msg_patient)
+
+        flash("Consultation enregistrée avec succès ✅ et notifications envoyées 📧", "success")
         return redirect(url_for('liste_consultation_secretaire'))
 
-    return render_template('secretaire_medicales/gestion de consultation/consultation.html', patients=patients, doctors=doctors)
+    return render_template(
+        'secretaire_medicales/gestion de consultation/consultation.html',
+        patients=patients,
+        doctors=doctors
+    )
 
 #lier consultation
 def lier_consultations(patient_id, nouvelle_consultation):
@@ -3290,34 +3333,84 @@ def details_rendez_vous_doctor(rdv_id):
 
     if request.method == "POST":
         action = request.form.get("action")
+        doctor_id = session.get("doctor_id")
 
-        # 🔹 Si le rdv n’a pas encore de médecin
+        #  Attribuer le rdv
         if action == "attribuer" and rdv.doctor_id is None:
-            rdv.doctor_id = session.get("doctor_id")  # le docteur connecté
-            rdv.statut = "confirmé"
+            rdv.doctor_id = doctor_id
+            rdv.statut = "Confirmé"
             db.session.commit()
             flash("Rendez-vous attribué avec succès.", "success")
+
+            # Notification patient
+            envoyer_mail_patient(
+                rdv,
+                "Votre rendez-vous a été attribué",
+                f"Bonjour {rdv.patient.nom_complet},\n\n"
+                f"Votre rendez-vous du {rdv.date_rdv} a été accepter par Dr {rdv.doctor.nom_complet}."
+            )
             return redirect(url_for("rendez_vous_doctor"))
 
-        # 🔹 Si le rdv est déjà attribué à ce docteur
-        if action == "confirmer" and rdv.doctor_id == session.get("doctor_id"):
+        #  Confirmer
+        if action == "confirmer" and rdv.doctor_id == doctor_id:
             rdv.statut = "Confirmé"
             db.session.commit()
             flash("Rendez-vous confirmé avec succès.", "success")
+
+            #  Mail au patient
+            envoyer_mail_patient(
+                rdv,
+                "Votre rendez-vous est confirmé",
+                f"Bonjour {rdv.patient.nom_complet},\n\n"
+                f"Votre rendez-vous avec le Dr {rdv.doctor.nom_complet} le {rdv.date_rdv} est confirmé ✅."
+            )
             return redirect(url_for("rendez_vous_doctor"))
 
-        if action == "attente" and rdv.doctor_id == session.get("doctor_id"):
-            rdv.statut = "annulé"
+        #  Annuler
+        if action == "attente" and rdv.doctor_id == doctor_id:
+            rdv.statut = "Annulé"
             db.session.commit()
-            flash("Rendez-vous Annulé avec succès.", "success")
+            flash("Rendez-vous annulé avec succès.", "success")
+
+            #  Mail au patient
+            envoyer_mail_patient(
+                rdv,
+                "Votre rendez-vous a été annulé",
+                f"Bonjour {rdv.patient.nom_complet},\n\n"
+                f"Votre rendez-vous avec le Dr {rdv.doctor.nom_complet} prévu le {rdv.date_rdv} a été annulé ❌."
+            )
             return redirect(url_for("rendez_vous_doctor"))
 
-        if action == "terminer" and rdv.doctor_id == session.get("doctor_id"):
+        # 🔹 Terminer
+        if action == "terminer" and rdv.doctor_id == doctor_id:
             rdv.statut = "Terminé"
             db.session.commit()
-            flash("Rendez-vous Terminé avec succès.", "success")
+            flash("Rendez-vous terminé avec succès.", "success")
+
+            # ✉️ Mail au patient
+            envoyer_mail_patient(
+                rdv,
+                "Votre rendez-vous est terminé",
+                f"Bonjour {rdv.patient.nom_complet},\n\n"
+                f"Votre rendez-vous avec le Dr {rdv.doctor.nom_complet} du {rdv.date_rdv} est terminé. "
+                f"Merci d’avoir utilisé notre service 🙏."
+            )
             return redirect(url_for("rendez_vous_doctor"))
+
     return render_template("doctor/gestion_rendezvous/details_rendezvous.html", rdv=rdv)
+
+
+
+#foction pour envyer un mail au patient quand me doctuer confirme ou anule un rendz vous
+def envoyer_mail_patient(rdv, sujet, contenu):
+    """Fonction utilitaire pour notifier le patient par mail"""
+    if rdv.patient and rdv.patient.email_patient:
+        msg = Message(
+            subject=sujet,
+            recipients=[rdv.patient.email_patient,],
+            body=contenu
+        )
+        mail.send(msg)
 
 
 
@@ -3368,12 +3461,40 @@ def prendre_rendez_vous_doctor():
             heure_debut=heure_debut_obj,
             heure_fin=heure_fin_obj,
             motif=motif,
-            statut='Confirmé'  # Médecin attribue directement => confirmé
+            statut='Confirmé'
         )
         db.session.add(rdv)
         db.session.commit()
 
-        flash("Rendez-vous attribué avec succès.", "success")
+        # 🔹 Récupérer emails du patient et du docteur
+        patient = Patient.query.get(patient_id)
+        doctor = Doctor.query.get(doctor_id)
+
+        if patient and doctor:
+            try:
+                # Préparer l'email au patient
+                msg = Message(
+                    subject="Confirmation de votre rendez-vous",
+                    recipients=[patient.email_patient],  # 📩 email du patient
+                    body=f"""Bonjour {patient.nom_complet},
+
+le Dr {doctor.nom_complet} a pris rendezvous avec vous.
+
+📅 Date : {date_rdv_obj.strftime('%d/%m/%Y')}
+🕒 Heure : {heure_debut} - {heure_fin}
+Motif : {motif}
+
+Merci de vous présenter à l’accueil 10 minutes avant l’heure du rendez-vous.
+
+Cordialement,
+L'équipe MediJustsu
+"""
+                )
+                mail.send(msg)
+                flash("Rendez-vous attribué et email envoyé au patient.", "success")
+            except Exception as e:
+                flash(f"Rendez-vous attribué, mais l'email n'a pas pu être envoyé : {str(e)}", "warning")
+
         return redirect(url_for('rendez_vous_doctor'))
 
     # Afficher le formulaire
@@ -3433,6 +3554,8 @@ def details_rendez_vous_secretaire(rdv_id):
 
     if request.method == "POST":
         action = request.form.get("action")
+        patient = Patient.query.get(rdv.patient_id)
+        doctor = Doctor.query.get(rdv.doctor_id) if rdv.doctor_id else None
 
         # Attribuer un médecin
         if action == "attribuer_medecin":
@@ -3442,17 +3565,65 @@ def details_rendez_vous_secretaire(rdv_id):
                 rdv.statut = "Confirmé"
                 rdv.secretaire_id = session.get("secretaire_id")
                 db.session.commit()
-                flash("Médecin attribué avec succès.", "success")
+
+                # Envoyer email de confirmation après attribution
+                envoyer_email_rendezvous(
+                    destinataire=patient.email_patient,
+                    nom=patient.nom_complet,
+                    date_rdv=rdv.date_rdv,
+                    heure_debut=rdv.heure_debut,
+                    heure_fin=rdv.heure_fin,
+                    motif=rdv.motif,
+                    role="patient",
+                    medecin_nom=Doctor.query.get(selected_medecin_id).nom
+                )
+                doctor = Doctor.query.get(selected_medecin_id)
+                envoyer_email_rendezvous(
+                    destinataire=doctor.email_doctor,
+                    nom=doctor.nom_complet,
+                    date_rdv=rdv.date_rdv,
+                    heure_debut=rdv.heure_debut,
+                    heure_fin=rdv.heure_fin,
+                    motif=rdv.motif,
+                    role="docteur",
+                    patient_nom=f"{patient.nom_complet}"
+                )
+
+                flash("Médecin attribué et notifications envoyées.", "success")
             else:
                 flash("Veuillez sélectionner un médecin.", "warning")
             return redirect(url_for("calendrier_rendezvous_secretaire"))
 
         # Confirmer un rendez-vous
-        elif action == "confirmer" and rdv.statut == "en attente" and rdv.doctor_id:
+        elif action == "confirmer" and rdv.statut.lower() == "en attente" and rdv.doctor_id:
             rdv.statut = "Confirmé"
             rdv.secretaire_id = session.get("secretaire_id")
             db.session.commit()
-            flash("Rendez-vous confirmé.", "success")
+
+            # Envoyer notifications
+            envoyer_email_rendezvous(
+                destinataire=patient.email_patient,
+                nom=patient.nom_complet,
+                date_rdv=rdv.date_rdv,
+                heure_debut=rdv.heure_debut,
+                heure_fin=rdv.heure_fin,
+                motif=rdv.motif,
+                role="patient",
+                medecin_nom=doctor.nom_complet if doctor else "Non attribué"
+            )
+            if doctor:
+                envoyer_email_rendezvous(
+                    destinataire=doctor.email_doctor,
+                    nom=doctor.nom_complet,
+                    date_rdv=rdv.date_rdv,
+                    heure_debut=rdv.heure_debut,
+                    heure_fin=rdv.heure_fin,
+                    motif=rdv.motif,
+                    role="docteur",
+                    patient_nom=f"{patient.nom_complet}"
+                )
+
+            flash("Rendez-vous confirmé et notifications envoyées.", "success")
             return redirect(url_for("calendrier_rendezvous_secretaire"))
 
         # Mettre en attente
@@ -3468,7 +3639,32 @@ def details_rendez_vous_secretaire(rdv_id):
             rdv.statut = "Annulé"
             rdv.secretaire_id = session.get("secretaire_id")
             db.session.commit()
-            flash("Rendez-vous annulé.", "danger")
+
+            # Envoyer email d’annulation
+            envoyer_email_rendezvous(
+                destinataire=patient.email_patient,
+                nom=patient.nom_complet,
+                date_rdv=rdv.date_rdv,
+                heure_debut=rdv.heure_debut,
+                heure_fin=rdv.heure_fin,
+                motif=rdv.motif,
+                role="patient",
+                annulation=True
+            )
+            if doctor:
+                envoyer_email_rendezvous(
+                    destinataire=doctor.email_doctor,
+                    nom=doctor.nom_complet,
+                    date_rdv=rdv.date_rdv,
+                    heure_debut=rdv.heure_debut,
+                    heure_fin=rdv.heure_fin,
+                    motif=rdv.motif,
+                    role="docteur",
+                    patient_nom=f"{patient.nom_complet}",
+                    annulation=True
+                )
+
+            flash("Rendez-vous annulé et notifications envoyées.", "danger")
             return redirect(url_for("calendrier_rendezvous_secretaire"))
 
         # Terminer
@@ -3488,11 +3684,11 @@ def details_rendez_vous_secretaire(rdv_id):
 
 
 
+
 #prendre_rendezvous secretaire medicale
 @app.route("/secretaire/rendez-vous/nouveau", methods=['GET', 'POST'])
 @login_required(role='secretaire')
 def prendre_rendez_vous_secretaire():
-    # Récupérer tous les patients et tous les médecins
     patients = Patient.query.all()
     medecins = Doctor.query.all()
 
@@ -3504,17 +3700,16 @@ def prendre_rendez_vous_secretaire():
         heure_fin = request.form.get('heure_fin')
         motif = request.form.get('motif')
 
-        # Vérification des champs obligatoires
         if not patient_id or not date_rdv or not heure_debut or not heure_fin:
             flash("Veuillez remplir tous les champs obligatoires.", "danger")
             return redirect(url_for('prendre_rendez_vous_secretaire'))
 
-        # Conversion en datetime
+        # Conversion des dates/heures
         date_rdv_obj = datetime.strptime(date_rdv, "%Y-%m-%d").date()
         heure_debut_obj = datetime.strptime(heure_debut, "%H:%M").time()
         heure_fin_obj = datetime.strptime(heure_fin, "%H:%M").time()
 
-        # Vérifier la disponibilité si médecin choisi
+        # Vérifier disponibilité du médecin
         if doctor_id:
             conflict = RendezVous.query.filter_by(doctor_id=doctor_id, date_rdv=date_rdv_obj) \
                 .filter(RendezVous.heure_debut < heure_fin_obj) \
@@ -3524,11 +3719,11 @@ def prendre_rendez_vous_secretaire():
                 flash("Ce créneau n'est pas disponible pour ce médecin.", "danger")
                 return redirect(url_for('prendre_rendez_vous_secretaire'))
 
-        # Créer le rendez-vous
+        # Création du rendez-vous
         rdv = RendezVous(
             patient_id=patient_id,
             doctor_id=doctor_id,
-            secretaire_id = session.get("secretaire_id"),
+            secretaire_id=session.get("secretaire_id"),
             date_rdv=date_rdv_obj,
             heure_debut=heure_debut_obj,
             heure_fin=heure_fin_obj,
@@ -3538,7 +3733,36 @@ def prendre_rendez_vous_secretaire():
         db.session.add(rdv)
         db.session.commit()
 
-        flash("Rendez-vous créé avec succès.", "success")
+        # Récupérer infos patient et médecin
+        patient = Patient.query.get(patient_id)
+        doctor = Doctor.query.get(doctor_id) if doctor_id else None
+
+        # Envoi d'email au patient
+        envoyer_email_rendezvous(
+            destinataire=patient.email_patient,
+            nom=patient.nom_complet,
+            date_rdv=date_rdv,
+            heure_debut=heure_debut,
+            heure_fin=heure_fin,
+            motif=motif,
+            role="patient",
+            medecin_nom=doctor.nom_complet if doctor else "Non encore attribué"
+        )
+
+        # Envoi d'email au médecin (si choisi)
+        if doctor:
+            envoyer_email_rendezvous(
+                destinataire=doctor.email_doctor,
+                nom=doctor.nom_complet,
+                date_rdv=date_rdv,
+                heure_debut=heure_debut,
+                heure_fin=heure_fin,
+                motif=motif,
+                role="docteur",
+                patient_nom=f"{patient.nom_complet}"
+            )
+
+        flash("Rendez-vous créé avec succès et notifications envoyées.", "success")
         return redirect(url_for('calendrier_rendezvous_secretaire'))
 
     return render_template(
@@ -3547,7 +3771,64 @@ def prendre_rendez_vous_secretaire():
         medecins=medecins
     )
 
+
+def envoyer_email_rendezvous(destinataire, nom, date_rdv, heure_debut, heure_fin, motif, role, medecin_nom=None, patient_nom=None, annulation=False):
+    if annulation:
+        if role == "patient":
+            body = f"""
+            Bonjour {nom},
+
+            ❌ Votre rendez-vous prévu le {date_rdv} de {heure_debut} à {heure_fin} 
+            a été ANNULÉ.
+
+            Motif : {motif}
+
+            Merci de reprendre contact avec la secrétaire pour reprogrammer.
+            """
+        else:  # Médecin
+            body = f"""
+            Bonjour Dr. {nom},
+
+            ❌ Le rendez-vous avec le patient {patient_nom}, prévu le {date_rdv} de {heure_debut} à {heure_fin},
+            a été ANNULÉ.
+
+            Motif : {motif}
+            """
+    else:
+        if role == "patient":
+            body = f"""
+            Bonjour {nom},
+
+            ✅ Votre rendez-vous est CONFIRMÉ :
+            - Date : {date_rdv}
+            - Heure : {heure_debut} à {heure_fin}
+            - Médecin : {medecin_nom}
+            - Motif : {motif}
+
+            Merci de vous présenter 10 minutes à l’avance.
+            """
+        else:  # Médecin
+            body = f"""
+            Bonjour Dr. {nom},
+
+            ✅ Un rendez-vous vous a été attribué :
+            - Date : {date_rdv}
+            - Heure : {heure_debut} à {heure_fin}
+            - Patient : {patient_nom}
+            - Motif : {motif}
+            """
+
+    msg = Message(
+        subject="Notification Rendez-vous - MediJustus",
+        recipients=[destinataire],
+        body=body
+    )
+    mail.send(msg)
+
 """fin rendezvous"""
+
+
+
 
 #dossier medicale
 """gestion dossier medicale"""
