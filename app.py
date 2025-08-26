@@ -2872,6 +2872,22 @@ def liste_consultation_secretaire():
         consultations=consultations
     )
 
+#SUPRIMER CONSULTATION
+@app.route("/consultation/supprimer/<int:id>", methods=["GET", "POST"])
+def supprimer_consultation(id):
+    consultation = Consultation.query.get_or_404(id)
+
+    try:
+        db.session.delete(consultation)
+        db.session.commit()
+        flash("Consultation supprimée avec succès ✅", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash("Erreur lors de la suppression ❌", "danger")
+        print(e)
+
+    return redirect(url_for("liste_consultation_secretaire"))
+
 # modifier consultation secretaire
 @app.route('/secretaire/consultation/<int:id>/modifier', methods=['GET', 'POST'])
 @login_required(role='secretaire')

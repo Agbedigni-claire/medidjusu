@@ -45,10 +45,12 @@
                             <td>
                                 <div class="d-inline-flex gap-1">
                                     <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#modalDelete" data-id="{{ c.id }}"
+                                        data-bs-target="#modalDelete"
+                                        data-url="{{ url_for('supprimer_consultation', id=c.id) }}"
                                         onclick="updateDeleteLink(this)">
                                         <i class="ri-delete-bin-line"></i>
                                     </button>
+
                                     <a href="{{url_for('modifier_consultation', id=c.id)}}"
                                         class="btn btn-outline-success btn-sm" title="Modifier la consultation">
                                         <i class="ri-edit-box-line"></i>
@@ -88,4 +90,11 @@
     </div>
 
 </div>
+<script>
+    function updateDeleteLink(button) {
+        const deleteUrl = button.getAttribute("data-url");
+        document.getElementById("confirmDeleteBtn").setAttribute("href", deleteUrl);
+    }
+</script>
+
 {% endblock %}
