@@ -1,0 +1,8 @@
+Flask
+flask-mysqldb
+mysqlclient
+Flask-Mail
+Flask-Migrate
+Flask-SQLAlchemy
+xhtml2pdf
+gunicorn
