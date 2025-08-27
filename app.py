@@ -3613,7 +3613,7 @@ def details_rendez_vous_secretaire(rdv_id):
                     heure_fin=rdv.heure_fin,
                     motif=rdv.motif,
                     role="patient",
-                    medecin_nom=Doctor.query.get(selected_medecin_id).nom
+                    medecin_nom=Doctor.query.get(selected_medecin_id).nom_complet
                 )
                 doctor = Doctor.query.get(selected_medecin_id)
                 envoyer_email_rendezvous(
